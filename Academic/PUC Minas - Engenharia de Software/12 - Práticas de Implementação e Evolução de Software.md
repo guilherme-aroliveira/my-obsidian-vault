@@ -1,0 +1,34 @@
+## **Unidade 1 - Introdução**
+	- Setup da aplicação
+	- Review do MVC
+	  collapsed:: true
+		- View --> html, pdf, imagem
+			- Um dado na View representa a especificaçõa de alguns Dados que foram definidos por alguma Model
+			- Os dados preenchidos na View são sumetidos a uma Controller
+			- Uma View envia e recebe dados para uma Controller
+			- faz um acesso ao Model para realizar um transporte
+		- Controller --> Rotas
+			- As rotas definem caminhos para fazer alguma requisica na aplicação
+			- As rotas tem um nome de dominio de nogocio
+			- A Controller irá devolver um visualização ao usuário atravez de um html.
+			- Usa detlahes de uma View para ser renderizada
+		- Model --> Especificação de Dados
+	- Projeto
+	  collapsed:: true
+		- Há uma padrão que define as nomeclaturas. O sufixo sempre tem que aparecer no nome da classe. Exemplo: HomeController.cs da pasta Controller.
+		- Pasta Views --> cada sub pasta representa uma rota, um dominio da aplicação
+		- Todas as Views que A controller pode chamar, irão estar na pasta Home.
+		- A view Shared, representa um template para o layout.
+		- wwwroot --> possui os arquivos estáticos do site
+		- .Net Core acabou na versão 3!!
+		- A classe Program é responsavel por rodar a aplicação.
+		- <p><code>dotnet build</code> --> compila a aplicação</p>
+		- <p><code>dotnet run</code> --> roda a aplicação</p>
+		- --> A aplicação sobe IIS Express --> servidor de internet para testar em localhost
+		- Uma URL no ASP NEt correponde uma action do Controller.
+		- No arquivo index.cshtml quando tem @{} é possivel escrever código c sharp.
+		- --> Toda vez que uma Controller for executada em uma aplicação ASP NET MVC, o primeiro executado é sempre o construtor.
+		- camada
+- ## **Unidade 2 - A Fase do Projeto**
+- ## **Unidade 3 - A Fase da Implementação**
+- ## **Unidade 4 - Deploy e Evolução da Aplicação**
