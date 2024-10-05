@@ -80,7 +80,7 @@
             }
           }
         ],
-        "currentTab": 5
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -147,7 +147,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Computer Science/Programming/Python/Files.md",
+                "file": "Computer Science/DevOps.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -164,7 +164,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Computer Science/Programming/Python/Files.md",
+                "file": "Computer Science/DevOps.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -195,7 +195,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Computer Science/Programming/Python/Files.md"
+                "file": "Computer Science/DevOps.md"
               }
             }
           },
@@ -231,14 +231,16 @@
       "vscode-editor:Create Code File": false
     }
   },
-  "active": "fd6f3017ceb2b27e",
+  "active": "cda3c73e6a8199c0",
   "lastOpenFiles": [
+    "Computer Science/Software Engineering.md",
+    "Academic/UTexas - Cloud Computing/05 - Big Data.md",
+    "Academic/UTexas - Cloud Computing/09 - Cloud Security & Mugrations.md",
+    "Computer Science/DevOps.md",
     "Computer Science/Programming/Python/Files.md",
     "Computer Science/Programming/Python/Libraries/Pandas.md",
     "Computer Science/Frameworks/Flask.md",
     "Computer Science/Programming/Python.md",
-    "Computer Science/Software Engineering.md",
-    "Computer Science/DevOps.md",
     "Computer Science/Programming/Java.md",
     "Computer Science/Programming/Python/WebScraping.md",
     "Images/query-string.png",
@@ -259,8 +261,6 @@
     "Computer Science/Frameworks/REST-API.md",
     "Information Security/Ethical Hacking.md",
     "Computer Science/Tools/GIT.md",
-    "Computer Science/DevOps/Git.md",
-    "Computer Science/DevOps/Container Orchestration/Tools/Helm.md",
     "Computer Science/Programming/Python/Libraries",
     "Computer Science/Programming/Python",
     "Computer Science/DevOps",

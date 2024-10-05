@@ -33,7 +33,7 @@ DevOps <strong style="color: #d79921">behaviors</strong>
 	- Developers are considered as equal team members, and they can leverage another team's code.
 	- Company saves money as code is reused.
 
-> [!note]
+> [!info]
 > Social coding is something that open source communities have been doing for years. What’s new is bringing these concepts into the enterprise and coding as a community on internal projects.
 
 <span style="color: #d65d0e">Pair Programming</span> is an <strong style="color: #b16286">aspect of social coding</strong> that its taken from <span style="color: #d65d0e">Extreme Programmin (XP)</span>. It consist of two programmers sharing a single workstation. The programmer at the keyboard is usually called driver and the other is called navigator, in every 20 minutes they switch.
@@ -796,9 +796,10 @@ A <strong style="color:#689d6a">Monolithic</strong> application has all or most 
 - <strong style="color: #98971a">WebDriver:</strong> create a suite of more robust automation and regression tests, recommended for when you have a collection of specific language associations to use in the browser
 - <strong style="color: #98971a">SELENIUM Grid:</strong> more distributed testing process, requires testing in a different browser and environment
 
-<span style="color: #98971a">Appium</span> <span style="color: #3588E9">--></span> free framework for self-automation of software testing that works in web and mobile applications. HTTP server that runs on nodeJS and creates and manipulates various web servers sections for different platforms, such as IOS and Android. Can automate desktop testing.
+<span style="color: #98971a">Appium</span> <span style="color: #3588E9">--></span> free framework for self-automation of software testing that works in web and mobile applications. HTTP server that runs on NodeJS and creates and manipulates various web servers sections for different platforms, such as iOS and Android. Can automate desktop testing.
 
-> <strong style="color: #C6554F">Note:</strong> the tool depends on the company context
+>[!info]
+> The tool depends on the company context
 ##### **<span style="color:#689d6a">Test driven development (TDD)</span>**
 
 It was created by Kent Black and it is a methodology for developing and writing code.
@@ -834,7 +835,7 @@ In order to create a DevOps CI/CD pipeline, all testing must be automated <span 
 - even with 100% test coverage the code can still have bugs.
 - 100% test coverage only means that every line of code has been tested with some known good data
 
->[!note]
+>[!info]
 >high test coverage is valuable for development because, it increases likelihood that the code works as expected
 
 <span style="color: #d65d0e">Factories</span> and <span style="color: #d65d0e">fakes</span> are useful for creating and maintaining a large amount of test data. Factories generate fakes with realistic test data. Fakes behave like real objects during testing.
@@ -848,8 +849,8 @@ In order to create a DevOps CI/CD pipeline, all testing must be automated <span 
 
 Some other notable testing frameworks: Jasmine for JavaScript, Mocha for Node.js and Simpletest for PHP.
 
->[!note]
->look for a testing framework for the language that is being used.
+>[!hint]
+>Look for a testing framework for the language that is being used.
 
 <span style="color: #98971a">Pytest</span> <span style="color: #3588E9">--></span> you can have nearly infinite number of setups and tear downs.
 
@@ -908,7 +909,7 @@ answer = sum(2, 3)
 assert(answer == 5)
 ```
 
-Nicer way to make assertions: using additional asserts that TestCase provides.
+Nicer way to make assertions: using additional asserts that Test Case provides.
 
 To write test assertions: think about the functionality, how should it work, and then execute something and then write an assertion that what you executed actually did the behavior that you expected.
 
@@ -923,9 +924,7 @@ To write test assertions: think about the functionality, how should it work, and
 
 Test fixtures are used to establish an initial known state before and after running test.
 
-Run tests in isolation.
-
-Ensure repeatable results
+They run tests in isolation, and ensure repeatable results.
 
 Test fixtures are helpful for many testing situations.
 

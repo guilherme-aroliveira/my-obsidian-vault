@@ -15,7 +15,8 @@ Software Engineering is <strong style="color: #d79921">organic</strong> <span st
 
 The project model does not work for software development, because it treats as a civil engineering project 
 
-><strong style="color:#c6554f">Obs:</strong> Treat software development like a product development
+>[!hint]
+>Treat software development like a product development
 
 A Engenharia de Software busca transformar um processo de produção criativa em algo que seja controlado, quantificado e previsível.
 
@@ -2087,13 +2088,14 @@ An API acts as a bridge that allows one software application to interact with an
 
 APIs can enable integrating different systems, allowing them to work together seamlessly.
 
-Web app --> program stored on a remote server and delivered over the internet. 
-Web services like e-commerce sites, webmail, and so on, are all web apps
-A web app requires three components to process a client request: a web server to manage raised requests, an app server to execute the requested task, and a database to store the information needed to complete the task.
-advantages: version uniformity, hardware platform flexibilty, web browser flexibility. no local installation
-form of API that communicatrd between the fron end and back end
+<span style="color: #d65d0e">Web app</span> <span style="color: #3588E9">--></span> program stored on a remote server and delivered over the internet. A web app requires three components to process a client request: a web server to manage raised requests, an app server to execute the requested task, and a database to store the information needed to complete the task.
+- <strong style="color: white">Advantages:</strong> 
+	- version uniformity, 
+	- hardware platform flexibility, 
+	- web browser flexibility,
+	- no local installation form of API
 
-<span style="color: #d65d0e">Web Service</span> <span style="color: #3588E9">--></span> any software, application, or cloud technology system built for interoperable machine-to-machine or application-to-application interaction over a network.
+<span style="color: #d65d0e">Web Service</span> <span style="color: #3588E9">--></span> any software, application, or cloud technology system built for interoperable machine-to-machine or application-to-application interaction over a network. Web services like e-commerce sites, web-mail are all web apps.
 
 <span style="color: #d65d0e">Web API</span> <span style="color: #3588E9">--></span> uma API feita para a web dentro de um web service.
 

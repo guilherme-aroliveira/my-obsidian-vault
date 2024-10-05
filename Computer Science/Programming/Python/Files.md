@@ -16,7 +16,7 @@ with open(exmp2, 'r') as file:
 	print(file.read())
 ```
 
->[!note]
+>[!info]
 >The `with()` statement to open a file is better practice because it automatically closes the file. The code will run everything in the indent block, then closes the file.
 
 ```python
