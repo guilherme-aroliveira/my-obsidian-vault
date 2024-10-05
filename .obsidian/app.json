@@ -1,0 +1,13 @@
+{
+  "showLineNumber": true,
+  "showInlineTitle": false,
+  "showRibbon": true,
+  "promptDelete": false,
+  "strictLineBreaks": false,
+  "readableLineLength": true,
+  "newFileLocation": "folder",
+  "newFileFolderPath": "Daily Notes",
+  "rightToLeft": false,
+  "smartIndentList": true,
+  "showIndentGuide": true
+}

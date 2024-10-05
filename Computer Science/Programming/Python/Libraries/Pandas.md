@@ -494,4 +494,3 @@ close = candlestick_data['Price']['last'])
 
 fig.update_layout(xaxis_rangeslider_visible=False, xaxis_title='Date', yaxis_title='Price (USD $)', title='Bitcoin CandleStick Chart Over Past 30 days' )
 ```
-

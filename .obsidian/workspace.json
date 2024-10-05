@@ -1,0 +1,277 @@
+{
+  "main": {
+    "id": "9360d3a3305555ae",
+    "type": "split",
+    "children": [
+      {
+        "id": "be586562f25d493c",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "b54ae3036528d4ef",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Computer Science/Software Engineering.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "cda3c73e6a8199c0",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Computer Science/DevOps.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "02fe953717615576",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Computer Science/Programming/Python.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "76c97b4f69f433df",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Computer Science/Frameworks/Flask.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "621049d8ba266316",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Computer Science/Programming/Python/Libraries/Pandas.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "fd6f3017ceb2b27e",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Computer Science/Programming/Python/Files.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          }
+        ],
+        "currentTab": 5
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "250a84fe96d253d3",
+    "type": "split",
+    "children": [
+      {
+        "id": "d3527453c73292ee",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "c3c5f6c8bd51675c",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "4c49427c51303969",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "10cc2b9a904b49bc",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {}
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 328.5,
+    "collapsed": true
+  },
+  "right": {
+    "id": "67259e908ed95e53",
+    "type": "split",
+    "children": [
+      {
+        "id": "bac810f3483bacd2",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "f306897bbc1c55a7",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "Computer Science/Programming/Python/Files.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "ac4f4eae4be7dcc6",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "Computer Science/Programming/Python/Files.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "34ecc1e50c0db81c",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": false
+              }
+            }
+          },
+          {
+            "id": "794e0109c86f8bc0",
+            "type": "leaf",
+            "state": {
+              "type": "calendar",
+              "state": {}
+            }
+          },
+          {
+            "id": "7b4975847e6ffa21",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "Computer Science/Programming/Python/Files.md"
+              }
+            }
+          },
+          {
+            "id": "3898fd55b9107adb",
+            "type": "leaf",
+            "state": {
+              "type": "git-view",
+              "state": {}
+            }
+          }
+        ],
+        "currentTab": 5
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "workspaces:Manage workspace layouts": false,
+      "obsidian-kanban:Create new board": false,
+      "obsidian-git:Open Git source control": false,
+      "terminal:Open terminal": false,
+      "obsidian-full-calendar:Open Full Calendar": false,
+      "templater-obsidian:Templater": false,
+      "vscode-editor:Create Code File": false
+    }
+  },
+  "active": "fd6f3017ceb2b27e",
+  "lastOpenFiles": [
+    "Computer Science/Programming/Python/Files.md",
+    "Computer Science/Programming/Python/Libraries/Pandas.md",
+    "Computer Science/Frameworks/Flask.md",
+    "Computer Science/Programming/Python.md",
+    "Computer Science/Software Engineering.md",
+    "Computer Science/DevOps.md",
+    "Computer Science/Programming/Java.md",
+    "Computer Science/Programming/Python/WebScraping.md",
+    "Images/query-string.png",
+    "Images/modelo_interacoes.png",
+    "Computer Science/Programming/Python/Libraries/NumPy.md",
+    "Computer Science/Data Science.md",
+    "Computer Science/Cloud Providers/aws-cli.md",
+    "Computer Science/Cloud Providers/ibm-cli.md",
+    "Computer Science/DevOps/Container Orchestration/Tools/Kubectl.md",
+    "Computer Science/DevOps/Container Orchestration/Tools/kubectl.md",
+    "Computer Science/DevOps/Container Orchestration/Kubernetes.md",
+    "Computer Science/DevOps/Container Orchestration/Docker_Swarm.md",
+    "Computer Science/DevOps/Container Orchestration/Docker Swarm.md",
+    "Computer Science/DevOps/Container Orchestration/Docker_Compose.md",
+    "Computer Science/DevOps/Container Orchestration/Docker.md",
+    "Computer Science/Programming/Python/Exception.md",
+    "Computer Science/Programming/Python/Tests.md",
+    "Computer Science/Frameworks/REST-API.md",
+    "Information Security/Ethical Hacking.md",
+    "Computer Science/Tools/GIT.md",
+    "Computer Science/DevOps/Git.md",
+    "Computer Science/DevOps/Container Orchestration/Tools/Helm.md",
+    "Computer Science/Programming/Python/Libraries",
+    "Computer Science/Programming/Python",
+    "Computer Science/DevOps",
+    "Images",
+    "images",
+    "Screenshot_20240921_163708.png",
+    "Computer Science/Tools",
+    "CS Tools",
+    "Recording 20240915015615.webm",
+    "Academic/UNA - Sistemas de Informação",
+    "Computer Science/DevOps/Continuous Integration",
+    "Untitled.canvas"
+  ]
+}
