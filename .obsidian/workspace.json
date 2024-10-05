@@ -130,8 +130,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 328.5,
-    "collapsed": true
+    "width": 328.5
   },
   "right": {
     "id": "67259e908ed95e53",
@@ -231,7 +230,7 @@
       "vscode-editor:Create Code File": false
     }
   },
-  "active": "cda3c73e6a8199c0",
+  "active": "c3c5f6c8bd51675c",
   "lastOpenFiles": [
     "Computer Science/Software Engineering.md",
     "Academic/UTexas - Cloud Computing/05 - Big Data.md",
