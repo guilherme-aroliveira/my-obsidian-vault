@@ -608,94 +608,148 @@ Immutable infrastructure -->
 > With infrastructure as a code, immutability makes it easier to version the infrastructure and to roll back and roll forward between versions.
 ## **Serverless Architecture**
 ---
-Serverless is an approach to computing that offloads responsibility for common infrastructure management tasks such as scaling, scheduling, patching, and provisioning application stacks to cloud providers
+Serverless is an  <strong style="color: #b16286">approach to computing that offloads responsibility for common infrastructure management tasks</strong> such as scaling, scheduling, patching, and provisioning application stacks to cloud providers
 
 Serverless doesn't mean there are no servers, only that the management of the underlying physical or virtual servers is removed from their users
 
 The serverless computing environment allocates resources as needed for the applications.
 
-Attributes
+<strong style="color: white">Attributes:</strong>
+- no provisions of servers
+- runs code only-on demand
+- pay only for resources being used
 
-Effectively, serverless abstracts the infrastructure away from developers, code is executed as individual functions, where each function runs inside a stateless container.
+>[!info]
+>Effectively, serverless abstracts the infrastructure away from developers, code is executed as individual functions, where each function runs inside a stateless container.
 
-Some of the key serverless computing services today include IBM Cloud functions, which is based on Apache OpenWhisk, AWS Lambda and Microsoft Azure functions.
+Some of the key serverless computing services today include: IBM Cloud functions, which is based on Apache Open Whisk, AWS Lambda and Microsoft Azure functions.
 
-Applications that qualify for a serverless architecture include some of the following characteristics: short-running stateless functions, seconds or minutes, seasonal workloads with varying off peak and peaks, production volumetric data that shows too much idle time, event-based processing or asynchronous request processing for implementing use cases.
+Applications that qualify for a <strong style="color: #d79921">serverless architecture</strong> include some of the following characteristics: short-running stateless functions, seconds or minutes, seasonal workloads with varying off peak and peaks, production volumetric data that shows too much idle time, event-based processing or asynchronous request processing for implementing use cases.
 
-- Uses cases:
-	- data and event processing
-	- IoT
-	- Microsservices
-	- Mobile backends
+<strong style="color: white">Use Cases:</strong>
+- data and event processing
+- IoT
+- Micros services
+- Mobile backends
 
 Serverless is well suited to working with structured text, audio, image, and video data around tasks such as data enrichment, transformation, validation, and cleansing, DF processing, audio normalization, thumbnail generation, and video transcoding.
 
 >[!info]
->But for workloads characterized by long-running processes, managing a traditional server environment might be simpler and more cost effective.
+>For workloads characterized by long-running processes, managing a traditional server environment might be simpler and more cost effective.
 ##### **<span style="color:#689d6a">Serverless Computing</span>**
 
 <span style="color: #d65d0e">serverless</span> <span style="color: #3588E9">--></span> "The concept of building and running applications that do not require server management" (CNCF).
 
 Serverless computing offloads the responsibility of infrastructure management to cloud providers, enabling developers to focus on the application business logic.
 
-<strong style="color: white">Charasterictics</strong>: Hostless, Elastic, Load balanced, Stateless, Event driven, Highly available, Usage-based/granular billing
+<strong style="color: white">Best practices</strong>:
+- Make each function perform only one action
+- Avoid function chaining
+- Limit dependencies on third-party libraries
 
-- <strong style="color: white">Best practices</strong>:
-	- Make each function perform only one action
-	- Avoid function chaining
-	- Limit dependencies on third-party libraries
----
-- <strong style="color: #d65d0e">FaaS Model</strong>
-	- Function as a Service (FaaS) --> cloud computing service that allows to execute code in reponse to events without complex infrastructure.
-	- <strong style="color: white">Charasterictics</strong>: Creates applications as functions; Deploys on hybrid and on-premise; Stateless; Includess functions that execute in miliseconds and are instantaneously scalable; Lightweight and decoupled; Billed on consumption and execution.
-	- <strong style="color: white">Benefits</strong>: divides server into functions, pay for what you use, inherent high availability.
+<strong style="color: white">Charasterictics</strong>: Host-less, Elastic, Load balanced, Stateless, Event driven, Highly available, Usage-based/granular billing
 
-<strong style="color: white">Self-managed FaaS</strong>:AWS Lamda, Google Cloud Functions, Azure Functions, IBM Cloud Functions, Openshift Cloud Functions(Red Hat).
+<strong style="color: #d65d0e">FaaS Model</strong>
+- Function as a Service (FaaS) --> cloud computing service that allows to execute code in response to events without complex infrastructure.
+- <strong style="color: white">Charasterictics</strong>: 
+	- Creates applications as functions; 
+	- Deploys on hybrid and on-premise; 
+	- Stateless; 
+	- Includes functions that execute in milliseconds and are instantaneously scalable; 
+	- Lightweight and decoupled; 
+	- Billed on consumption and execution.
+- <strong style="color: white">Benefits</strong>: 
+	- divides server into functions, 
+	- pay for what you use, 
+	- inherent high availability.
+
+<strong style="color: white">Self-managed FaaS</strong>:AWS Lambda, Google Cloud Functions, Azure Functions, IBM Cloud Functions, Openshift Cloud Functions(Red Hat).
 
 <strong style="color: white">Managed FaaS providers</strong>:
-- Fission <span style="color: #3588E9">--></span> framework for serverless function on Kubernetes
-- Fn Project <span style="color: #3588E9">--></span> a container-native serverless platform
-- Knative <span style="color: #3588E9">--></span> Kubernetes-based platform to build, deploy, and manage serverless workload
-- OpenFass <span style="color: #3588E9">--></span> allows to turn any Linux or Windows process into a function
-###### <span style="color: #d79921">Architecture concepts</span>
+- <span style="color: #98971a">Fission</span> <span style="color: #3588E9">--></span> framework for serverless function on Kubernetes
+- <span style="color: #98971a">Fn Project</span> <span style="color: #3588E9">--></span> a container-native serverless platform
+- <span style="color: #98971a">Knative</span> <span style="color: #3588E9">--></span> Kubernetes-based platform to build, deploy, and manage serverless workload
+- <span style="color: #98971a">OpenFass</span> <span style="color: #3588E9">--></span> allows to turn any Linux or Windows process into a function
 
-Abstracts infrastructure and software environment.
-
-Code runs in a cloud platform.
-
-Cloud provider manages the hardware and software setup, security, performance.
-
-Billed only for usage
-
-Developers only need to focus on applications and code in the form of functions.
+<strong style="color: #d79921">Architecture concepts</strong>
+- Abstracts infrastructure and software environment.
+- Code runs in a cloud platform.
+- Cloud provider manages the hardware and software setup, security, performance.
+- Billed only for usage
+- Developers only need to focus on applications and code in the form of functions.
 ###### <span style="color: #d79921">Constrains</span>
 
-Unsuitable for long-running processes
-
-Vendor lock-in risks
-
-Cods starts
-
-Latency unsuitable for time-critical apps
-
-Security concerns
-
-Complex monitoring and debugging
-
-Language support dependency
-
-Server optimization loss
-
-No state persistence
+- Unsuitable for long-running processes
+- Vendor lock-in risks
+- Cods starts
+- Latency unsuitable for time-critical apps
+- Security concerns
+- Complex monitoring and debugging
+- Language support dependency
+- Server optimization loss
+- No state persistence
 ###### <span style="color: #d79921">Stack components</span>
 
-Fass, BaaS and API gateway.
+FaaS, BaaS and API gateway.
 
-Events ---> API Gateway ---{ requests }---> Functions ---> BaaS (File storage, Block Storage)
+<span style="color: #98971a">Events</span> <span style="color: #3588E9">---></span> <span style="color: #98971a">API Gateway</span> <span style="color: #3588E9">---</span> { requests } <span style="color: #3588E9">---></span> <span style="color: #98971a">Functions</span> <span style="color: #3588E9">---></span> <span style="color: #98971a">BaaS</span> (File storage, Block Storage)
 
-Events request can be webhooks from repositories such as Github and Docker Hub, and scheduled jobs. The functions then process these requests, and they are further directed (if necessary) toward the backend services. The output or response is then sent back to the client through the FaaS component and the API Gateway.
+Events request can be <span style="color: #d65d0e">webhooks</span> from repositories such as GitHub and Docker Hub, and scheduled jobs. 
+
+The functions then process these requests, and they are further directed (if necessary) toward the backend services. 
+
+The output or response is then sent back to the client through the FaaS component and the API Gateway.
 ###### <span style="color: #d79921">The Serverless Framework</span>
+
+The <span style="color: #d65d0e">Serverless Framework</span> is a <strong style="color: #b16286">free and open-source web framework</strong> written using Node.js. Serverless Framework is a command line interface.
+
+A <span style="color: #d65d0e">function</span> is merely code, deployed in the cloud, that is most often written to perform a single task.
+
+>[!info]
+>Each function is an independent unit of execution and deployment, like a micro service.
+
+A <span style="color: #d65d0e">task</span> can be saving a user to the database or performing a job at a specified time.
+
+<span style="color: #d65d0e">Resources</span> are infrastructure components which the functions use, such as a database (provided cloud provider), or an S3 bucket to store files.
+
+A <span style="color: #d65d0e">service</span> is the Framework's unit of organization, which is configured via a `serverless.yml` file.
+
+<strong style="color: #b16286">Workflow</strong>
+- Setup AWS credentials
+- Install CLI: <code style="color: #689d6a">$ npm install -g serverless</code>
+- Create the AWS HTTP API: <code style="color: #689d6a">$ serverless</code>
+- Change the function code
+- Deploy: <code style="color: #689d6a">$ serverless deploy</code>
 ###### <span style="color: #d79921">Serverless Reference Architecture</span>
+
+The Web Application <strong style="color: #b16286">reference architecture is a general-purpose, event-driven back-end</strong> that uses: AWS Lambda, Amazon API Gateway, Amazon DynamoDB, Amazon Cognito and Amazon Amplify Console.
+
+AWS Lambda, Amazon API Gateway are used for its business logic.
+
+Amazon DynamoDB is used as its database and Amazon Cognito for user management.
+
+All static content in the application is hosted using AWS Amplify Console.
+
+The Web Application comprises 3 components, front-end, back-end, and user registration, and authentication.
+
+<strong style="color: #d65d0e">Front End</strong>
+- Comprise static content generated by Create React App using: HTML, CSS, JavaScript and Images. All these objects are hosted on AWS Amplify Console
+- Downloads resources that run on the client
+- Communicates with backend using REST API calls
+
+<strong style="color: #d65d0e">Back End</strong>
+- Host logic in lambda functions
+- Enables access via API Gateway to frontend
+- Stores data in DynamoDB
+
+<strong style="color: #d65d0e">User Registration and Authentication</strong>
+- Registers individual users
+- Uses Cognito User Pools
+
+<strong style="color: white">Use cases for Serverless application:</strong>
+- <span style="color: #98971a">Event streaming</span> <span style="color: #3588E9">--></span> can be written and deployed without setting up-front infrastructure. And can be triggered from publisher, subscriber topics or from event logs, giving elastic, scalable event pipelines without the maintenance of complicated clusters.
+- <span style="color: #98971a">Post-processing</span> <span style="color: #3588E9">--></span> Image and Video Manipulation and Image Recognition/AI.
+- <span style="color: #98971a">Multi-language</span> <span style="color: #3588E9">--></span> prevent teams from language lock-in.
 ###### <span style="color: #d79921">Build a serverless app with AWS Lambda</span>
 
 1. Create a CodeCommit repository
@@ -807,68 +861,256 @@ GitOps advocates to apply principles such as reviews, pull requests, and tagging
 	- Robust Role-based Access Control (RBAC)
 ## **Micro services**
 ---
-Microsserviços é uma forma particular de projetar aplicações de software como suítes de serviços implantáveis de forma independente.
+<span style="color: #d65d0e">Microsserviços</span> é uma <strong style="color: #b16286">forma particular de projetar aplicações de software como suítes de serviços implantáveis de forma independente</strong>. 
 
-Surgiu como um movimento de neǵocio, devido ao desafio de como implantar software mais rapidamente.
+Surgiu como um movimento de negocio, devido ao desafio de como implantar software mais rapidamente.
 
-O conceito de microsserviços se popularizou com a publicação do aritgo de Martin Flowlr em 105 - https://martinfowler.com/articles/microservices.html
+O conceito de microsserviços se popularizou com a publicação do artigo de <strong style="color: #d79921">Martin Fowler</strong> em 105 - https://martinfowler.com/articles/microservices.html
 
-Monolito não é um código ruim, é apenas um código que é implantado com um único bloco num ambiente de produção, isso muitas vezes dificulta para que esse processo seja rápido.
+Com o modelo de microsservço, cada serviço será empacotando para poder ser implantando de uma forma independente. <strong style="color: #b16286">Cada micro serviço opera de um forma independente</strong>, tipicamente ele é hospedado em um container como elemento de virtualização.
 
-proteção modular --> arquitetura com baixo acoplamento e alta coesão
+A adoção de uma arquitetura de microsserviços precisa fornecer autônoma técnica para os times. 
 
-modelo conceitural --> https://github.com/dotnet/eShop
+>[!info]
+>Governança técnica descentralizada é abordagem recomendada para equipes operando com microsserviços.
 
-Com o modelo de microsservço, cada serviço será empacontado para poder ser implantadno de uma forma independente.
+<span style="color: #d65d0e">modelo conceitual</span> <span style="color: #3588E9">--></span> https://github.com/dotnet/eShop
 
-cada micro serviço opera de um forma independente, tipicamente ele é hospeado em um container como elemento de virtualização.
+<span style="color: #d65d0e">proteção modular</span> <span style="color: #3588E9">--></span> arquitetura com baixo acoplamento e alta coesão
 
-estrangular monolito --> mover de um monolito para uma arquitetura de microsserviços.
+<strong style="color: white">Razões para uso:</strong>
+- custo elevado de aplicações com arquitetura monolítica para alterar e implementar em produção
+- servidores web e de aplicação compartilhados com outras aplicações
+- longos ciclos de mudança
+- dificuldades de implantação
+- custo de evolução do legado
 
-A adoção de uma arquitetura de microsserviços precisa fornecer autonoma técnica para os times.
+A <strong style="color:#689d6a">Monolithic</strong> application has all or most of its functionality within a single process. And the application is managed in internal layers or libraries. The layers are tightly connected and dependent on each other,
 
-Governança técnica descentralizada é abordagem recomendada para equipes operando com microsserviços.
+Monólito não é um código ruim, é apenas um código que é implantado com um único bloco num ambiente de produção, isso muitas vezes dificulta para que esse processo seja rápido.
 
-Plataforma CNCF (Cloud Native Computing Foundation) --> fornece uma coridoria de mais de 1000 tecnologicas organziadas em domínios.
+<strong style="color: white">Benefits</strong> of Monolith: simple and less cross-cutting of features and functionalities
 
-The Twelve-factor app methodology is suited for web apps, and it's frequently used with microservices.
+<strong style="color: white">Drawbacks</strong> of Monolith: with growth, complexity increases; less flexibility to adapt to new technology.
 
-The twelve factors can be grouped according to these phases of the software delivery lifecycle: <strong style="color: #d79921">Code</strong> <span style="color: #3588E9">--></span> <strong style="color: #d79921">Deploy</strong> <span style="color: #3588E9">--></span> <strong style="color: #d79921">Operate</strong>
-
-A <strong style="color:#689d6a">Monolithic</strong> application has all or most of its functionality within a single process. And the application is managed in internal layers or libraries. The layers are tightly connected and dependent on each other.
-
-Razões para uso:
-
-<strong style="font-weight: 600">Benefits</strong> of Monolith: simple and less cross-cutting of features and functionalities
-
-<strong style="font-weight: 600">Drawbacks</strong> of Monolith: with growth, complexity increases; less flexibility to adapt to new technology.
+<span style="color: #d65d0e">estrangular monólito</span> <span style="color: #3588E9">--></span> mover de um monólito para uma arquitetura de microsserviços.
 
 <span style="color: #d65d0e">Windows Forms Application</span> <span style="color: #3588E9">--></span> typical example of a Monolithic design.
-#### <span style="color:#d79921">Características</span>
 
-serviços como componentes (ao invés de bibliotecas) são publicados de maneira independente.
+<span style="color: #d65d0e">Plataforma CNCF</span> (Cloud Native Computing Foundation) <span style="color: #3588E9">--></span> fornece uma controladoria de mais de 1000 tecnologias organizadas em domínios.
+##### <span style="color:#d79921">Características</span>
 
-os serviços precisam denotar capacidade de negocio (ex: gestao de pedidos)
+Serviços como componentes (ao invés de bibliotecas) são publicados de maneira independente.
 
-interface publicadas (APIs) --> representa um sub conjunto das interfaces dentro de uma aplicação, ela é versionada e ela tem um endpoint que registro local daquele interface (conceito mandatório).
+Os serviços precisam denotar capacidade de negocio (ex: gestão de pedidos)
+
+Interface Publicadas (APIs) <span style="color: #3588E9">--></span> <strong style="color: #b16286">representa um sub conjunto das interfaces dentro de uma aplicação</strong>, ela é versionada e possui um endpoint que registra o local daquele interface (conceito mandatório).
 
 >[!info]
 >Uma interface publicada da mais controle para que se possa mexer em várias partes da aplicação sem impactar outras partes. A utilização de APIs como REST, RPC ou GraphQL vai habilitar um conceito de uma interface publicada.
 
-base de dados proprias --> flexibilidade, proteção modular, menor acoplamento.
+base de dados próprias <span style="color: #3588E9">--></span> flexibilidade, proteção modular, menor acoplamento.
 
 implantação automatizada
 
-<strong>Obs:</strong> Microsserviços implicam em uma agenda DevOps (pipeline automatizada, compenentes hospedados em conteineres - Docker).
+>[!note] <strong>Obs:</strong> 
+>Microsserviços implicam em uma agenda DevOps (pipeline automatizada, compenentes hospedados em conteineres - Docker).
 
-inteligência nos endpoints (APIs) --> unico ponto de contato para alguém ler ou enviar informações ou comandos para um microsserviço.
+inteligência nos endpoints (APIs) <span style="color: #3588E9">--></span> único ponto de contato para alguém ler ou enviar informações ou comandos para um micro serviço.
 
-controle descentralizado de linguagens (linguagen poliglotas) e de base de dados (persitencia poliglota)
-#### <span style="color:#d79921">API Gateway</span>
-#### <span style="color:#d79921">Padrões Arquiteturais</span>
-#### <span style="color:#689d6a">Twelve-factor</span>
-#### <span style="color:#689d6a">Microservices</span>
-#### <span style="color:#689d6a">IBM Cloud Engine</span>
+controle descentralizado de linguagens (linguagem poliglotas) e de base de dados (persistência poliglota)
+##### <span style="color:#d79921">API Gateway</span>
+
+API Gateway em arquitetura possui dois significados: 
+- padrão arquitetural que irá isolar o front do back; 
+- produto de mercado que irá implementar esse padrão arquitetural. 
+- <strong style="color: white">Exemplos</strong> de produtos de mercado: API G, Amazon API Gateway, etc..
+
+<strong style="color: white">Papel do gateway:</strong>
+- <span style="color: #98971a">segurança</span> <span style="color: #3588E9">--></span> separando um rede desmilitarizada de internet da rede militariza, onde terá IP privativos dentro de um endereçamento de rede proprietário, controle de acessos, observabilidade e auditoria dos acessos, mecanismo ligados a monetização.
+
+O API Gateway pode fornecer a cada tipo de aplicativo cliente, interfaces próprias chamadas de <span style="color: #d65d0e">BFF (Backend for frontend)</span> <span style="color: #3588E9">--></span> padrão arquitetural muito usado em microsserviços quando se expõe um conjunto particular de endpoints para uma aplicação.
+
+Microsserviços podem chamar outros microsserviços através de RPC, chamadas ligadas a rest. 
+
+Em arquiteturas de larga escala é mais comum que se utilize arquitetura orientada por eventos <span style="color: #3588E9">--></span> tem se a figura de um servidor de fila de mensagens ou de streaming que ira fazer a comunicação assincronia entre mensagens dos vários microsserviços.
+##### <span style="color:#d79921">Padrões Arquiteturais</span>
+
+Padrão arquitetural é uma melhor prática, é algo que foi descoberto no mercado e que se tornou uma melhor prática para se lidar com um certo problema que emerge em um determinado domínio.
+
+Todo padrão possui uma linguagem comum para descreve-lo (Contexto, Problema, Solução).
+
+<span style="color: #d65d0e">Plataforma web</span> <span style="color: #3588E9">--></span> microservices.io/patterns
+
+Quando uma grande coleção de padrões são combinados tem-se uma linguagem de padrões.
+##### <span style="color:#689d6a">Twelve-factor</span>
+
+The Twelve-factor app methodology is suited for web apps, and it's frequently used with microservices.
+
+The twelve factors can be grouped according to these phases of the software delivery life cycle: <strong style="color: #d79921">Code</strong> <span style="color: #3588E9">--></span> <strong style="color: #d79921">Deploy</strong> <span style="color: #3588E9">--></span> <strong style="color: #d79921">Operate</strong>
+
+<strong style="color: #d79921">Code factors</strong>
+
+- <strong style="color: #98971a">Factor 1</strong>: <span style="color: #d65d0e">Codebase</span>
+	- Track in a version control system (VCS)
+	- Maintain one-to-one relationship between code base and app
+	- Deploy multiple instances of the app
+	- Develop different versions of the code base in each deploy
+- <strong style="color: #98971a">Factor 5</strong>: <span style="color: #d65d0e">Build, relsease, run</span>
+	- Build: Transform a code base into an executable unit called a build
+	- Release: Combine build with configuration do that it's ready for execution
+	- Run: Run the application
+	- <span style="color: #3588E9">--></span> All three stages should be strictly separated
+- <strong style="color: #98971a">Factor 10</strong>: <span style="color: #d65d0e">Dev/prod parity</span>
+	- Minimize differences between development and production
+	- Use same backend services across environments
+- <strong style="color: #98971a">Factor 2</strong>: <span style="color: #d65d0e">Depedencies</span>
+	- Assume an app is only as reliable as its reliable dependency
+	- Explicitly declare any dependencies
+
+<strong style="color: #d79921">Deploy factors</strong>
+
+- <strong style="color: #98971a">Factor 3</strong>: <span style="color: #d65d0e">Config</span>
+	- Keep everything that varies between deploys such as credentials and backend service locations in config
+	- Keep separate from the code
+	- Store config in environment variables
+- <strong style="color: #98971a">Factor 4</strong>: <span style="color: #d65d0e">Backend services</span>
+	- Do not distinguish between local and third-party services
+	- Access all services by a URL and credentials so they can be swapped without changing the code
+- <strong style="color: #98971a">Factor 6</strong>: <span style="color: #d65d0e">Processes</span>
+	- Should be stateless and share nothing
+	- Do not share memory and file systems
+	- Store persistent data in a backend service
+	- Store data centrally
+- <strong style="color: #98971a">Factor 7</strong>: <span style="color: #d65d0e">Port biding</span>
+	- Export services by port biding
+	- Export HTTP and other services
+	- Declare a web server library as a dependency
+	- Apps accessible via a URL, become backend services for other apps
+
+<strong style="color: #d79921">Operate factors</strong>
+
+- <strong style="color: #98971a">Factor 8</strong>: <span style="color: #d65d0e">Concurrency</span>
+	- Scale an application
+	- Stateless processes can be spun up without creating dependencies on other processes
+- <strong style="color: #98971a">Factor 9</strong>: <span style="color: #d65d0e">Disposability</span>
+	- Require minimal process start time and graceful termination
+	- Quickly deploy code or config changes
+	- Easily scale apps
+- <strong style="color: #98971a">Factor 11</strong>: <span style="color: #d65d0e">logs</span>
+	- App should not concern itself with storing logs
+	- Treat logs as an event stream
+	- Execution environment captures, aggregates, and routes logs to their destination
+- <strong style="color: #98971a">Factor 12</strong>: <span style="color: #d65d0e">Admin processes</span>
+	- Enable one-off app management processes
+	- Run against a release, using same code base ad config
+	- Part of application code
+##### <span style="color:#689d6a">Microservices</span>
+
+<strong style="color: #d79921">Microservices architecture</strong> is an approach in which a single application is composed of many loosely coupled and independently deployable smaller services. These services typically have their own technology stack, inclusive of the database and data management model.
+
+>[!note]
+>Microservices architecture is an application-scoped concept. 
+>Example: E-commerce application, that can have separate microservices to process orders, security, and analytics.
+
+One of the <strong style="color: #d79921">key elements</strong> of a microservice is that it <strong style="color: #b16286">is generally small and isolated in terms of computational resources</strong> for each running instance.
+
+Application components can be developed and updated more efficiently by multiple developers working independently. Teams can use different stacks and runtime environments for different components.
+
+<strong style="color: #b16286">Microservices break down large applications into their core functions</strong>. For example: Search, Recommendations, Customer Ratings, or Product Catalogs. Each is developed independently of one another, yet work together on the Cloud development platform to create a functioning application.
+
+For each microservice to find each other, they do this by using something called <span style="color: #d65d0e">Service Discovery</span>, which creates a road-map for these and many other microservices to communicate. When microservices find each other, they communicate using an application programming interface or an API.
+
+Teams can even choose different programming languages for different components as they are dependent on each other via an API endpoint.
+
+Microservices components communicate with one another over a combination of REST APIs, event streaming, and message brokers, and they are segregated and organized by business functionality.
+
+The components can be scaled independently of one another, reducing the waste and cost associated with having to scale entire applications because a single feature might be facing too much load.
+
+>[!note]
+>Scaling of microservices, it usually involves horizontal scaling.
+
+Microservices require less infrastructure because they enable precise scaling of only the components that require it.
+
+Like SOA, <strong style="color: #d79921">microservices architectures</strong> comprise loosely coupled, reusable, and specialized components that often work independently of one another.
+
+Even the data in a micro service is not shared with other services.
+
+<strong style="color: white">Benefits</strong> of Micro services: easy of development, flexibility to add new technology.
+
+<strong style="color: white">Drawbacks</strong>: security requirement, debugging is a challenge.
+###### <span style="color: #d79921">Microservices Patterns</span>:
+
+<span style="color: #d65d0e">Single-page application (SPA)</span>:
+- Enabled but more powerful browsers, faster networks, and client-side languages
+- Loads one interface that never reloads
+- Updates dynamically using calls to backend REST-based services
+- Simplifies the front-end experience
+- Places greater performance responsibility on backend services
+
+<span style="color: #d65d0e">Backend for Frontend (BFF)</span>:
+- Provides superior support compared to a generic backend
+- Inserts a layer between user experience and the resources
+- Enables customized user experiences for different channels
+- Supports one backend type per user interface
+
+<span style="color: #d65d0e">Strangler</span>:
+- Manages refactoring in stages
+- Gets its name from a vine that strangles a tree
+- Splits functional domains
+- Replaces with nre microsservice per domain
+- Enables two applications to exist side-by-side
+
+<span style="color: #d65d0e">Service discovery</span>:
+- Helps applications and services discover each other
+- Provides flexibility as service instances can change dynamically
+- Could be used by load balancers to perform health checks and rebalance traffic on service failures
+##### <span style="color:#689d6a">IBM Cloud Engine</span>
+
+Is a platform for deploying your microservices.
+
+“<span style="color: #d65d0e">Code Engine</span>” abstracts the operational burden of building, deploying, and managing workloads.
+
+IBM Cloud Code Engine can be seen as a <strong style="color: #b16286">fully managed, serverless platform</strong>. It combines all features that are required by <span style="color: #d65d0e">Platform as a Service (PaaS)</span>, <span style="color: #d65d0e">Containers as a Service (CaaS)</span>, and <span style="color: #d65d0e">serverless deployment models</span>.
+
+IBM Cloud Code Engine runs workloads, including microservices, web apps, event-driven functions, or batch jobs.
+
+<strong style="color: #d79921">Use cases</strong>:
+- Deploy application to Code Engine
+- Pushing the source code directly (Build and Deploy)
+- Create and Run batch jobs
+
+<strong style="color: white">Benefits:</strong> Focus on the code, Go live in seconds, Auto-Scale, Control access, Secure private network, Integrates with other IBM Cloud services.
+
+<span style="color: #d65d0e">Project</span> <span style="color: #3588E9">--></span> represents a group that contains and manages its resources and entities
+
+A <span style="color: #d65d0e">grouping</span> in Code Engine <strong style="color: #b16286">contains entities</strong> such as build, app, job, and certificate for Transport Layer Service (or TLS) HTTPs connections, and so on.
+
+One important function of a project is providing a <span style="color: #d65d0e">namespace</span> for its entities. Another important function is managing resources and providing access control.
+
+<span style="color: #3588E9">--></span> Names of <span style="color: #d65d0e">entities</span> <strong style="color: #b16286">need to be unique within a namespace</strong>, but not across namespaces.
+
+In Code Engine, the code will run the application.
+
+An application runs the code to server HTTP request or to create Web Sockets sessions.
+
+>[!info]
+>Web Socket is a communication protocol based on Transmission Control Protocol (or TCP). It is mostly used for long-running and session-based communication between clients and servers, such as a chat application.
+
+<span style="color: #d65d0e">Buid</span> <span style="color: #3588E9">--></span> mechanism than can be used to create a container image from a source code.
+
+The Code Engine supports building from a <span style="color: #98971a">Dockerfile</span>. Alternatively, it can use a <span style="color: #98971a">Cloud Native Buildpack</span>.
+
+>[!note] 
+>build pack is another popular way to build the container image. It contains executable to perform tasks such as inspecting source code, creating a build plan, or executing the build plan to produce an image.
+
+<span style="color: #d65d0e">Job</span> <span style="color: #3588E9">--></span> one-time execution of your code. It runs executable code, and depending on the workload, the Code Engine will create one or more instances of a job.
+
+<span style="color: #3588E9">--></span> jobs are designed to run one time and exit.
+
+<strong style="color: #d79921">Typical jobs</strong>: Data Processing Job, Machine Learning Training Job, Reporting Job, Billing Job.
+
+To update an application, the <span style="color:#98971a">IBM Cloud Console</span> can be used. But for more complex and precise application updates, the <span style="color:#98971a">Code Engine CLI</span> is more appropriate.
 ## **Test and Behavior Driven Development**
 ---
 <span style="color: #d65d0e">Automated testing</span> is critical for DevOps.
@@ -1215,27 +1457,6 @@ Step implementations:
 
 start by importing the when and then decorators from Behave. Since you don’t use the Given keyword in the feature file, you don’t need to import the Given keyword decorator here. Ex: `from behave import when, then`
 
-```python
-from behave import when, then
-
-# invoke the function that follows 'when'
-@when('I visit the "Home Page"')
-def step_impl(context):
-	""" Make a call to the base URL """
-	context.driver.get(context_base_url)
-
-@then('I should see "Welcome to the Pet Shop" in the title')
-def step_impl(context):
-	""" Check the title for the Welcome Message """
-	assert "Welcome to the Pet Shop" in context.driver.title
-
-@then('I should not see "404 Not Found"')
-def step_impl(context):
-	""" Check the body for error message """
-	element = context.driver.find_element(By.TAG_NAME, 'body')
-	assert "404 Not Found" not in element.text
-```
-
 <code style="color: #689d6a">context</code> <span style="color: #3588E9">--></span> variable passed into every step definition
 - exists for the entire feature file
 - is useful for passing information between steps
@@ -1244,21 +1465,6 @@ def step_impl(context):
 - minimizes the number of steps
 - leads to greater reuse
 - Ex: `@when('I copy the "{variable_name}" field')`
-
-```python
-@when('I copy the "{element_name}" field')
-def step_impl(context, element_name):
-	element_id = element_name.lower().replace(' ', '_')
-	element = context.driver.find_element(By.ID, element_id)
-	context.clipboard = element.get_atribute('value')
-
-@when('I paste the "{element_name}" field')
-def step_impl(context, element_name):
-	element_id = element_name.lower().replace(' ', '_')
-	element = context.driver.find_element(By.ID, element_id)
-	element.clear() # clears the element
-	element.send_keys(context.clipboard)
-```
 
 In BDD, each step is just one part of a test case; it’s not an entire test case itself
 
@@ -1285,19 +1491,6 @@ Step workflow
 - before_tag(context, tag) --> 
 	- You can tag sections of your feature file with a name and then these functions run before and after the section tag with a given name. Behave invokes tags by the order they're found in the feature file
 - after_tag()
-
-```python
-from os import getenv
-from selenium import webdriver
-
-WAIT_SECONDS = int('WAIT_SECONDS', '60')
-BASE_URL = getenv('BASE_URL', 'http://localhost:8080')
-
-def before_all(context):
-	""" Executed onde before all test """
-	context.base_url = BASE_URL
-	context.wait_seconds = WAIT_SECONDS
-```
 
 <strong style="color: white">Tips</strong>
 - strive for consistency
@@ -1331,25 +1524,6 @@ def before_all(context):
 Use the `Background:` keyword, along with the `Given` keyword, to define the initial state as a table of data.
 
 The data must be loaded manually. The data is ins `context.table`.
-
-```python
-@given('the following pets')
-def step_ipml()
-""" Load """
-# Return every row in the table as a dictinary
-for row in context.table:
-	payload = {
-		"name": row['name'],
-		"category": row['category'],
-		"available": row['available'] in ['True', 'true', '1']
-	}
-	# make an HTTP request to the server’s REST API
-	context.resp = request.post(
-		f"{context.base_url}/pets",
-		json=payload # send the Python dict as a JSON string
-	)
-	assert context.resp.status_code is 201
-```
 ###### <span style="color: #98971a">Selenium</span>
 
 Selenium is a collection of tools for automating web browser activity
@@ -1360,7 +1534,7 @@ With only a few lines of code it interacts with browsers just like real users wo
 
 Works perfectly for integration testing of multiple microservices that share a common user interface.
 
-Iniitialize Selenium
+Initialize Selenium
 1. Ensure the web rower is installed
 2. Instantiate the driver
 
@@ -1368,37 +1542,6 @@ To use Selenium, you must first tell it which element on the HTML page you want
 
 Selenium for Python has function calls for each of these selectors.
 - Ex: `find_element(By.ID, element_id)`
-
-```python
-def step_impl(context, text_string):
-	""" Get the value of a test filed """
-	element = context.driver.find_element(By.ID, 'customer_id')
-
-	# specify what happens when Selenium finds this element
-	assert text_string in element.get_attribute('value')
-
-	element.clear()
-	# type the text string into the input field
-	element.send_keys(text_string)
-```
-
-experience latency when testing in a web UI, so you need to wait for something to appear. Luckily, the web driver has a web driver wait function to do just that.
-
-```python
-WAIT_SECONDS = 60
-
-def step_impl(context, text_string):
-	""" Wait for the value of a test field """
-	found = WebDriverWait(context.driver, WAIT_SECONDS).until(
-		expected_conditions.text_to_be_present_in_element_value (
-			(BY.ID, 'customer_id'),
-			test_string
-		)
-	)
-	expect(found).to_be(TRUE)
-```
-
-very helpful when making calls to remote applications that may involve latency
 ##### **<span style="color:#689d6a">Acceptance Test-Driven Development (ATDD)</span>**
 
 It is carried out collaboratively with a survey of all requirements and acceptance criteria, for each story in addition to possible scenarios <span style="color: #3588E9">--></span> it <strong style="color: #b16286">must involve the entire team</strong>.
