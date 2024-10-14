@@ -20,60 +20,12 @@
             }
           },
           {
-            "id": "cda3c73e6a8199c0",
+            "id": "cf45fc61df664267",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
                 "file": "Computer Science/DevOps.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "02fe953717615576",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Computer Science/Programming/Python.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "76c97b4f69f433df",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Computer Science/Frameworks/Flask.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "621049d8ba266316",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Computer Science/Programming/Python/Libraries/Pandas.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "fd6f3017ceb2b27e",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Computer Science/Programming/Python/Files.md",
                 "mode": "source",
                 "source": false
               }
@@ -130,7 +82,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 328.5
+    "width": 328.5,
+    "collapsed": true
   },
   "right": {
     "id": "67259e908ed95e53",
@@ -230,36 +183,37 @@
       "vscode-editor:Create Code File": false
     }
   },
-  "active": "c3c5f6c8bd51675c",
+  "active": "cf45fc61df664267",
   "lastOpenFiles": [
-    "Computer Science/Software Engineering.md",
-    "Academic/UTexas - Cloud Computing/05 - Big Data.md",
-    "Academic/UTexas - Cloud Computing/09 - Cloud Security & Mugrations.md",
+    "Computer Science/DevOps/CI/GitHub Actions.md",
     "Computer Science/DevOps.md",
-    "Computer Science/Programming/Python/Files.md",
+    "Computer Science/DevOps/CI/Jenkins.md",
+    "Computer Science/DevOps/CI/Openshift Pipelines.md",
+    "Computer Science/DevOps/CI/Tekton.md",
+    "Computer Science/Software Engineering.md",
     "Computer Science/Programming/Python/Libraries/Pandas.md",
+    "Computer Science/Programming/Python/Files.md",
     "Computer Science/Frameworks/Flask.md",
     "Computer Science/Programming/Python.md",
-    "Computer Science/Programming/Java.md",
-    "Computer Science/Programming/Python/WebScraping.md",
-    "Images/query-string.png",
-    "Images/modelo_interacoes.png",
-    "Computer Science/Programming/Python/Libraries/NumPy.md",
-    "Computer Science/Data Science.md",
+    "Computer Science/DevOps/IaC/Ansible.md",
+    "Computer Science/DevOps/IaC/Terraform.md",
+    "Computer Science/DevOps/IaC/CloudFormation.md",
+    "Daily Notes/CloudFormatiom.md",
+    "Information Security/Cyber Security.md",
+    "Computer Science/DevOps/Containers/Orchestration/Kubernetes.md",
     "Computer Science/Cloud Providers/aws-cli.md",
     "Computer Science/Cloud Providers/ibm-cli.md",
-    "Computer Science/DevOps/Container Orchestration/Tools/Kubectl.md",
-    "Computer Science/DevOps/Container Orchestration/Tools/kubectl.md",
-    "Computer Science/DevOps/Container Orchestration/Kubernetes.md",
-    "Computer Science/DevOps/Container Orchestration/Docker_Swarm.md",
-    "Computer Science/DevOps/Container Orchestration/Docker Swarm.md",
-    "Computer Science/DevOps/Container Orchestration/Docker_Compose.md",
-    "Computer Science/DevOps/Container Orchestration/Docker.md",
-    "Computer Science/Programming/Python/Exception.md",
-    "Computer Science/Programming/Python/Tests.md",
-    "Computer Science/Frameworks/REST-API.md",
-    "Information Security/Ethical Hacking.md",
-    "Computer Science/Tools/GIT.md",
+    "Computer Science/Web Development.md",
+    "Computer Science/Data Science.md",
+    "Computer Science/Artificial Intelligence.md",
+    "Computer Science/DevOps/Containers/Orchestration/Docker Swarm.md",
+    "Computer Science/DevOps/Containers/Docker Compose.md",
+    "Computer Science/DevOps/Containers/Docker.md",
+    "Computer Science/DevOps/Containers/Orchestration/AWS ECS.md",
+    "Computer Science/DevOps/Containers/Orchestration",
+    "README.md",
+    "Images/query-string.png",
+    "Images/modelo_interacoes.png",
     "Computer Science/Programming/Python/Libraries",
     "Computer Science/Programming/Python",
     "Computer Science/DevOps",
@@ -270,7 +224,6 @@
     "CS Tools",
     "Recording 20240915015615.webm",
     "Academic/UNA - Sistemas de Informação",
-    "Computer Science/DevOps/Continuous Integration",
     "Untitled.canvas"
   ]
 }

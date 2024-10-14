@@ -9,5 +9,6 @@
   "newFileFolderPath": "Daily Notes",
   "rightToLeft": false,
   "smartIndentList": true,
-  "showIndentGuide": true
+  "showIndentGuide": true,
+  "alwaysUpdateLinks": true
 }
