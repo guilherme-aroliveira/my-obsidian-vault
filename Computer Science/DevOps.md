@@ -815,8 +815,6 @@ O conceito de microsserviços se popularizou com a publicação do aritgo de Mar
 
 Monolito não é um código ruim, é apenas um código que é implantado com um único bloco num ambiente de produção, isso muitas vezes dificulta para que esse processo seja rápido.
 
-Razões para uso:
-
 proteção modular --> arquitetura com baixo acoplamento e alta coesão
 
 modelo conceitural --> https://github.com/dotnet/eShop
@@ -839,18 +837,38 @@ The twelve factors can be grouped according to these phases of the software deli
 
 A <strong style="color:#689d6a">Monolithic</strong> application has all or most of its functionality within a single process. And the application is managed in internal layers or libraries. The layers are tightly connected and dependent on each other.
 
+Razões para uso:
+
 <strong style="font-weight: 600">Benefits</strong> of Monolith: simple and less cross-cutting of features and functionalities
 
 <strong style="font-weight: 600">Drawbacks</strong> of Monolith: with growth, complexity increases; less flexibility to adapt to new technology.
 
 <span style="color: #d65d0e">Windows Forms Application</span> <span style="color: #3588E9">--></span> typical example of a Monolithic design.
-#### **<span style="color:#d79921">Características</span>**
-#### **<span style="color:#d79921">API Gateway</span>**
-#### **<span style="color:#d79921">Padrões Arquiteturais</span>**
-#### **<span style="color:#689d6a">Twelve-factor</span>**
-#### **<span style="color:#689d6a">Microservices</span>**
-#### **<span style="color:#689d6a">Microservices</span>**
-#### **<span style="color:#689d6a">IBM Cloud Engine</span>**
+#### <span style="color:#d79921">Características</span>
+
+serviços como componentes (ao invés de bibliotecas) são publicados de maneira independente.
+
+os serviços precisam denotar capacidade de negocio (ex: gestao de pedidos)
+
+interface publicadas (APIs) --> representa um sub conjunto das interfaces dentro de uma aplicação, ela é versionada e ela tem um endpoint que registro local daquele interface (conceito mandatório).
+
+>[!info]
+>Uma interface publicada da mais controle para que se possa mexer em várias partes da aplicação sem impactar outras partes. A utilização de APIs como REST, RPC ou GraphQL vai habilitar um conceito de uma interface publicada.
+
+base de dados proprias --> flexibilidade, proteção modular, menor acoplamento.
+
+implantação automatizada
+
+<strong>Obs:</strong> Microsserviços implicam em uma agenda DevOps (pipeline automatizada, compenentes hospedados em conteineres - Docker).
+
+inteligência nos endpoints (APIs) --> unico ponto de contato para alguém ler ou enviar informações ou comandos para um microsserviço.
+
+controle descentralizado de linguagens (linguagen poliglotas) e de base de dados (persitencia poliglota)
+#### <span style="color:#d79921">API Gateway</span>
+#### <span style="color:#d79921">Padrões Arquiteturais</span>
+#### <span style="color:#689d6a">Twelve-factor</span>
+#### <span style="color:#689d6a">Microservices</span>
+#### <span style="color:#689d6a">IBM Cloud Engine</span>
 ## **Test and Behavior Driven Development**
 ---
 <span style="color: #d65d0e">Automated testing</span> is critical for DevOps.
