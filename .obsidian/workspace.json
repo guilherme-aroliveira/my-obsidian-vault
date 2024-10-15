@@ -32,6 +32,18 @@
             }
           },
           {
+            "id": "bf0b707c1c16926a",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Computer Science/DevOps/Containers/Docker.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
             "id": "cf45fc61df664267",
             "type": "leaf",
             "state": {
@@ -221,9 +233,11 @@
   },
   "active": "ca88b87a91cbbde7",
   "lastOpenFiles": [
-    "Computer Science/DevOps/IaC/AWS CDK.md",
+    "Computer Science/DevOps/Containers/Docker.md",
     "Computer Science/DevOps.md",
+    "Computer Science/Tools/Docker.md",
     "Computer Science/Software Engineering.md",
+    "Computer Science/DevOps/IaC/AWS CDK.md",
     "Computer Science/DevOps/Containers/Orchestration/Kubernetes.md",
     "Computer Science/DevOps/Containers/Orchestration/Docker Swarm.md",
     "Computer Science/DevOps/Containers/Orchestration/Openshift.md",
@@ -245,8 +259,6 @@
     "Computer Science/Cloud Providers/ibm-cli.md",
     "Computer Science/Web Development.md",
     "Computer Science/Data Science.md",
-    "Computer Science/Artificial Intelligence.md",
-    "Computer Science/DevOps/Containers/Docker Compose.md",
     "Computer Science/DevOps/Containers/Orchestration",
     "Images/query-string.png",
     "Images/modelo_interacoes.png",

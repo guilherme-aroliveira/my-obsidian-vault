@@ -306,84 +306,134 @@ Gitflow --> metodo de versionamento e desenvolvimento
 Git  
 ## **Virtualization**
 ---
-#### <strong style="color:#689d6a">Virtual Machines</strong>
+##### <span style="color:#689d6a">Virtual Machines</span>
 
-Check if virtualization is supported on Linux <span style="color: #3588E9">--></span> `grep -E --color 'vmx|svm' /proc/cpuinfo`
+A virtualização permite criar diversas aplicações e servidores sem a necessidade de coexistirem. Porém, os recursos dd máquina host (physical host) serão divididos. Cada vm (virtual machine) pode estar em sistemas operacionais distintos. 
 
-Vagrant
-#### <strong style="color:#689d6a">Containers</strong>
+The <strong style="color: white">objective</strong> of the virtualization is to <strong style="color: #d79921">chop the server up into smaller chunks</strong>, so that each one of these chunks can potentially contain an application. The vm stays on top of the hypervisor. 
+
+<span style="color: #d65d0e">hypervisor</span> <span style="color: #3588E9">--></span> a software that can virtualize the hardware resources. It's the hypervisor job to manage the resources for every virtua system. It creates multiple machines, and each machine can run its own guest OS.
+
+>[!info]
+>The guest OS doesn't know that is talking to the hypervisor
+
+<span style="color: #d65d0e">vm image</span> <span style="color: #3588E9">--></span> machine level isolation
+
+The <strong style="color: #b16286">hypervisor is what controls and allocates what portion of hardware resources each operating system should get</strong>, in order every one of them to get what they need and not to disrupt each other.
+
+The hypervisor splits the physical hardware into the number of VMs that can be chosen. Virtual Machines allow users to grow up control in terms of what exactly the kind of environment. 
+
+<strong style="color: white">Virtualization - drawbacks:</strong>
+- <span style="color: #98971a">amplified physical failures</span> <span style="color: #3588E9">--></span> if the machine goes down, all of the VMs goes down together
+- <span style="color: #98971a">performance reduces</span> <span style="color: #3588E9">--></span> some applications do not work well in a virtualized environment
+
+To check if virtualization is supported on Linux:  
+- <code style="color: #689d6a">$ grep -E --color 'vmx|svm' /proc/cpuinfo</code>
+
+<span style="color: #98971a">Vagrant</span> <span style="color: #3588E9">--></span> created by Hashicorp, is a tool for creating and managing virtual machines, on different platforms and operating systems.
+##### <span style="color:#689d6a">Containers</span>
 
 An <span style="color: #d65d0e">image</span> <strong style="color: #b16286">is a package or a template</strong>, just like a VM template that you might have worked with in the virtualization world. <strong style="color: #b16286">It is used to create one or more containers.</strong>
 
 <span style="color: #d65d0e">Containers</span> <strong style="color: #b16286">are running instances of images</strong> that are isolated and have their own environments and set of processes.
 
+>[!info]
+>The container image doesn't have the OS Kernel, it has a slim version of all OS utilities that's needed to run the container.
+
 A <span style="color: #d65d0e">container</span>, powered by the <span style="color: #d65d0e">containerization engine</span>, is a <strong style="color: #d79921">standard unit of software</strong> that encapsulates everything (applications code, runtime, system tools, system libraries) that programmers need to build, ship and run applications efficiently.
 
-<span style="color: #3588E9">--></span> Containers solve the problem of making software portable so that applications can run on multiple platforms. This is possible because <strong>containers are platform-independent</strong> and can run on the cloud, desktop, and on-premises, and <strong>they are operating system-independent</strong>, which means they can run on Windows, Linux or Mac Os.
+A container is an isolated process that consist of the following itens, all bundled into one package:
+- the application code
+- thee required dependencies (e.g. libraries, utilities, configuration files)
+- the necessary runtime environment to run the application
+
+>[!info]
+>Containers solve the problem of making software portable so that applications can run on multiple platforms. This is possible because <strong>containers are platform-independent</strong> and can run on the cloud, desktop, and on-premises, and <strong>they are operating system-independent</strong>, which means they can run on Windows, Linux or Mac Os.
 
 The container engine virtualizes the operating system and are responsible for running containers.
 
 Unlike virtual machines, containers are not meant to host an operating system. Containers are meant to run a specific task or process, such as to host an instance of a web server or application server or a database.
 
-> A container only leaves as long as the process inside it is alive. If the web service inside the container is stopped or crashed, then the container exits
+The container gives the ability to run more applications and more workloads on the infrastructure. The notion of containers is to take care of all drawbacks that has been hampering the applications landscape.
 
-- There are many popular container vendors today, which include: <span style="color:#98971a">Docker</span>, <span style="color:#98971a">Podman</span>, <span style="color:#98971a">LXC</span> and <span style="color:#98971a">Vagrant</span>.
-	- <span style="color:#98971a">Docker</span> <span style="color: #3588E9">--></span> the most popular container platform today.
-	- <span style="color:#98971a">Podman</span> <span style="color: #3588E9">--></span> daemon-less container engine that is more secure than Docker.
-	- <span style="color:#98971a">LXC</span> <span style="color: #3588E9">--></span> preferred for data-intensive apps and operations.
-	- <span style="color:#98971a">Vagrant</span> <span style="color: #3588E9">--></span> offers the highest levels of isolation on the running physical machine.
+<strong style="color: #d79921">Container technology</strong> is a <strong style="color: #b16286">method of packaging an application so it can run with isolation dependencies</strong>. Containers allows to package the application in a way which contains not just the application code, but also the dependencies including the environment. 
+
+>[!note]
+>A container only leaves as long as the process inside it is alive. If the web service inside the container is stopped or crashed, then the container exits
+
+Container allow to bundle the application in a way that is depoyable on any environment, on any machine, on any cloud provider. it gives the ability to move the application from one environment to the other, but it also gives very high portability. 
+
+<strong style="color: white">Benefits of containers:</strong>
+- containers make easier for developers to create, deploy, and run applications on different hardware and platforms, quickly and easily
+- containers share an single kernel and share application
+- containers cause a lower system overhead as compared to virtual machines
+
+There are many popular container vendors today, which include: [[Docker]], <span style="color:#98971a">Podman</span>, <span style="color:#98971a">LXC</span> and <span style="color:#98971a">Vagrant</span>.
+- <span style="color:#98971a">Docker</span> <span style="color: #3588E9">--></span> the most popular container platform today.
+- <span style="color:#98971a">Podman</span> <span style="color: #3588E9">--></span> daemon-less container engine that is more secure than Docker.
+- <span style="color:#98971a">LXC</span> <span style="color: #3588E9">--></span> preferred for data-intensive apps and operations.
+- <span style="color:#98971a">Vagrant</span> <span style="color: #3588E9">--></span> offers the highest levels of isolation on the running physical machine.
 
 <span style="color:#98971a">busybox</span> <span style="color: #3588E9">--></span> it's a binary that contains many well know Unix tools like <span style="color: #98971a">awk</span>, <span style="color: #98971a">date</span>, <span style="color: #98971a">whoami</span>, <span style="color: #98971a">wget</span>.
-##### <strong style="color:#d79921">Docker</strong>
 
-Available since 2013, Docker Is an open platform (engine) written in Go, that allows to develop, deploy, test and run applications as containers. It uses Linux kernel's features to deliver functionality.
+Container based virtualization is the option being adopt by most PaaS cloud players. <strong style="color: #d79921">Containers are all process based</strong>, so they have less isolation than a VM. Containers usually take mili-seconds to start, while a VM may take minutes. 
+###### <span style="color:#98971a">Amazon ECR</span>
 
-Docker isolates applications from infrastructure, including the hardware, operating systems and the container runtime. It uses the namespaces technology to provide an isolated workspace called "container" (containers are isolated from each other).
+<span style="color: #d65d0e">Elastic Container Registry (ECR)</span> is a <strong style="color: #b16286">fully-manage Docker container registry</strong> by AWS.
 
-> The main purpose of Docker is to package and containerized applications and to ship them and to run them anywhere any time as many times is nedded.
+The repository URI is what uniquely identifies the repository and the images that are being checked on it. When it starts creating clusters, the access to the particular image is needed, which tells where it's stored.  
 
-Docker creates a set of namespaces for every container and each aspect runs in a separate namespace with access limited to that namespace.
-
-<span style="color: #3588E9">--></span> <span style="color: #d65d0e">namespaces</span> is a <strong>feature of the Linux kernel</strong> that allows to provide complete network isolation to different processes on the system. It's similar in concept to what a <span style="color: #d65d0e">Hypervisor</span> does to provide the virtual resources to the Virtual Machine. They keep containers isolated until docker administrator allows containers to communicate over docker virtual network on the same host. With the namespaces isolation in Docker, operating systems and applications running in containers, feels like they have their own process tree.
-
-namepsace isolation tecnique: Process ID namespaces
-
-The processes running inside the container are in fact processes running on the underlying host. With process ID namespaces, each process can have multiple process IDs associated with it.
-
-By default there is no restriction as to how much of a resource a container can use, and hence a container may end up utilizing all of the resources on the underlying host.
-
-Docker primarily uses <span style="color: #d65d0e">cgroups</span> (control groups) to restrict the amount of hardware resources allocated to each container. This can be done by providing the --cpus option to the Docker run command. Example: docker run --cpus=.5ubuntu --> ensure that the container does not take up more than 50% of the host CPU at any given time. The same goes with memory: docker run --memory=100m ubuntu
-
-Docker requires that virtualization to be enabled in the Bios, <span style="color: #d65d0e">VT-X</span> or <span style="color: #d65d0e">AMD-V</span>.
-
-<span style="color: #3588E9">--></span> One of the goals of Docker is to make scripting distributed systems "easy".
-
-- The <span style="color: #d65d0e">Docker Engine</span> which is the <strong style="color: #d79921">heart of Docker</strong>, is comprised of runtime and packing tools, and is required to be installed on the host that runs Docker. It's <strong>designed as client-server application</strong>, and it has these components: <span style="color:#98971a">Docker CLI</span> (docker client), <span style="color:#98971a">Dockerd</span> (docker daemon), <span style="color:#98971a">REST APIs</span>.
-	- <span style="color:#98971a">Dockerd</span> <span style="color: #3588E9">--></span> it's the docker host server itself. The daemon listens for Docker API request or commands such as "docker run" and processes those commands. The daemon, is responsible for: build, run and distributes containers to the registry. Docker host includes and manages: images, containers, namespaces, networks, storage, plugins and add-on.
-	- <span style="color:#98971a">Docker API</span> <span style="color: #3588E9">--></span> defines the interface that all programs use to talk to the daemon.
-	- <span style="color:#98971a">Docker CLI</span> <span style="color: #3588E9">--></span> send instructions/commands to the Docker host server via command line interface (CLI) or through REST APIs. The Docker CLI can be used to communicate with local and remote host. The Docker CLI and the dockerd can run on the same system or connect the client to a remote docker daemon.
-	- To use Docker CLI to work with remote docker engine, simply use the dash option (<code style="color:#689d6a">-H</code>) on the Docker command and specify the remote Docker engine address and a port <span style="color: #3588E9">--></span> <code style="color:#689d6a">docker -H=[remote-docer-engine]:[port]</code> <strong>Example:</strong> <code style="color:#689d6a">docker -H=10.123.2.1:2375 run nginx</code>
-	- <span style="color: #3588E9">--></span> <span style="color:#98971a">docker daemon</span> can also communicate with other daemons to manage Docker services.
-	- The Docker engine also utilizes <span style="color: #d65d0e">cgroups</span> for isolation, which are used for controlling container resources, primarily around CPU and memory, they provide resource isolation. Cgroups in Docker are strict Kernel requirements, which means that they need to be compatible.
-###### <strong style="color: #d79921">Docker Architecture</strong>
-###### <strong style="color: #d79921">Docker Objects</strong>
-###### <strong style="color: #d79921">Docker Commands</strong>
-##### <strong style="color:#d79921">Vagrant</strong>
+<span style="color: #d65d0e">push commands</span> <span style="color: #3588E9">--></span> return all the commands used to push the images on ECR
+- `aws ecr get--login --region us-east-1`
+- `docker build -t helloworld`
+- `docker tag helloworld:latest <ecr>`
+- `docker push <ecr>`
 ## **Container Orchestration**
 ---
 <span style="color: #d65d0e">Container orchestration</span> is a process that automates the container life cycle of containerized applications, which includes: Deployment, Management, Scaling, Networking and Availability. It can be implemented on-premises, an on public, private, or multi-cloud environments. Container orchestration solves the problem of deploying multiple containers across many hosts.
 
-<span style="color: #d65d0e">Container orchestration</span> <strong>features</strong><strong style="color:#3588E9"> :</strong> defines container images and registry, improves provisioning and deployment, secures network connectivity, ensures availability and performance, manages scalability and load balancing, resource allocation and scheduling, rolling updates and roll backs, health checks and automated error handling.
+<span style="color: #d65d0e">Container orchestration</span> <strong style="color: white">features</strong><strong style="color:#3588E9"> :</strong> defines container images and registry, improves provisioning and deployment, secures network connectivity, ensures availability and performance, manages scalability and load balancing, resource allocation and scheduling, rolling updates and roll backs, health checks and automated error handling.
 
 <span style="color: #d65d0e">Container orchestration</span> <strong>uses configuration files</strong> written in <span style="color:#98971a">YAML</span> or <span style="color:#98971a">JSON</span>. These files configure each container so it can find resources, establish a network, and store logs. Container orchestration manages the container's life-cycle based on specifications in the configuration file. This includes system parameters (like CPU and memory), and file parameters (like proximity and file metadata). And container orchestration supports scaling and enhances productivity, through automation.
 
-Some of the well-know <strong>container orchestration tools</strong> are: <span style="color:#98971a">Marathon</span>, <span style="color:#98971a">Hashicorp's Nomad</span>, [[ Docker Swarm ]] and [[ Kubernetes ]]
+Some of the well-know <strong style="color: #d79921">container orchestration tools</strong> are: <span style="color:#98971a">Marathon</span>, <span style="color:#98971a">Hashicorp's Nomad</span>, AWS ECS, [[ Docker Swarm ]] and [[ Kubernetes ]]
 - <span style="color:#98971a">Marathon</span> <span style="color: #3588E9">--></span> is a framework for Apache Mesos, and open-source cluster manager that was developed by the University of California at Berkeley. It allows the developer to scale container infrastructure by automating the bulk of management and monitoring tasks.
 - <span style="color:#98971a">Hashicorp's Nomad</span> <span style="color: #3588E9">--></span> is a free and open-source cluster management and scheduling tool that supports Docker and other standalone, virtualized, or containerized applications on all major operating systems across all infrastructure, whether on-premises or in the cloud.
 - <span style="color:#98971a">Docker Swarm</span> <span style="color: #3588E9">--></span> it's the cluster management and orchestration feature that was designed specifically to work with Docker Engine and other Docker tools. It's functionality comes from a separate project that Docker calls Swarmkit.
 - <span style="color:#98971a">Kubernetes</span> <span style="color: #3588E9">--></span> it's an open-source platform developed by Google, and it's the de facto standard for container orchestration. Kubernetes automates a host of container management tasks like: deployment, storage provisioning, load balancing and scaling, service discovery and "self-healing".
 
-<span style="color: #3588E9">--></span> Container orchestration helps to meet business goals and increase profitability by using <span style="color: #d65d0e">automation</span>.
+>[!info]
+>Container orchestration helps to meet business goals and increase profitability by using <span style="color: #d65d0e">automation</span>.
+###### <span style="color: #d79921">Elastic Container Service (ECS)</span>
+
+<span style="color: #d65d0e">ECS</span> is an <strong style="color: #b16286">orchestration service that supports Docker</strong>, used for automating deployment, scaling and managing the containerized applications. 
+
+Some of the <strong style="color: white">features</strong> include:
+- launching and stooping Docker containers
+- scaling the application
+- query the state of the applications
+- schedule long-running applications
+
+<span style="color: #d65d0e">Docker</span> is <strong style="color: #d79921">the only container-runtime platform supported by Amazon ECS</strong>. Other container-runtime tools available in the industry are Rocket, LXD, OpenVZ and more.
+
+ECS receives the docker image and maintain the entire cluster, including scaling principles (like Kubernetes environment, but in a form of managed service by AWS).
+
+<span style="color: #d65d0e">Fargate</span> <span style="color: #3588E9">--></span> it'a an <strong style="color: #b16286">AWS managed service</strong> (serverless infrastructure) that allows to set all the configuration in a UI.
+
+<strong style="color: white">Best practices:</strong>
+- One EC2 instance to one TASK
+- One task to one Container
+
+One task to many containers <span style="color: #3588E9">--></span> not recommended by AWS
+
+<strong style="color: #b16286">An amazon ecs clusters is a logical grouping of tasks or services</strong>. The tasks and services run on infrastructure that is registered to a cluster.  The infrastructure capacity can be provided by AWS Fargate.
+
+<strong style="color:#98971a">Task definitions</strong>
+- task are a <strong style="color: #b16286">group of containers</strong> that live and terminate together
+- memory limit <span style="color: #3588E9">--></span> softy (default) and hard limit
+
+>[!info]
+>The number of tasks basically determines at what rate the application is getting the data on request from the customers.
 ## **Cloud Computing**
 ---
 It is a <strong style="color: #b16286">business model that allows the use of on-demand computing resources through network connections</strong>. In addition, Cloud computing enables efficient marketing of applications regardless of maintenance and cost.
