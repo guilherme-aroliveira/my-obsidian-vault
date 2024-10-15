@@ -309,6 +309,8 @@ Git
 #### <strong style="color:#689d6a">Virtual Machines</strong>
 
 Check if virtualization is supported on Linux <span style="color: #3588E9">--></span> `grep -E --color 'vmx|svm' /proc/cpuinfo`
+
+Vagrant
 #### <strong style="color:#689d6a">Containers</strong>
 
 An <span style="color: #d65d0e">image</span> <strong style="color: #b16286">is a package or a template</strong>, just like a VM template that you might have worked with in the virtualization world. <strong style="color: #b16286">It is used to create one or more containers.</strong>
@@ -375,108 +377,18 @@ Docker requires that virtualization to be enabled in the Bios, <span style="colo
 
 <span style="color: #d65d0e">Container orchestration</span> <strong>uses configuration files</strong> written in <span style="color:#98971a">YAML</span> or <span style="color:#98971a">JSON</span>. These files configure each container so it can find resources, establish a network, and store logs. Container orchestration manages the container's life-cycle based on specifications in the configuration file. This includes system parameters (like CPU and memory), and file parameters (like proximity and file metadata). And container orchestration supports scaling and enhances productivity, through automation.
 
-- Some of the well-know <strong>container orchestration tools</strong> are: <span style="color:#98971a">Marathon</span>, <span style="color:#98971a">Hashicorp's Nomad</span>, [[ Docker Swarm ]] and [[ Kubernetes ]].
-	- <span style="color:#98971a">Marathon</span> <span style="color: #3588E9">--></span> is a framework for Apache Mesos, and open-source cluster manager that was developed by the University of California at Berkeley. It allows the developer to scale container infrastructure by automating the bulk of management and monitoring tasks.
-	- <span style="color:#98971a">Hashicorp's Nomad</span> <span style="color: #3588E9">--></span> is a free and open-source cluster management and scheduling tool that supports Docker and other standalone, virtualized, or containerized applications on all major operating systems across all infrastructure, whether on-premises or in the cloud.
-	- <span style="color:#98971a">Docker Swarm</span> <span style="color: #3588E9">--></span> it's the cluster management and orchestration feature that was designed specifically to work with Docker Engine and other Docker tools. It's functionality comes from a separate project that Docker calls Swarmkit.
-	- <span style="color:#98971a">Kubernetes</span> <span style="color: #3588E9">--></span> it's an open-source platform developed by Google, and it's the de facto standard for container orchestration. Kubernetes automates a host of container management tasks like: deployment, storage provisioning, load balancing and scaling, service discovery and "self-healing".
+Some of the well-know <strong>container orchestration tools</strong> are: <span style="color:#98971a">Marathon</span>, <span style="color:#98971a">Hashicorp's Nomad</span>, [[ Docker Swarm ]] and [[ Kubernetes ]]
+- <span style="color:#98971a">Marathon</span> <span style="color: #3588E9">--></span> is a framework for Apache Mesos, and open-source cluster manager that was developed by the University of California at Berkeley. It allows the developer to scale container infrastructure by automating the bulk of management and monitoring tasks.
+- <span style="color:#98971a">Hashicorp's Nomad</span> <span style="color: #3588E9">--></span> is a free and open-source cluster management and scheduling tool that supports Docker and other standalone, virtualized, or containerized applications on all major operating systems across all infrastructure, whether on-premises or in the cloud.
+- <span style="color:#98971a">Docker Swarm</span> <span style="color: #3588E9">--></span> it's the cluster management and orchestration feature that was designed specifically to work with Docker Engine and other Docker tools. It's functionality comes from a separate project that Docker calls Swarmkit.
+- <span style="color:#98971a">Kubernetes</span> <span style="color: #3588E9">--></span> it's an open-source platform developed by Google, and it's the de facto standard for container orchestration. Kubernetes automates a host of container management tasks like: deployment, storage provisioning, load balancing and scaling, service discovery and "self-healing".
 
 <span style="color: #3588E9">--></span> Container orchestration helps to meet business goals and increase profitability by using <span style="color: #d65d0e">automation</span>.
-
-#### <strong style="color:#689d6a">Kubernetes</strong>
-
-<span style="color:#98971a">Kubernetes</span> it's an open-source platform written in Go, which was developed by Google and maintained by the <span style="color: #d65d0e">Cloud Native Computing Foundation</span> (CNCF) that allows to manage containerized applications.  It can run in any kind of server, such as on-premise data centers, public, private and hybrid cloud.
-
-<span style="color: #3588E9">--></span>  It's also kwon as "Kates" or K8s. Kubernetes is widely supported by leading cloud providers, many of whom now offer fully managed Kubernetes service.
-
-[[ minikube ]]<span style="color: #3588E9"> --></span> is a software that allows developers to run a Kubernetes cluster on the local machine. It's a very useful tool that helps in the process of learning Kubernetes.
-
-[[Computer Science/DevOps/Containers/Orchestration/Tools/Kubectl]]<span style="color: #3588E9">--></span> is the Kubernetes command line interface (CLI), stands for Kube Command Tool Line. Its used to deploy and manage applications on a Kuberneters cluster to get cluster information, to get status of other nodes in the cluster, inspect and manage cluster resources, view logs, and more. Key commands types: Imperative commands, Imperative object configuration and Declarative object configuration.
-
-Kubernetes uses <span style="color: #d65d0e">YAML files</span> as inputs for the <strong style="color: #b16286">creation of objects</strong> such as pods, replicas, deployments, services, etc. All of these follow a similar structure. A Kubernetes definition file <strong style="color: #b16286">always contains four top level fields</strong>: <span style="color: #d65d0e">apiVersion, kind, medata and spec.</span>
-
-```yaml
-apiVersion: v1
-kind: Pod
-metadata:
-  name: myaapp-pod
-  labels:
-    app: myapp
-    tier: front-end
-spec:
-  containers: # List/Array 
-    - name: nginx-container # dash indicates that this is the first item in the list
-      image: nginx
-```
-
-> Note: A YAML file is used to represent data, which in Kubernetes is called Kubernetes manifests. Every manifest must define an API version to use.
-
-- <span style="color: #d65d0e">apiVersion</span> <span style="color: #3588E9">--></span> the version of the Kubernetes API that will be used the object. <strong style="color: #d79921">Some possible values are</strong>: v1 for Pod and Service, apps/v1 for ReplicaSet and Deployment.
-- <span style="color: #d65d0e">kind</span> <span style="color: #3588E9">--></span> refers to the type of the Kubernetes object that will be created
-- <span style="color: #d65d0e">metadata</span> <span style="color: #3588E9">--></span> data about the object, like its name, labels, etc. It's in the form of a dictionary.
-- <span style="color: #d65d0e">spec</span> <span style="color: #3588E9">--></span> provides additional information to Kubernetes pertaining to that object, it's going to be different for different objects. It's also a dictionary, so each property must be added under it
-
-> For any Kubernetes definition file the spec definition defines what's inside the object that will be created.
-
-<strong style="color: #d79921">Kubernetes Architecture</strong>
-#### <strong style="color:#689d6a">Openshift</strong>
-
-<span style="color: #d65d0e">Openshift</span> is an enterprise-ready Kubernetes container platform built for an open hybrid cloud strategy, developed by Red Hat.
-
-Besides container orchestration, it provides additional tooling around the complete lifecycle of applications, from build, to CI/CD, to monitoring and logs.
-
-Just like a Fedora distribution of Linux, OpenShift is a distribution of Kubernetes, building on its foundational capabilities.
-
-<span style="color: #3588E9">--></span> OpenShift is used as an extension of Kubernetes to provide a more robust and comprehensive platform for containerized applications.
-
-Openshift is a premiere platform for running micro services.
-
-It orchestrates containerized workloads.
-
-Microservices with OpenShift can easily integrate with serverless technologies.
-
-Benefits: Enables simplified microservices development and deployment; Enables use of third-party software to fill gaps without requiring development of an entire solution.
-
-A <strong style="color: #b16286">Build confguration file</strong> (BuildConfig) <strong style="color: #b16286">defines</strong> the <strong style="font-weight: 600">build strategy and input sources</strong>.
-
-- Commonly <strong style="font-weight: 600">used</strong> <strong style="color: #b16286">Build strategies</strong> are: <span style="color: #98971a">Source to Image (S2I)</span>, <span style="color: #98971a">Docker</span> and Custom.
-	- <span style="color: #98971a">Source to Image (S2I)</span>
-		- Is a tool for building reproducible container images
-		- Injects application source into a container image to produce a ready-to-run image
-		- Eliminates using a Dockerfile
-		- Go from Source to Image in one step
-		- OpenShift includes predefined builder images
-	- Custom
-		- The developer must define and create his own builder image
-		- Custom builder images are Docker images that contain logic to transform inputs ino expected outputs.
-		- Custom builds are only available to cluster administrators
-
-A build input source provides content for builds. The following build inputs can be used, listed in order of precedence: Inline Dockerfile definitions, Content extracted from existing images, Git repositories, Binary (or Local) inputs, Input secrets, and External artifacts.
-
-><strong style="color: ">Note:</strong> multiple inputs can be combined into a single build. And, an inline Dockerfile takes precedence and overwrites any external Dockerfile.
-
-An <span style="color: #d65d0e">ImageStream</span> is an abstraction for referencing container images within OpenShift. It continuouusly creates and updates containers images, but does contain actual image data but is merely a pointer <span style="color: #3588E9">--></span> points to images stored in internal and external registries, or to other ImageStreams.
-
-A <strong style="font-weight: 600">single</strong> ImageStream can <strong style="font-weight: 600">consist of many different tags</strong> such as <strong style="color: #b16286">latest</strong>, <strong style="color: #b16286">dev</strong> and <strong style="color: #b16286">test</strong>. And each tag points to a certain image in a registry.
-
-<span style="color: #3588E9">--></span> An ImageStream provides a trigger capability that automatically invokes builds and deployments when a new version of an image is available.
-
-Red Hat Marktplace --> provides a central location to try, buy, deploy and manage software certified for OpenShift environments.
-
-<strong style="color: #d79921">Openshift Architecture</strong>:
-
-<strong style="color: #d79921">Types of triggers</strong>:
-
-<strong style="color: #d79921">Operators</strong>:
-
-<strong style="color: #d79921">Istio service mesh</strong>
-
-<strong style="color: #d79921">Deploy microservices with OpenShift</strong>:
 ## **Cloud Computing**
 ---
-It is a business model that allows the use of on-demand computing resources through network connections. In addition, Cloud computing enables efficient marketing of applications regardless of maintenance and cost.
+It is a <strong style="color: #b16286">business model that allows the use of on-demand computing resources through network connections</strong>. In addition, Cloud computing enables efficient marketing of applications regardless of maintenance and cost.
 
-NIST --> National Institute of Standards and Technology
+<span style="color: #d65d0e">NIST</span> <span style="color: #3588E9">--></span> National Institute of Standards and Technology
 
 NIST defines Cloud computing as a model for enabling convenient, on-demand network access to a shared pool of configurable computing resources that can be rapidly provisioned and released with minimal management effort or service provider interaction.
 
@@ -499,9 +411,9 @@ Examples of computer resources: networks , servers, storage applications, servic
 		- utility model of billing (charged after the usage)
 ##### **<span style="color:#689d6a">Cloud Service Models</span>**
 
-<span style="color: #d65d0e">Infrasctructure as a Service (IaaS)</span> is a set of compute, networking and storage resources that have been virtualized by a vendor so that a user can access and configure them. In the IaaS model, the cloud provider manages the physical resources: data centers, cooling, power, networkin & security, servers & storage
+<span style="color: #d65d0e">Infrasctructure as a Service (IaaS)</span> is a set of compute, networking and storage resources that have been virtualized by a vendor so that a user can access and configure them. In the IaaS model, the cloud provider manages the physical resources: data centers, cooling, power, networking & security, servers & storage
 
-<span style="color: #d65d0e">Plataform as a service (PaaS)</span> takes advantage of all the virtualized resources from IaaS and then just abstracts them away, so the user doesn't have to worry about managing any of those virtualized resources. The provider manages the plataform infrastrcuture: operating system, development tools, databases.
+<span style="color: #d65d0e">Platform as a service (PaaS)</span> takes advantage of all the virtualized resources from IaaS and then just abstracts them away, so the user doesn't have to worry about managing any of those virtualized resources. The provider manages the platform infrastructure: operating system, development tools, databases.
 
 <span style="color: #d65d0e">Software as a Service (SaaS)</span> is just software that the user don't have to install on his machine and he doesn't have to manually update. The cloud provider hosts and manages applications and data. The user for SaaS could be anyone. Example os SaaS: Gmail.
 
@@ -535,11 +447,13 @@ Private cloud platforms can be implemented internally or externally.
 
 When it is provisioned over a cloud providers infrastructure, it is owned, managed, and operated by the service provider. This external private cloud offering that resides on a cloud service providers infrastructure is called a <span style="color: #d65d0e">Virtual Private Cloud</span> or VPC.
 
+>[!info]
 >A <span style="color: #d65d0e">VPC</span> is a public cloud offering that lets an organization establish its own private and secure cloud-like computing environment in a logically isolated part of a shared public cloud.
 
 A private cloud is a virtualized environment modeled to bring in the benefits of a public cloud platform without the perceived disadvantages of an open-end shared public platform.
 
-<span style="color: #3588E9">--></span> Using a VPC, organizations can leverage the dynamic scalability, high availability, and lower cost of ownership of a public cloud, while having the infrastructure and security tailored to the organization's unique needs.
+>[!note]
+>Using a VPC, organizations can leverage the dynamic scalability, high availability, and lower cost of ownership of a public cloud, while having the infrastructure and security tailored to the organization's unique needs.
 
 <span style="color: #d65d0e">cloud bursting</span> <span style="color: #3588E9">--></span> leveraging public cloud instances for a period of time, but returning to the private cloud when the surge is meet.
 
@@ -558,19 +472,21 @@ A private cloud is a virtualized environment modeled to bring in the benefits of
 “<strong style="color: #b16286">Cloud infrastructure that is provisioned for exclusive use by a specific community of consumers</strong> from organizations that have shared concerns (e.g., mission, security requirements, policy, and compliance considerations). It may be owned, managed, and operated by one or more of the organizations in the community, a third party, or some combination of them, and it may exist on or off premises.” (NIST definition)
 ##### **<span style="color:#689d6a">Cloud Infrastructure</span>**
 
-The infrastructure layer is the foundation of the cloud. This layer consists of physical resources that are housed in Regions, Zones and Data Centers.
+The <strong style="color: #b16286">infrastructure layer is the foundation of the cloud</strong>. This layer consists of physical resources that are housed in Regions, Zones and Data Centers.
 
-A cloud Region, is a geographic area or location where a Cloud provider’s infrastructure is clustered, and may have names like NA South or US East. The cloud Regions are isolated from each other so that if one Region was impacted by a natural disaster like an Earthquake, the Cloud operations in other Regions would keep running.
+A <span style="color: #d65d0e">cloud Region</span>, is a <strong style="color: #b16286">geographic area or location where a Cloud provider’s infrastructure is clustered</strong>, and may have names like NA South or US East. The cloud Regions are isolated from each other so that if one Region was impacted by a natural disaster like an Earthquake, the Cloud operations in other Regions would keep running.
 
-Each Cloud Region can have multiple Zones (or Availability Zones or AZ for short), which are typically distinct Data Centers with their own power, cooling and networking resources. These Zones can have names like DAL-09 or us-east-1. The isolation of zones improves the cloud’s overall fault tolerance, decreases latency, and avoids creating a single shared point of failure.
+Each Cloud Region can have multiple Zones (or Availability Zones or AZ for short), which are typically distinct Data Centers with their own power, cooling and networking resources. These Zones can have names like DAL-09 or us-east-1. <strong style="color: #d79921">The isolation of zones improves the cloud’s overall</strong> fault tolerance, decreases latency, and avoids creating a single shared point of failure.
 
-> A cloud Data center is a huge room or a warehouse containing cloud infrastructure.
+>[!info]
+>A cloud Data center is a huge room or a warehouse containing cloud infrastructure.
 
-Cloud providers offer several compute options – Virtual Servers, Bare Metal Servers, and “Serverless” computing resources. Most of the servers in a cloud datacenter run hypervisors to create virtual servers or virtual machines (also called VMs for short), that are software-based computers, based on virtualization technologies.
+Cloud providers offer several compute options – Virtual Servers, Bare Metal Servers, and “Serverless” computing resources. <strong style="color: #d79921">Most of the servers in a cloud Data Center run hypervisors</strong> to create virtual servers or virtual machines (also called VMs for short), that are software-based computers, based on virtualization technologies.
 
-Virtual Machines or VMs are also known as Virtual Servers or Virtual Instances, or simply instances, depending on the cloud provider. When you create a virtual server in the cloud, you specify the Region and Zone or Data Center you want the server to be provisioned in and the Operating System you want on it.
+<span style="color: #d65d0e">Virtual Machines</span> or VMs are also known as Virtual Servers or Virtual Instances, or simply instances, depending on the cloud provider. When  a virtual server is created on the cloud, the Region and Zone or Data Center are specified that the server to be provisioned in and the Operating System to be used.
 
-> shared (that is, a multi-tenant) VMs or dedicated (that is, a single-tenant) VMs.
+>[!info] 
+>shared (that is, a multi-tenant) VMs or dedicated (that is, a single-tenant) VMs.
 ##### **<span style="color:#689d6a">Cloud Storage</span>**
 ## **Infrastructure as Code**
 ---

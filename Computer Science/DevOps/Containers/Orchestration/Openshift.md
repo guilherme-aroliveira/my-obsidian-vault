@@ -1,3 +1,56 @@
+<span style="color: #d65d0e">Openshift</span> is an enterprise-ready Kubernetes container platform built for an open hybrid cloud strategy, developed by Red Hat.
+
+Besides container orchestration, it provides additional tooling around the complete lifecycle of applications, from build, to CI/CD, to monitoring and logs.
+
+Just like a Fedora distribution of Linux, OpenShift is a distribution of Kubernetes, building on its foundational capabilities.
+
+<span style="color: #3588E9">--></span> OpenShift is used as an extension of Kubernetes to provide a more robust and comprehensive platform for containerized applications.
+
+Openshift is a premiere platform for running micro services.
+
+It orchestrates containerized workloads.
+
+Microservices with OpenShift can easily integrate with serverless technologies.
+
+Benefits: Enables simplified microservices development and deployment; Enables use of third-party software to fill gaps without requiring development of an entire solution.
+
+A <strong style="color: #b16286">Build confguration file</strong> (BuildConfig) <strong style="color: #b16286">defines</strong> the <strong style="font-weight: 600">build strategy and input sources</strong>.
+
+- Commonly <strong style="font-weight: 600">used</strong> <strong style="color: #b16286">Build strategies</strong> are: <span style="color: #98971a">Source to Image (S2I)</span>, <span style="color: #98971a">Docker</span> and Custom.
+	- <span style="color: #98971a">Source to Image (S2I)</span>
+		- Is a tool for building reproducible container images
+		- Injects application source into a container image to produce a ready-to-run image
+		- Eliminates using a Dockerfile
+		- Go from Source to Image in one step
+		- OpenShift includes predefined builder images
+	- Custom
+		- The developer must define and create his own builder image
+		- Custom builder images are Docker images that contain logic to transform inputs ino expected outputs.
+		- Custom builds are only available to cluster administrators
+
+A build input source provides content for builds. The following build inputs can be used, listed in order of precedence: Inline Dockerfile definitions, Content extracted from existing images, Git repositories, Binary (or Local) inputs, Input secrets, and External artifacts.
+
+><strong style="color: ">Note:</strong> multiple inputs can be combined into a single build. And, an inline Dockerfile takes precedence and overwrites any external Dockerfile.
+
+An <span style="color: #d65d0e">ImageStream</span> is an abstraction for referencing container images within OpenShift. It continuouusly creates and updates containers images, but does contain actual image data but is merely a pointer <span style="color: #3588E9">--></span> points to images stored in internal and external registries, or to other ImageStreams.
+
+A <strong style="font-weight: 600">single</strong> ImageStream can <strong style="font-weight: 600">consist of many different tags</strong> such as <strong style="color: #b16286">latest</strong>, <strong style="color: #b16286">dev</strong> and <strong style="color: #b16286">test</strong>. And each tag points to a certain image in a registry.
+
+<span style="color: #3588E9">--></span> An ImageStream provides a trigger capability that automatically invokes builds and deployments when a new version of an image is available.
+
+Red Hat Marktplace --> provides a central location to try, buy, deploy and manage software certified for OpenShift environments.
+
+<strong style="color: #d79921">Openshift Architecture</strong>:
+
+<strong style="color: #d79921">Types of triggers</strong>:
+
+<strong style="color: #d79921">Operators</strong>:
+
+<strong style="color: #d79921">Istio service mesh</strong>
+
+<strong style="color: #d79921">Deploy microservices with OpenShift</strong>:
+
+
 . Red Hat Openshift is an enterprise-ready Kubernetes container platform build for an open hybrid cloud strategy. Is provides a consistent application platform to manage hybrid-cloud, multicloud, and edge deployments.
 
 . Its build on Linux, containers and automation. It provides full-stack automation and self-service provision for efficient development and deployment.
