@@ -293,17 +293,83 @@ So a system is able to use host name to IP mapping from the /etc/hosts file loca
 	- it returns more details in a similar form as is stored on the server
 ## **Version Control**
 ---
-Source code management (or SCM) is the practice of tracking versions of source code as it is developed.
+<span style="color: #d65d0e">Source code management</span> (or SCM) is the <strong style="color: #b16286">practice of tracking versions of source code</strong> as it is developed. SCM tolls are also referred to as version control systems (VCS)
 
-SCM tolls are also referred to as version control systems (VCSs)
+SCM can be centralized or distributed. A centralized SCM stores code repository and version history centrally. With distributed SCM, each developer has a local clone of code repository and version history.
 
-SCM can be centralizaed or distributed. A centrlized SCM sotres code reopo and version history centrally. With distributed SCM,each developer has a local clone of code repo and version history.
+Some of the most popular repository hosts are GitHub, GitLab, and Bit Bucket. Git is the current standard for version control software.
 
-Some of the most popular repository hosts are GitHub, GitLab, and BitBucket. Git is the current standard for version control software.
+[[Git]]  <span style="color: #3588E9">--></span> is a <strong style="color: #b16286">software that keeps track of changes</strong> that are made of files and directories. It allows to move back and forth between the versions
+- Is referred to as a version control system (VCS). The <strong style="color: #b16286">primary purpose is to manage</strong> source code <span style="color: #3588E9">--></span> source code management (SCM)
+###### <span style="color: #d79921">Distributed Version Control</span>
 
-Gitflow --> metodo de versionamento e desenvolvimento
+Different users maintain their own repositories, instead of working from a central repository.
 
-Git  
+Changes are stored as sets or patches, and <strong style="color: #b16286">it's focused on tracking changes</strong>, not version of the documents. Git really focus on these changes sets and encapsulating a change set as a discrete unit, and then those changes sets can be changes between repositores.
+
+There is no single master repository, there's just many working copies, each with their own combination of changes sets.
+
+<strong style="color: white">By convention</strong> users often do designate a repository as beings the master repository, but that <strong style="color: #b16286">it's not a part of the Git architecture</strong>, it's just a convention.
+
+The users can actually have three or four different master repositories that have different versions in them.
+
+There's no need to communicate with a central server. it's not necessary to have network access to submit the changes. And there's no single point of failure.
+###### <span style="color: #689d6a">Git</span>
+
+Git stores configuration information in three places: system, user and projects. At the <strong style="color: #d79921">system level</strong>, git stores configuration in the directory: `/etc/gitconfig`
+
+At the <strong style="color: #d79921">user level</strong> , the configuration is located on the `gitconfig` file on the `home` directory <span style="color: #3588E9">--></span> `/.gitconfig` or `$HOME/.gitconfig`
+
+>[!info]
+>A configuração ao nível do sistema é a primeira e mais abrangente. É uma configuração aplicada a todo usuário do sistema por padrão.
+
+At the <strong style="color: #d79921">project level</strong> the configuration is located at: `project/.git/config`
+
+>[!note]
+>The directory `.git` is all of Git tracking, if it's deleted, git would be removed from the project, this directory is the tracking. Git <strong style="color: white">centralizes everything</strong> into `.git`
+
+The `git config` command allows to edit configurations in all three levels, following a modifier that indicates each level will be: 
+- <code style="color: #689d6a">$ git config --system</code>
+
+O comando `git help` exibe a documentação de qualquer comando informado: `git helpo log`. Há também o comando `main` que irá exibir o manual do comando informado: `man git-log`.
+
+<strong style="color: #c6554f">Git workflow</strong>
+- workspace <span style="color: #3588E9">---></span> ( `git add` )  <span style="color: #3588E9">---></span> staging <span style="color: #3588E9">---></span> ( `git commit` ) <span style="color: #3588E9">---></span> local repository <span style="color: #3588E9">---></span> ( `git push` ) <span style="color: #3588E9">---></span> remote repository
+
+<strong style="color: #c6554f">Git repository guidelines</strong>
+- create a separate Git repository for each component
+- create a new branch for every issue
+- use pull request do merge to master
+- every pull request is an opportunity for a code review
+
+<strong style="color: #c6554f">Pull request workflow</strong>
+- GitHub (remote main) <span style="color: #3588E9">---></span> Git (local main) <span style="color: #3588E9">---></span> local branch <span style="color: #3588E9">---></span> remote branch <span style="color: #3588E9">---></span> remote main
+- <code style="color: #689d6a">$ git checkout main</code> <span style="color: #3588E9">--></span> <code style="color: #689d6a">$ git pull main</code> <span style="color: #3588E9">--></span> <code style="color: #689d6a">$ git git checkout [branch]</code> <span style="color: #3588E9">--></span>  <code style="color: #689d6a">$ git merge main</code> <span style="color: #3588E9">--></span>  <code style="color: #689d6a">$ git push -u origin [branch]</code>
+###### <span style="color: #d79921">Git for Teams</span>
+
+only test nerw comandas on the local repository and on a safe branch.
+
+commit early, commit often --> golden rule of Git
+keep the commit small in scope and focus single feature per commit
+small and frequent commits are very beneficial
+small-scoped commit are much easier to share with team members
+keep branch names, short, consistent and informative. Ex: `bug/123/menu-issue`
+type of change/change number, short name
+establish a naming conventions
+
+Commit messages 
+to write a great commit message use a text editor instead of the command line
+`git config --global core.editor /usr/bin/kate`
+
+set up a standard message template --> to draft commit messages that are uniform and more robust
+`git config commit.template "/home/Desktop/repos/.gitmessage.txt"`
+start with a subject line, describe the commit and what it was created, specifies the work items
+
+`git config core.autocrlf input` <span style="color: #3588E9">--></span> convert carrot to line field
+- `input` <span style="color: #3588E9">--></span> commit carriage return line feed to line feed when a commit is made
+auto setting is useful when working in a cross-platform environment
+
+<span style="color: #d65d0e">Gitflow</span> <span style="color: #3588E9">--></span> método de versionamento e desenvolvimento
 ## **Virtualization**
 ---
 ##### <span style="color:#689d6a">Virtual Machines</span>

@@ -32,6 +32,18 @@
             }
           },
           {
+            "id": "e55e42d5a6771c5b",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Computer Science/Tools/Git.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
             "id": "bf0b707c1c16926a",
             "type": "leaf",
             "state": {
@@ -233,8 +245,9 @@
   },
   "active": "ca88b87a91cbbde7",
   "lastOpenFiles": [
-    "Computer Science/DevOps/Containers/Docker.md",
+    "Computer Science/Tools/Git.md",
     "Computer Science/DevOps.md",
+    "Computer Science/DevOps/Containers/Docker.md",
     "Computer Science/Tools/Docker.md",
     "Computer Science/Software Engineering.md",
     "Computer Science/DevOps/IaC/AWS CDK.md",
@@ -258,7 +271,6 @@
     "Computer Science/Cloud Providers/aws-cli.md",
     "Computer Science/Cloud Providers/ibm-cli.md",
     "Computer Science/Web Development.md",
-    "Computer Science/Data Science.md",
     "Computer Science/DevOps/Containers/Orchestration",
     "Images/query-string.png",
     "Images/modelo_interacoes.png",
