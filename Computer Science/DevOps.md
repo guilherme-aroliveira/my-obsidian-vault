@@ -143,7 +143,7 @@ Developers can develops secure applications with DevOps.
 		* enables repeatable and adaptive process
 		* guarantees that security is implemented uniformly throughout the environment
 		* speeds up recovery after a security incident
-## **Linux**
+## **Unix**
 ---
 Whenever a Linux system builds up, it starts with just one process with a process ID of one. This is the root process and kicks off all the other processes in the system. By the time the system boots up completely, we have a handful of processes running. This can be seen by running the PS command to list all the running processes.
 
@@ -154,6 +154,22 @@ The text based command line interface that helps you run commands to interact wi
 there are different kinds of shells such as The Bourne Shell, the C Shell, Z Shell, born again Shell, which is known as Bash. And each of these shells behave differently
 
 Every Linux system has a super user known as the root user. The root user has no restrictions on the system and can perform any task, which is why in most production environments or enterprise environments, access to the root user is restricted and you will almost never log in to the systems as a root user. To edit sudo rules --> /etc/sudoers
+
+Kernel
+
+Linux Kernel is a program that needs to be loaded into memory and run. That operation is done by a boot loader, like GRUB. 
+
+GRUB reads the kernel file from disk into memory and transfers controls to it.
+
+The kernel has command-line parameters. And GRUB is responsible for passing those parameters to the kernel. The Kernel also have an API.
+
+The functions that are called from user space into the kernel are called system calls. But the Linux Kernel also provides virtual file systems: proc, sys and debugfs. Through those virtual file systems  is possible to interact directly with kernel, getting information from it and changing things in the kernel.
+
+The file system also has devices files which receive interactions by doing operations on those devices files. Those are standard system calls like read, write and open. 
+
+The kernel enforces privileges, which in Linux are called capabilities. In the Linux kernel source code, it refers to the capabilities of a process to see if it is allowed to perform some sort of privileged information. Ex: root processes have all the privileges.
+
+The Linux kernel also implements a number of security policies. Ex: the underlying mechanisms used by SE Linux.
 ##### **<span style="color:#689d6a">Linux Commands</span>**
 
 echo $SHELL --> to see which shell you are on
@@ -297,11 +313,21 @@ So a system is able to use host name to IP mapping from the /etc/hosts file loca
 
 SCM can be centralized or distributed. A centralized SCM stores code repository and version history centrally. With distributed SCM, each developer has a local clone of code repository and version history.
 
-Some of the most popular repository hosts are GitHub, GitLab, and Bit Bucket. Git is the current standard for version control software.
-
 [[Git]]  <span style="color: #3588E9">--></span> is a <strong style="color: #b16286">software that keeps track of changes</strong> that are made of files and directories. It allows to move back and forth between the versions
 - Is referred to as a version control system (VCS). The <strong style="color: #b16286">primary purpose is to manage</strong> source code <span style="color: #3588E9">--></span> source code management (SCM)
-###### <span style="color: #d79921">Distributed Version Control</span>
+- Git is the current standard for version control software.
+
+Remote platforms (repository managers) alto referred as <strong style="color: #d79921">central repository</strong>, make it easier for team work with Git. They <strong style="color: #b16286">provide additional capabilities</strong> that surround Git repositories. It's normally hosted on a remote server or located within a Gt repository management service.
+
+<span style="color: #d65d0e">Remote Server</span> <span style="color: #3588E9">--></span> simply install Git into the hosting environment and set a up anew repository with the command: `git init --bare` This option is chosen if it's not required a more full-feature Git hosting solution, it's unable to host code on a third-party service.
+
+<span style="color: #d65d0e">Repository Manager</span> <span style="color: #3588E9">--></span> cloud-based service or on-premises installation. includes capabilities such as: issue tracking, pull requests, code review, access controls, inline editing.
+
+Some of the most popular repository hosts are:
+- <span style="color: #689d6a">GitHub</span> <span style="color: #3588E9">--></span> cloud hosting, open-source leader, REST API to access data, Gists feature for sharing small code snippets.
+- <span style="color: #689d6a">GitLab</span> <span style="color: #3588E9">--></span> cloud and self-hosting (completely free), CI capabilities support via its GitLab Runner feature, Cycle analytics.
+- <span style="color: #689d6a">Bitbucket</span> <span style="color: #3588E9">--></span> multi-platform, Jira integration, Confluence integration. 
+##### <span style="color: #d79921">Distributed VCS</span>
 
 Different users maintain their own repositories, instead of working from a central repository.
 
@@ -314,7 +340,7 @@ There is no single master repository, there's just many working copies, each wit
 The users can actually have three or four different master repositories that have different versions in them.
 
 There's no need to communicate with a central server. it's not necessary to have network access to submit the changes. And there's no single point of failure.
-###### <span style="color: #689d6a">Git</span>
+##### <span style="color: #689d6a">Git</span>
 
 Git stores configuration information in three places: system, user and projects. At the <strong style="color: #d79921">system level</strong>, git stores configuration in the directory: `/etc/gitconfig`
 
@@ -345,31 +371,72 @@ O comando `git help` exibe a documentação de qualquer comando informado: `git 
 <strong style="color: #c6554f">Pull request workflow</strong>
 - GitHub (remote main) <span style="color: #3588E9">---></span> Git (local main) <span style="color: #3588E9">---></span> local branch <span style="color: #3588E9">---></span> remote branch <span style="color: #3588E9">---></span> remote main
 - <code style="color: #689d6a">$ git checkout main</code> <span style="color: #3588E9">--></span> <code style="color: #689d6a">$ git pull main</code> <span style="color: #3588E9">--></span> <code style="color: #689d6a">$ git git checkout [branch]</code> <span style="color: #3588E9">--></span>  <code style="color: #689d6a">$ git merge main</code> <span style="color: #3588E9">--></span>  <code style="color: #689d6a">$ git push -u origin [branch]</code>
-###### <span style="color: #d79921">Git for Teams</span>
+##### <span style="color: #d79921">Git for Teams</span>
 
-only test nerw comandas on the local repository and on a safe branch.
+<span style="color: #d65d0e">Golden rule of Git</span> <span style="color: #3588E9">--></span> commit early and commit often 
 
-commit early, commit often --> golden rule of Git
-keep the commit small in scope and focus single feature per commit
-small and frequent commits are very beneficial
-small-scoped commit are much easier to share with team members
-keep branch names, short, consistent and informative. Ex: `bug/123/menu-issue`
-type of change/change number, short name
-establish a naming conventions
+Keep the commit small in scope and focus single feature per commit. Small-scoped commit are much easier to share with team members. Small and frequent commits are very beneficial.
 
-Commit messages 
-to write a great commit message use a text editor instead of the command line
-`git config --global core.editor /usr/bin/kate`
+Keep branch names, short, consistent and informative. Example: `bug/123/menu-issue` <span style="color: #3588E9">--></span> type of change/change number, short name
 
-set up a standard message template --> to draft commit messages that are uniform and more robust
-`git config commit.template "/home/Desktop/repos/.gitmessage.txt"`
-start with a subject line, describe the commit and what it was created, specifies the work items
+Establish a naming conventions
 
-`git config core.autocrlf input` <span style="color: #3588E9">--></span> convert carrot to line field
+>[!note]
+>Only test new commands on the local repository and on a safe branch.
+###### <span style="color:#c6554f">Commit messages</span> 
+
+Use a text editor to write a great commit message instead of the command line:
+
+- `git config --global core.editor /usr/bin/kate`
+
+Set up a standard message template <span style="color: #3588E9">--></span> to draft commit messages that are uniform and more robust. Start with a subject line, describe the commit and what it was created, specifies the work items:
+
+- `git config commit.template "/home/Desktop/repos/.gitmessage.txt"`
+
+Auto setting is useful when working in a cross-platform environment:
+- convert carrot to line field <span style="color: #3588E9">--></span> `git config core.autocrlf input`
 - `input` <span style="color: #3588E9">--></span> commit carriage return line feed to line feed when a commit is made
-auto setting is useful when working in a cross-platform environment
+###### <span style="color:#c6554f">Teams</span>
 
-<span style="color: #d65d0e">Gitflow</span> <span style="color: #3588E9">--></span> método de versionamento e desenvolvimento
+The approach to Git will need to be adjusted according to the size and composition of the team.
+
+For <strong style="color: white">teams of 1 or 2</strong> (Small Team) <span style="color: #3588E9">--></span>  all members act as a maintainer
+
+For <strong style="color: white">middle teams</strong> (normal size) <span style="color: #3588E9">--></span> 3 integrators or maintainers that will merge contribution from contributors. These individuals are often the most senior members of the team and are responsible for performing a review of the contributing code prior to its merging.
+
+For <strong style="color: white">large teams</strong> <span style="color: #3588E9">--></span> such as  massive open-source projects, for the large community of contributors, there will be many integrators with common permissions.
+
+<span style="color: #d65d0e">Dictator Model</span> <span style="color: #3588E9">--></span> act as a second-level approving authority  merging contributions from the integrators for lieutenant repositories. This model manages the Linux Project.
+###### <span style="color:#c6554f">Workflows</span>
+
+<span style="color: #d65d0e">Trunk-base development</span> (TBD) <span style="color: #3588E9">--></span> updates ad pulls occur from a single branch named trunk. 
+- it reduces the problems tat frequently occur when merging long-lived branches, such as breaking the build, duplicate work, and incompatible changes.
+- it can involve cherry-pick --> allows a commit in one branch to be applied to another, is often used to pull a hotfix into a release branch from trunk
+
+>[!note]
+>Obs: branching from trunk such as when using a feature branch, is not acceptable.
+
+<strong style="color: white">TBD Best practices:</strong>
+- small commit on a daily basis
+- organize work into small tasks
+- tightly integrated with Ci/Cd practices 
+- release ready
+ 
+<span style="color: #d65d0e">Gitflow</span> <span style="color: #3588E9">--></span> popular workflow for Git that centers around two long-lived branches: master and develop. 
+- the master branch contains a copy of the current production code and is tightly controlled. Develop is the parent branch for feature branches that are crated to address a particular line of work.
+- once a feature is complete is merged into develop branch.
+- a release branch is created to release new features.
+- in a release branch, bug fixes can be made prior to the release in parallel to new work being performed in develop.
+- release branch is merged into master and develop branches.
+- feature branches contain new releases, and they need to merge into the develop branch before the master.
+
+>[!note]
+>Gitflow involves code review of the changes that have been requested to be merged practing branches and issues.
+
+<strong style="color: white">Gitflow Benefits:</strong>
+- the workflow is based around release
+- allows for parallel development by leveraging short-lived branches for features, hotfixes, and releases.
+- pull/merge requests used for updates to master and develop
 ## **Virtualization**
 ---
 ##### <span style="color:#689d6a">Virtual Machines</span>
