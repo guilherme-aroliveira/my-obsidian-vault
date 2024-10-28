@@ -16,5 +16,6 @@
   "templater-obsidian",
   "markdown-prettifier",
   "execute-code",
-  "vscode-editor"
+  "vscode-editor",
+  "obsidian-icon-folder"
 ]

@@ -5,3 +5,4 @@ Ansible use ssh to establish connection with multiple servers --> it's agentless
 An Ansible playbook or a rule can be checked into a version control repository
 
 Inventory file --> stores information about the target system, the default inventory is located at /etc/ansible/hots. It can group multiple servers by type.
+

@@ -116,7 +116,7 @@ Concepção do projeto <span style="color: #3588E9">--></span> Etapa que acontec
 
 IBM Rational Unified Process --> metodologia da IBM, traz orientações de como percorrer todo o processo de desenvolvimento de um software.
 - gráfico das baleias --> visão de fases do processo de desenvolvimento.
-##### **<span style="color:#d79921"> Fase de projeto</span>**
+##### **<span style="color:#d79921">Fase de projeto</span>**
 
 Modelagem Arquitetural --> diagrama que exibe os elementos/componentes de software do produto e como eles se relacionam (como são as conexões, do acoplamento existente, que tipo de comunicação sera utilizada, acesso ao bando de dados).
 - Determina a intenção de estruturação dos elementos do software. Como será a comunicação, padrões de implementação, restrições e em alguns casos, expressa as tecnologias que serão adotadas.

@@ -2,12 +2,17 @@ It uses <strong style="color: #b16286">declarative approach</strong> to <span st
 
 Is an open-source infrastructure automation tool created by Hashicorp, which helps to automate and manage Data Center infrastructure. Terraform is a declarative language (What to do).
 
-The terraform it's cloud agnostic, environments can be deployed across multiple cloud or hybrid cloud --> achieved through providers. It does not depend on a single public cloud. Example: An organization may have the primary site in one cloud provider and the disaster recovery site in another cloud provider for the production environment
+The terraform it's cloud agnostic, environments can be deployed across multiple cloud or hybrid cloud --> achieved through providers. It does not depend on a single public cloud. Example: An organization may have the primary site in one cloud provider and the disaster recovery site in another cloud provider for the production environment.
 
 > [!info]
 > A provider helps Terraform manage third party platforms through their API.
 
-Terraform uses HCL, which sands for Hashicorp Configuration Language, which is a simple declarative language to define the infrastructure resources to be provisioned as blocks of code. The files has a `.tf` extension and can be created using any text editor.
+Terraform is written in HCL, which sands for Hashicorp Configuration Language, which is a simple declarative language to define the infrastructure resources to be provisioned as blocks of code. The files has a `.tf` extension and can be created using any text editor. It's designed to be both human and machine readable.
+HCL is build using code configuraton blocks.
+
+type code configuation block types: Settings, Providers, Resource, Data, Input Variables, Local Variables, Output Values, Module.
+
+`terraform version`
 
 Terraform workflow: 
 - Write Terraform Config  --> Init --> Plan Infrastructure  --> Deploy Infrastructure
@@ -21,24 +26,115 @@ Terraform is  very much focused on the resource definition.
 Makes the necessary changes required on the target environment to bring it to the desired estate.
 
 Terraform tracks the state of the infra - .tfstate
+
+Terraform providers are plugins that implement resources types for particular clouds platforms and generally speaking any remote system. with an API. Some popular providers are: AWS, Azure, GCP, VMware and Oracle.
+
+>[!info]
+>It has a pluggable architecture which ultimately users can define to terrafrom how to connect to the different remote systems and how can actually create, read, modify or update any of the resources that are supported by a given provider.
+
+Terraform configuration can have one to many providers actually installed within the configuration.
+
+`terraform providers` --> shows  which providers are required in the configuration.
+
+vários providers podem ser utilizados no mesmo projeto e mesclar os recursos. Ex:  um recurso do kubernetes seja uma dependência do recurso do EKS.
+
+Terraform Core is the installed version of Terraform that can be done on a Linux.
+
+The `required_version` property allows to define a specific version of terraform that has to be used in a system. 
+
+```
+terraform {
+	required_version = "~> 1.9.8"
+}
+```
+
+>[!info]
+>It's a good practice to define  a specific version for the provider, because Terraform isn't versioned on the same schedule as the Terraform providers.
+
+To provide credentials to the backend platform: 
+inside the provider block --> not recommended, it har code the credentiasl on th state file that can be versioned
+
+```terraform
+providers "aws" {
+	region = "us-east-1"
+	access_key = ""
+	secret_key = ""
+}
+```
+
+use environment variables:
+
+`export AWS_ACCESS_KEY=""`
+`export AWS_SECRET_KEY=""`
+
+use share credentials or a configuration file:
+
+```terraform
+providers "aws" {
+	region = "us-east-1"
+	shared_credentials_file = "users/guilherme/.aws/creeds"
+	profile = "guilherme-us-east-1"
+}
+```
+
+userdata - best wat is to use a templatr system
+
+interpolaton in terraform may contain conditions (if-else)
+syntax --> `CONDITION ? TRUE : FALSE`
+Example
+`count = "${var.env == "prod" ? 2 : 1}"`
+
+bultiin functions can be used terraform resources.
+the syntac to call a funtion is `name(arg1, arg2, ...)` and wrapped with `${...}`
+for example `${file("mykey.pub")}` would read the context of the public file.
+
+For loops are typically used when assigning a value to an argument
+Example: `[for s in var.list2: upper(s)]`
+`tags = {for k, v in merge({ Name = "Myvolume" }, var.project.tags): k => lower(v)}`
+For_each loops are used to repeat nested blocks.
+
+the `lock` file is created when `terraform init` is executed. This file tracks the versions of providers and modules. It should be commited to git.
+
+cases when state manipulation can be done:
+- when upgrading between version, for example 0.11 -> 0.12 -> 0.13
+- when you want to rename a resource in terraform without recreating it
+- when you changed a key in a for_each, but you don't want to recreate the resources
+- change position of a resource in a list `(resource[0], resource[1],...)`
+- when you want oto stop managing a resource, but you don't want to destroy the resource `terraform state rm`
+Ex: `terraform state mv <resource1.name1 resource1.name2>`
+
+Benefits:
+- Provides a high-level abstraction of infrastructure (IaC)
+- Allows for composition and combination
+- Supports parallel management of resources (graph, fast)
+- Separates planning from execution (dry-run)
+
+comments in Terraform:
+`#` --> begins a single line comment, ending at the end of the line
+`//` --> also a single-line comment, alternative to `#`
+`/* */` --> multiple line comment that uses start and end delimiters
+
 ###### Terraform commands
 
 `terraform init` --> command to initialize the working directory/project
-- downloads and installs plugins for the providers used within the configuration
+- downloads and installs necessary plugins to execute the configuration
 - Terraform uses a plugin based architecture to work with hundreds of such infrastructure platforms
 - plugins are downloaded into a hidden directory called .terraform in the working directory
 - hashicorp/local --> plugin also known as the source address. Identifier that is used by Terraform to locate and donwload the plugin from the registry. registry.terraform.io[Hostname]/hashicorp[Organizatioan Namespace]/local[Type] -- the hosname if the name of the registry where the plugin is located
 
-`terraform validate` --> check for errors in the terraform file.
+`terraform validate` --> runs checks in the terraform file, to validade whether the configuration is syntactically valid and it's internally consistent. 
+- primarily used for general verification of modules or the configuration file, including the correctness of attributes names and values types.
 
 `terraform show` --> it displays the current state of the resource, including all the attributes.
 - terraform show -json --> print the contents in JSON format.
 
-`terraform plan` --> read the code and then creates and shows a "plan" of execution/deployment 
+`terraform plan` --> create an execution plan which shows a "plan" of deployment, it reads the current state file, and make sure that terraform state is up to date. it's going to compare the current configuration to prior state and it's going to note all the diferences.
 - `--out` --> save the changes in a file. 
   Ex: `terraform plan --out changes.terraform`
 
-`terraform apply` --> deploy the Infrastructure and statements in the code. If some resource are already deployed, this command will deploy updated code and tracking.
+`terraform apply` --> execute all the actions that were proposed in the terrafom plan
+deploy the Infrastructure and statements in the code. If some resource are already deployed, this command will deploy updated code and tracking. it's goign to execute the configuration file.
+- Ex: `terraform apply "myplan"`
 
 `terraform destroy` --> destroy all resources found in state file. Its a non-reversible command.
 
@@ -54,7 +150,7 @@ terraform get --> download and update modules
 `terraform refresh` --> Used to sync Terraform with the real world infrastructure
 - useful to determine what action to take during the next apply. It won't modify any infrastructure resource, but it will modify the state file
 
-terraform remote --> configure remoe state storage
+terraform remote --> configure remote state storage
 
 terraform state --> use it for advanced state management, e.g. Rename a resource with `terraform state mv aws_instance.example aws_instance.production`
 
@@ -136,6 +232,10 @@ providers
 Google Cloud, Azure, Heroku, Digital Ocean.
 ###### Terraform State
 
+By default state is stored loccally in the directory that terraform is executed.
+
+Terraform will use state each time terraform plan and apply is executed. Terraform is going to compare any chnages that extis in the state file, and indicate to the user ythe necessary chnages to be applied, in order to ensure that the managed resources math the desired state.
+
 it uses it as a single source of truth when using commands such as TerraForm Plan and Apply. If you make a change to the configuration file now and rerun the TerraForm Plan or apply Command. TerraForm, by default, refreshes the state again and compares it against the configuration file. When Terraform creates a resource, it records its identity in the state.
 
 The state is a blueprint of the infrastructure deployed by Terraform. `terraform.tfsate` file --> created as a consequence of data from apply command. This file is not created until later from apply Command is run at least once. The state file is a JSON data structure that maps the real world infrastructure resources to the resource definition in the configuration files.
@@ -153,3 +253,6 @@ Other backends include:
 - terraform enterprise (the commercial solution)
 
 some backends will enable remote operations. The terraform apply will run completely remote --> enhance backends.
+
+`terraform state list` --> show a list with less details of the resources that's current managing.
+
