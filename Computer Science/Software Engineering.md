@@ -13,7 +13,7 @@ Software engineers take a systematic, big picture approach in their thinking to 
 
 Software Engineering is <strong style="color: #d79921">organic</strong> <span style="color: #3588E9">--></span> the software stack under <strong style="color: #3588e9">the application is constantly changing</strong>, even when the application doesn't.
 
-The project model does not work for software development, because it treats as a civil engineering project 
+The project model does not work for software development, because it treats as a civil engineering project
 
 >[!hint]
 >Treat software development like a product development
