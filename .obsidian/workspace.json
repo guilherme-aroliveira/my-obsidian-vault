@@ -289,14 +289,14 @@
       "vscode-editor:Create Code File": false
     }
   },
-  "active": "3898fd55b9107adb",
+  "active": "d69cdc3c5ae438ba",
   "lastOpenFiles": [
+    "Computer Science/Cloud Providers/AWS/VPC.md",
+    "Computer Science/Cloud Providers/AWS/EKS.md",
+    "Computer Science/DevOps/Packer.md",
+    "Computer Science/DevOps/IaC/Terraform.md",
     "Computer Science/DevOps.md",
     "Computer Science/Software Engineering.md",
-    "Computer Science/DevOps/IaC/Terraform.md",
-    "Computer Science/DevOps/Packer.md",
-    "Computer Science/Cloud Providers/AWS/EKS.md",
-    "Computer Science/Cloud Providers/AWS/VPC.md",
     "Computer Science/DevOps/IaC/Ansible.md",
     "Computer Science/DevOps/IaC/AWS CDK.md",
     "Computer Science/Programming/Cobol.md",

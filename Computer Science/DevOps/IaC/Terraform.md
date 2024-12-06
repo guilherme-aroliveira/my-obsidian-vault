@@ -133,13 +133,15 @@ Optionally a different location can be specified in the Terraform configuration 
 ```hcl
 provider "aws" {
 	region                  = "us-east-1"
-	shared_credentials_file = "/users/tf_user/.aws/creds"
+	shared_credentials_file = "[/users/tf_user/.aws/creds]"
 	profile                 = "customprofile"
 }
 ```
 
 >[!note]
 >The functionality of a provider plugin may vary drastically from one version to another. Order from configuration may not work as expected when using a version different than the one it was written in.
+
+`terraform.lock` file --> hashicorp hashes out the provider version so that Terraform can do a comparison during the `terrafrom init` command. This file tracks the versions of providers and modules and it <strong style="color: #d79921">should be commit</strong> to git.
 
 <strong>Terraform Concepts</strong>
 
@@ -218,7 +220,7 @@ resource "aws_vpc" "main_vpc" {
 }
 ```
 
->Input variables make the Terraform configuration more flexible.
+> Input variables make the Terraform configuration more flexible.
 
 To call a variable on a resource or module: `var.<variable_name>`
 
@@ -640,6 +642,14 @@ module "vpc" {
 }
 ```
 
+To transform an input from optional to required, is by removing the `default` value from the input block.
+
+```hcl
+variabe "size" {
+	# default = "t2.micro"
+}
+```
+
 Modules can be sourced from a number of different locations, including both local and remote sources. 
 
 The <span style="color: #d65d0e">remote modules</span> are loaded from a remote source such as Terraform Registry and are created and maintained by HashiCorp, it's partners and by third parties. 
@@ -686,7 +696,7 @@ A child module can use outputs to expose a subset of its resources attributes to
 
 ```hcl
 output "vpc_id" {
-	values = aws_vpc_.main_vpc.id
+	value = aws_vpc_.main_vpc.id
 }
 ```
 
@@ -699,6 +709,8 @@ resource "aws_subnet" "public" {
 	vpc = module.aws_vpc.vpc_main.id
 }
 ```
+
+>Modules outputs are the only supported way for users to get information about the resources that have been configured within a child module.
 
 To view the outputs returned by any module and their values, the `console` command be used for it.
 
@@ -742,27 +754,33 @@ terraform workspace select default
 
 <strong>Terraform state</strong>
 
-Terraform uses persistent state data to keep track of the resources it manages.  State is <strong style="color: #b16286">used by Terraform for map real-world resources to the configuration</strong>, keep track of metadata, and to improve performance.
+Terraform stores and operates on the state of the managed infrastructure. Terraform uses this <span style="color: #d65d0e">state</span> on each execution to make plan and make changes. This state must be stored and maintained on each execution so future operations can be performed correctly.  
 
-The <span style="color: #d65d0e">state</span> is stored by default in a file called `terraform.tfstate`, but it can be stored remotely (best practice), which work better in a team environment. The state file won't exist until its completed at least one `terraform apply` execution.
+The location and method of operation of Terraform's state is determined by the Terraform <span style="color: #d65d0e">backend</span>. By default Terraform uses a local backend, where state information is stored and acted upon locally within the working directory in local file name `terraform.tfstate`.
 
 >[!note]
->The <span style="color: #d65d0e">local state</span> file is indexed in JSON format and stored on disk, even though the local state file is editable, <strong style="color: #d79921">direct file editing is not recommended</strong>. 
+>The <span style="color: #d65d0e">local state</span> file is indexed in JSON format and stored on disk, even though the local state file is editable, <strong style="color: #d79921">direct file editing is not recommended</strong>. It's meant for internal use within Terraform. 
 
 The local state must always be up to date before a person or process runs Terraform. If the state is out of sync, the wrong operation might occur, causing unexpected results.
 
->Terraform basically compares the configuration with the state file and the existing infrastructure to create, place and make changes to the infrastructure.
+>Terraform basically compares the configuration with the state file and the existing infrastructure to create, place and make changes to the infrastructure, in order to ensure that the managed resources match the desired state.
+
+Cases when state manipulation can be done:
+- when upgrading between version, for example 0.11 -> 0.12 -> 0.13
+- to rename a resource in terraform without recreating it
+- when changing a key in a for_each, but you don't want to recreate the resources
+- change position of a resource in a list `(resource[0], resource[1],...)`
 
 To `state` command is used for advanced state management, which is the recommended way to make changes on the Terraform state file. It can also be used to see the options for performing more granular operations.
 
 ```shell
-Terraform state
+terraform state
 ```
 
 To show an json output of the `.tfsate` file:
 
 ```shell
-Terraform show state
+terraform show state
 ```
 
 To show an specific resource:
@@ -774,7 +792,7 @@ terraform state show aws_instance.web_server
 To list all resource on the `.tfsate` file:
 
 ```shell
-Terraform state list
+terraform state list
 ```
 
 To rename a resource:
@@ -783,11 +801,40 @@ To rename a resource:
 terraform state mv aws_instance.server aws_instance.web_server
 ```
 
-By default, 
+To stop stop managing a resource without destroying it:
 
+```shell
+terraform state rm <resource_name>
+```
 
+If supported, the state backend will "lock" to prevent concurrent modifications which cloud cause corruption. Locking on state allows to make sure to protect the state from being written by multiple users at the same time.
 
-By default there is no `backend` configuration block within our configuration. Because no `backend` was included in our configuration Terraform will use it's default backend - `local` This is why we see the `terraform.tfstate` file in our working directory. If we want to be explicit about which backend Terraform should use it would cause no harm to add the following to our Terraform configuration block within the `terraform.tf` file.
+Using the `apply` command with a locking mechanism:
+
+```shell
+# timeout if the lock doesn't free up within 60 seconds
+terraform apply -lock-timeout=60s
+```
+
+The `terraform refresh` command reads the current settings from all managed remote objects found in Terraform state and updates the Terraform state to match configuration drift.
+- it's useful to determine what action to take during the next apply. It won't modify any infrastructure resource, but it will modify the state file
+
+> It's done automatically as part of the `plan` and `apply` process.
+
+Refreshing state is the first step of the `terraform plan` process: read the current state of any already existing remote objects to make sure that the Terraform state is up-to-date.
+
+To perform the first part of the `terraform plan`:
+
+```shell
+terraform plan -refresh-only
+```
+
+>[!note]
+>The `terraform refresh` command is deprecated, and it 's because the provider may be misled into thinking that all of the managed objects have been deleted.
+
+Backends define how operations are executed and where the Terraform `.tfstate` is stored. Each Terraform configuration has an associated backend with different set of configurations, that deals with authentication in a little different way. 
+
+Terraform backends are actually configured inside the Terraform configuration block. In case of the default backend it's configuration doesn't need to be explicit.
 
 ```hcl
 terraform {
@@ -797,93 +844,588 @@ terraform {
 }
 ```
 
-If supported, the state backend will "lock" to prevent concurrent modifications which could cause corruption.
+>[!note]
+>Terraform only can accept a single backend for any given working directory.
 
-terraform apply -lock-timeout=60s
+It's important to protect terraform state data as it can contain extremely sensitive information <span style="color: #3588E9">--></span> store it in a backend that supports encryption.
 
-This is not required and generally not performed as it is the Terraform defalt backend that terraform uses.
+Most backends support security and collaboration features so using a backend is a must-have both from a security and teamwork perspective.
 
-The `local` backend stores state as a local file on disk, but other backend types store state in a remote service of some kind, which allows multiple people to access it. Accessing state in a remote service generally requires some kind of access credentials since state data contains extremely sensitive information. It is important to strictly control who can access your Terraform backend.
+The most popular backends are:
+- AWS S3 Backend (with DynamoDB - locking)
+- Consul (with locking)
+- Terraform Enterprise (the commercial solution)
+- Google Cloud Storage Backend
+- Azure Storage Backend
 
-The terraform backend end configuration for a given working directory is specified in the Terraform configuration block
+>[!info]
+>The Terraform `remote` backend stores Terraform state and may be used to run operations in Terraform Cloud. This backend supports the ability to store Terraform state information and perform operations all within Terraform Cloud, based on privileged access.
 
-Example:
+It's necessary to have a valid set of access key for authentication to be able to read information from the state. To invalid the backend authentication: 
+
+```shell
+export AWS_ACCESS_KEY_ID="notvalid"
+```
+
+The are only two enhanced backends: local and remote. The remote backend stores Terraform state and may be used to run operations in Terraform Cloud.
+
+When using full remote operations, operations like terraform plan and terraform apply can be executed in Terraform Cloud's run environment, with log output streaming to the local terminal.
+
+```hcl
 terraform {
-  backend "s3" {
-    bucket = "my-terraform-state-ghm"
-    key    = "prod/aws_infra"
-    region = "us-east-1"
-  }
+	backend "remote" {
+		hostname = "app.terraform.io"
+		organization = "Terraform Cloud"
+		workspaces {
+			name = "my-aws-app"
+		}
+	}
+}
+```
+
+> The remote backend also works with Terraform Enterprise.
+
+Terraform provides a longing method to authenticate using the remote enhanced backend. 
+
+```shell
+terraform login
+```
+
+>it generates an API token to be able to authenticate into the Terraform Cloud remote backend.
+
+The `s3` backend supports encryption, which reduces worries about storing sensitive data in state files.
+
+To use a remote backend:
+
+```hcl
+terraform {
+	backend "s3" {
+		bucket = "bucket_name"
+		key = "dev/backend.tfsate"
+		dynamodb = "table_name"
+		region = "aws_region"
+		encrypt = true
+	}
+}
+```
+
+To migrate the state from backends:
+
+```shel
+terraform init -migrate-state
+```
+
+Any time a change is made to the backend configuration, it must be reconfigured.
+
+```shell
+terraform init -reconfigure
+```
+
+>[!info]
+>Terraform backends do not support interpolation within a configuration block. But it does support the ability to specify partial backend configuration.
+
+The partial configuration can be provided via a file or within the command line using the `-backend-config` option. 
+
+```hcl
+path="state_data/terraform.dev.tfstate"
+```
+
+```shell
+terraform init -backend-config=state_config/dev_local.hcl
+```
+
+Using an S3 backend:
+
+```hcl
+bucket = "my-terraform-state-ghm"
+key = "dev/aws_infra"
+region = "us-east-1"
+```
+
+```shell
+terraform init -backend-config=state_config/dev-s3-state.hcl
+```
+
+>[!info]
+>If backend settings are provided in multiple locations, the top level settings are merged such that the command line options will override the settings in the main configuration.
+
+<strong>Debugging</strong>
+
+Terraform allows to enable logging in order to do some troubleshooting. This can be done by setting `TF_LOG` environment variable to any value. The log levels are trace, debug, info, warn or error.  
+
+```shell
+export TF_LOG=TRACE
+# trace is the most verbose level
+```
+
+The environment variable `TF_LOG_PATH` allows to debug to a log file
+
+```shell
+export TF_LOG_PATH="terraform_log.txt"
+
+# The configuration must be updated
+terraform init -upgrade
+```
+###### Modifying Configuration
+
+<strong>Local Values</strong>
+
+A local value assigns a name to an expressions, so it can be used multiples times within a configurations without repeating. The expressions in local values are note limited to literals constants, they can also reference other values.
+
+Use local values only in moderation, in situations where a single values or result is used in many places and that value is likely to be changed in future. 
+
+```hcl
+locals {
+	team = "api_mgmt_dev"
+	application = "corp_api"
+	server_name = "ec2-${var.environment}-api-${var.variables_sub_az}"
 }
 
-Note: A Terraform configuration can only specify a single backend. If a backend is already configured be sure to replace it.
+locals {
+	service_name = local.team
+	app_team = "Cloud Team"
+	createdby = "terraform"
+}
 
-The Terraform `remote` backend stores Terraform state and may be used to run operations in Terraform Cloud. This backend supports the ability to store Terraform state information and perform operations all within Terraform Cloud, based on privileged access.
+locals {
+	common_tags {
+		Name = local.server_name
+		Owner = local.team
+		App = local.application
+		Service = loca.service_name
+		AppTeam = local.app_team
+		CreatedBy = local.createdby
+	}
+}
+```
 
-In order to properly and correctly manage your infrastructure resources, Terraform stores the state of your managed infrastructure. Each Terraform configuration can specify a backend which defines exactly where and how operations are performed. Most backends support security and collaboration features so using a backend is a must-have both from a security and teamwork perspective.
+```hcl
+tags = local.common_tags
+```
 
-The built in Terraform standard backends store state remotely and perform terraform operations locally via the command line interface. Popular standard backends include:
-- - [AWS S3 Backend (with DynamoDB)](https://www.terraform.io/docs/language/settings/backends/s3.html)
-- - [Google Cloud Storage Backend](https://www.terraform.io/docs/language/settings/backends/gcs.html)
-- - [Azure Storage Backend](https://www.terraform.io/docs/language/settings/backends/azurerm.html)
+>[!info]
+>Common tags are defined so it can be used to assign to all resources. In organizations they may be required for all instances throughout AWS. 
 
-It is also incredibly important to protect terraform state data as it can contain extremely sensitive information. Store Terraform state in a backend that supports encryption. Instead of storing your state in a local terraform.tfstate file.
+<strong>Input Variables</strong>
 
-Many backends support encryption, so that instead of your state files being in plain text, they will always be encrypted, both in transit (e.g., via TLS) and on disk (e.g., via AES-256). The `s3` backend supports encryption, which reduces worries about storing sensitive data in state files.
+```hcl
+variable "variables_sub_cidr" {
+	description = "CIDR Block for the Variables Subnet"
+	type = string
+	default = "10.0.202.0/24"
+}
+```
 
-Terraform is  very much focused on the resource definition.
+Set an environment variable to override the default value. to se a value for a particular Terraform variable, create a environment variable called `TF_VAR_<NAME>`
 
-Makes the necessary changes required on the target environment to bring it to the desired estate.
+```shell
+export TF_VAR_variables_sub_cidr=10.0.203.0/24
+```
 
-`terraform.lock` --> hashicorp hashes out the provider version so that Terraform can do a comparison during the `terrafrom init` command.
+TF vars file is another way to set the value of the variables in Terraform. It's a special file that Terraform can use to retrieve specific values of variables without requiring the operator to modify the variables file or set environment variables.
 
-Enable logging
-Detailed log can be enabled by setting the `TF_LOG` environment variable to any value. `TF_LOG` can be set to one of the log levels TRACE, DEBUG, INFO, WARN or ERROR to change the verbosity of the logs, with TRACE being the most verbose,
-`export TF_LOG=TRACE`
+```hcl 
+# Public Subnet Values
+variables_sub_auto_ip = true
+variables_sub_az = "us-eas-1d"
+variables_sub_cidr = "10.0.204.0/24"
+```
 
-To debug to a log file use the environment variable `TF_LOG_PATH`, and append to a specific file when logging is enabled
-`export TF_LOG_PATH="terraform_log.txt"`
-`terraform init -upgrade`
+>[!note]
+>Any value provided on the CLI will override everything, it will override the default, the TF vars file, and including an environment variable.
 
-userdata - best wat is to use a template system
+```shell
+terraform plan -var variables_sub_az="us-east-1e"
+```
 
-interpolaton in terraform may contain conditions (if-else)
-syntax --> `CONDITION ? TRUE : FALSE`
-Example
-`count = "${var.env == "prod" ? 2 : 1}"`
+<strong>Terraform output</strong>
 
-bultiin functions can be used terraform resources.
-the syntac to call a funtion is `name(arg1, arg2, ...)` and wrapped with `${...}`
-for example `${file("mykey.pub")}` would read the context of the public file.
+`terraform output <output_name>`
+`terraform output public_ip`
 
-For loops are typically used when assigning a value to an argument
-Example: `[for s in var.list2: upper(s)]`
-`tags = {for k, v in merge({ Name = "Myvolume" }, var.project.tags): k => lower(v)}`
-For_each loops are used to repeat nested blocks.
+The last part of this one we can actually wrap this output query to ping this record if we want to.
 
-the `lock` file is created when `terraform init` is executed. This file tracks the versions of providers and modules. It should be commited to git.
+`ping $(terraform output -raw public_ip)`
 
-cases when state manipulation can be done:
-- when upgrading between version, for example 0.11 -> 0.12 -> 0.13
-- when you want to rename a resource in terraform without recreating it
-- when you changed a key in a for_each, but you don't want to recreate the resources
-- change position of a resource in a list `(resource[0], resource[1],...)`
-- when you want oto stop managing a resource, but you don't want to destroy the resource `terraform state rm`
-Ex: `terraform state mv <resource1.name1 resource1.name2>`
+suppress the output
 
-terraform uses the local backend by default --> stores its state file locally which doesn't require any extra configuration. The state file is stored as JSON.
+```shell
+output "ec2_instance_arn" {
+	value = aws_instance.web_server.arn
+	sensitive = true
+}
+```
+
+<strong>Variable Validation</strong>
+
+```hcl
+variable "cloud" {
+	type = string
+
+	validation {
+		condition = contains("aws", "azure", "gcp"), lower(var.cloud)
+		error_message = "You must use an approved cloud"
+	}
+}
+```
+
+> It will validate the value of a variable based on certain condition or criteria.
+
+To suppress sensitive information:
+
+```hcl
+variable "phone_number" { 
+	type = string
+	sensitive = true
+	default = "867-5309"
+}
+```
+
+>[!note]
+>Even if the values are marked as sensitive in the Terraform input and output, it still needs to add the value to the state file. 
+
+<strong>Secure Secrets</strong>
+
+remove the default value and use an environment variable to set it.
+add the environment variable in workspace variables on terraform cloud 
+
+using terraform vault
+
+```shell
+vault version
+
+# start vault
+vaul server -dev
+
+export VAULT_ADDR="http://127.0.0.1:8200"
+
+vault login <root_token>
+
+# add the value to the vault
+vault kv put secret/app phone_number=867-5309
+```
+
+```hcl
+provider "vault" {
+	address = "http://127.0.0.1:8200"
+	token = <root_token>
+}
+
+data "vault_generic_secret" "phone_number" {
+	path = "secret/app"
+}
+
+output "phone_number" {
+	valut = data.vault_generic_secret.data["phone_number"]
+}
+```
+
+>[!note]
+>Never use in the vault provider block the token on a real-world production scenario.
+
+<strong>Collections and Structure Types</strong>
+
+string: a sequence os Unicode characters representing some text, like "hello".
+
+number: a numeric value. The number type can represent both whole numbers like 15 and fractional values like 6.283185.
+
+bool: a boolean value, either true or false, bool values can be used in conditional logic.
+
+list( or tuple): a sequence of values, like `["us-west-1a", "us-weat-1c"]`. Elements in a list or tuple are identifies by consecutive whole numbers, starting with zero. 
+
+```hcl
+variable "us-east-1-asz" {
+	type = list(string)
+	default = [
+		"us-east-1a",
+		"us-east-1b",
+		"us-east-1c",
+		"us-east-1d",
+		"us-east-1e"
+	]
+}
+# A list will index the strings
+```
+
+Tuple is similar to a list and consists of a sequence of elements.The difference between a tuple and a list is that list uses elements of the same variable type, such as string or number.
+
+```hcl
+# Tuple
+variable "kitty" {
+	type = tuple([string, number, bool])
+	default = ["cat", 7, true]
+}
+```
+
+map (or object): a group of values identified by named labels, like `{name="Mabel", age=52}`, Maps are used to store key/value pairs.
+
+```hcl
+variable "ip" {
+	type = map(string)
+	default = [
+		prod = "10.0.150.0/24"
+		dev = "10.0.250.0/24"
+	]
+}
+```
+
+```hcl
+resurce "aws_subnet" "list_subnet" {
+	cidr_block = var.ip["prod"]
+}
+```
+
+Map of maps
+
+```hcl
+variable "env" {
+	type = map(any)
+	default = {
+		prod = {
+			ip = "10.0.150.0/24"
+			az = "us-east-1a"
+		}
+		dev = {
+			ip = "10.0.250.0/24"
+			az = "us-east-1e"
+		}
+	}
+}
+```
+
+```hcl
+resurce "aws_subnet" "list_subnet" {
+	for_each = var.env
+	vpc_id = aws_vpc.vpc.id
+	cidr_block = each.value.ip
+	availability_zone = each.value.ip
+}
+```
+
+Objects allows to create complex data structures by combining all the variable types.
+
+```hcl
+variable "bella" {
+	type = object ({
+    	name = string
+        color = string
+        age = number
+        food = list(string)
+        favorite_pet = bool
+    })
+    
+    default = {
+    	name = "bella"
+    	color = "brown"
+        age = 7
+        food = ["fish", "chicken", "turkey"]
+        favorite_pet = true
+    }
+}
+```
+
+
+>[!note]
+>List/tuples and maps/objects are sometimes called complex types, structural types, or collection types.
+
+<strong>Data Blocks</strong>
+
+Terraform uses data sources to fetch information from cloud provider APIs, such as disk image IDs, or information about the rest of your infrastructure through the outputs of other Terraform configurations.
+
+```hcl
+data "aws_s3_bucket" "data_bucket" {
+	bucket = "my-data-lookup-bucket-btk"
+}
+```
+
+<strong>Built-in Function</strong>
+
+Terraform language has many built-in functions that can be used in expressions to transform and combine values.
+
+`max` --> function that takes on or more numbers and return the greatest number from the set.
+
+```shell
+max(12, 54, 3)
+```
+
+`min` -->  function that takes on or more numbers and return the smallest number form the set.
+
+```shell
+min(12, 54, 3)
+```
+
+`floor` --> returns the closet whole number that is less than or equal to the given value, which may be a fraction.
+
+```shell
+floor(5)
+```
+
+`join(sepatator, list)` --> produces a string by concatenating together all elements of a given list of strings with  the given delimiter.
+
+```shell
+join(",", ["foo", "bar", "baz"] )
+```
+
+`upper`
+`lower`
+
+`tolist` --> converts its argument to a list of value.
+
+```shell
+tolist(["a", "b", "c"])
+```
+
+`cidrsubnet(prefix, newbits, netnum` --> calculates a subnet address within a given IP network address prefix.
+
+```shell
+cidrsubnet(var.vpc_cidr, 8, each.value + 100)
+```
+
+<strong>Dynamic Blocks</strong>
+
+Are used for nested configurations that are repeatables. Terraform dynamic block allows to dynamically construct repeatable mesteds blcoks using specicl blcok type, which is suupported inside resource, data, provider, and povisioner blocks.
+
+using locals
+
+```hcl
+locals {
+	ingress_rules [{
+		port = 443
+		description = "Port 443"
+	},
+	{
+		port = 80
+		description = "Port 80"
+	}]
+}
+```
+
+```hcl
+resource "aws_security_group" "main" {
+	name = "core-sg"
+	vpc_id = aws_vpc.vpc_.id
+
+	dynamic "ingress" {
+		for_each = local.ingress_rules
+		content {
+			description = ingress.value.description
+			from_port = ingress.value.from_port
+			to_port = ingress.value.to_port
+			protocol = "tcp"
+			cidr_blocks = ["0.0.0.0/0"]
+		}
+	}
+}
+
+```
+
+using variables
+
+```hcl
+variable "web_ingress" {
+	type = mac(object(
+	{
+		description = string
+		port = number
+		protocol = string
+		cidr_blocks = list(string)
+	}
+	))
+	default = {
+		"80" = {
+			description = "Port 80"
+			port = 80
+			protocol = "tcp"
+			cidr_blocks = ["0.0.0.0/0"]
+		}
+		"443" = {
+			description = "Port 443"
+			port = 443
+			protocol = "tcp"
+			cidr_blocks = ["0.0.0.0/0"]
+		}
+	}
+}
+```
+
+```hcl
+resource "aws_security_group" "main" {
+	name = "core-sg"
+	vpc_id = aws_vpc.vpc_.id
+
+	dynamic "ingress" {
+		for_each = local.web_ingress
+		content {
+			description = ingress.value.description
+			from_port = ingress.value.port
+			to_port = ingress.value.port
+			protocol = ingress.value.protocol
+			cidr_blocks = ingress.value.cidr_blocks
+		}
+	}
+}
+
+```
+
+>[!note]
+>Overuse of dynamic block can make configuration hard to read and maintain, so it is recommended to use them only when its needed to hide details in order to build a clean user interface for a re-usable module.
+
+<strong> Terraform Graph</strong>
+
+The `terraform graph` command is used to generate a visual representation of either a configuration or an execution plan. The output is in the DOT format, which highlights the Terraform resource graph.  
+
+The graph is useful for visualizing infrastructure and its dependencies, and it can be pass  it through a graph visualization software such as graphviz.
+
+```shell
+terraform grpah | dot - Tsvsg > graph.svg
+```
+
+<strong>Resource Lifecycles</strong>
+
+The `lifecycle` block is used in situations where the default lifecycle order that Terraform uses needs to be changed. The `lifecycle` block provide control over dependency erros.
+
+The lifecycle directives are used to influence and ultimately control the order in which Terraform creates and destroys resources.
+
+```hcl
+resource "aws_security_group" "main" {
+	name = "core-sg-global"
+	vpc_id = aws_vpc.vpc_.id
+
+	lyfecycle {
+		create_before_destroy = true
+		# prevent_destroy = true
+	}
+}
+```
+#### Non-Cloud Providers
+#### Terraform Cloud
+
+The workstation is where the actual code lives.
+
+Create an organization --> Log into  the account from the workstation --> Create API token
+
+The Terraform Cloud authenticates the user is through a token based authentication.
+
+Defining the remote backend
+
+```hcl
+terraform {
+	backend "remote" {
+		hostname = "app.terrafomr.io"
+		organization = "Enterprise-Cloud"
+		workspaces {
+			name = "my-aws-app"
+		}
+	}
+}
+```
+
+
 ###### Terraform commands
 
 terraform get --> download and update modules
 
-`terraform refresh` --> Used to sync Terraform with the real world infrastructure
-- useful to determine what action to take during the next apply. It won't modify any infrastructure resource, but it will modify the state file
-
 terraform remote --> configure remote state storage
-
-`terraform graph` --> used to create a visual representation of the dependencies in a Terraform configuration or an execution plan. A graph is generated in a format called dot
-- We can pass it through a graph visualization software such as graphviz 
-- Ex: <code>terraform grpah | dot - Tsvsg > graph.svg</code>
 ###### Terraform concepts
 
 Another common practice is to have one single configuration file that contains all the resource blocks required to provision the infrastructure. A single configuration file can have as many number of configuration blocks that you need. A common naming convention used for such a configuration file is to call it the main.tf.
@@ -917,43 +1459,19 @@ If you use any other file name such as variable.tfvars for example, you will hav
 variable definition precedence: -var or -var-file --> *.auto.tfvars --> terraform.fvars --> environment variables
 
 standardized AMIs : using file uploads, using remote exec, automation tools like ansible, chef which is integrated within terraform. puppet gent can be run using remote-exec.
-###### Terraform State
 
-By default state is stored loccally in the directory that terraform is executed.
+userdata - best wat is to use a template system
 
-Terraform will use state each time terraform plan and apply is executed. Terraform is going to compare any chnages that extis in the state file, and indicate to the user ythe necessary chnages to be applied, in order to ensure that the managed resources math the desired state.
+interpolaton in terraform may contain conditions (if-else)
+syntax --> `CONDITION ? TRUE : FALSE`
+Example
+`count = "${var.env == "prod" ? 2 : 1}"`
 
-it uses it as a single source of truth when using commands such as TerraForm Plan and Apply. If you make a change to the configuration file now and rerun the TerraForm Plan or apply Command. TerraForm, by default, refreshes the state again and compares it against the configuration file. When Terraform creates a resource, it records its identity in the state.
+bultiin functions can be used terraform resources.
+the syntac to call a funtion is `name(arg1, arg2, ...)` and wrapped with `${...}`
+for example `${file("mykey.pub")}` would read the context of the public file.
 
-The state is a blueprint of the infrastructure deployed by Terraform. `terraform.tfsate` file --> created as a consequence of data from apply command. This file is not created until later from apply Command is run at least once. The state file is a JSON data structure that maps the real world infrastructure resources to the resource definition in the configuration files.
-
-One other benefit of using state is performance. When dealing with a handful number of resources, it may be feasible for TerraForm to reconcile state with the real world infrastructure after every single TerraForm command such as plan or apply.
-
-The final benefit of state that we are going to look at is collaboration when working as a team. Every user in the team should always have the latest state data before running TerraForm In such a scenario, it is highly recommended to save the State Farm State file in a remote data store rather than to rely on a local copy. State is a non optional feature in TerraForm.
-
-The state file contains sensitive information within it. It contains every little detail about our infrastructure. The state may also store initial passwords when using local state. The state is stored in plain text JSON files. make sure that the state file is always stored in a secure storage. store the state in remote backend systems such as CSS three, Google Cloud Storage, Azure Storage, Terraform Cloud, etc. Terraform State is a JSON data structure that is meant for internal use within Terraform. We should never manually attempt to edit the state files ourselves.
-
-The default is a local backend (the local terraform state file).
-Other backends include:
-- S3 (with locking mechanism using DynamoDB)
-- consul (with locking)
-- terraform enterprise (the commercial solution)
-
-some backends will enable remote operations. The terraform apply will run completely remote --> enhance backends.
-
-`terraform state list` --> show a list with less details of the resources that's current managing.
-
-The `terraform state` command is used for advanced state management.
-do not eve modify the tf state file directly
-
-terraform apply -lock-timeout-60s --> the command will timeout if the lock doesn'þ free up within 62 seconds.
-
-it's necessary to habe a valid set of access key for authentication to be able to read information from the state.  
-`export AWS_ACCESS_KEY_ID="notvalid"` --> invalida a autenticação do backend
-
-The terraform remote enhanced backend --> it allows to store state up in the terraform enterprise and terraform cloud services. It also allows to perform operations within each of those platforms.
-
-terraform provides a longing method with which to authenticate suing the remote enhanced backend. `terraform login` --> it generates an API token to be able to authenticate into the terraform cloud remote backend.
-
-`sentitive = true` --> This property omits the sensitive argument.
-It's critical to limit the access to the terraform state file. Store terraform state in a backend that support encryption if possible.
+For loops are typically used when assigning a value to an argument
+Example: `[for s in var.list2: upper(s)]`
+`tags = {for k, v in merge({ Name = "Myvolume" }, var.project.tags): k => lower(v)}`
+For_each loops are used to repeat nested blocks.
