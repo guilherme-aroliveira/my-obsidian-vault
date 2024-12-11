@@ -54,7 +54,9 @@ git clean -df -->
 git checkout -- . --> limpa as modificações
 
 git remote -v --> verifica o remote
-git remote set-url origin git@github.com: --> troca a referencia do origin
+set the URL correctly for origin:
+- `git remote set-url origin https://<USER>@github.com/<USER>/<REPO.git>` --> troca a referencia do origin
+
 git push -u origin main --> registra a primeira vez o origin
 
 git push -f --> subscreve historico do github

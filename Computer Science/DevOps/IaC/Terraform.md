@@ -1420,6 +1420,10 @@ terraform {
 }
 ```
 
+Terraform workspace is a managed unit of infrastructure. Workspaces are the workhouse of Terraform Cloud and build on the Terraform CLI workspace construct. Each uses the same Terraform code do deploy infrastructure and each keeps separate data for each workspace. 
+
+In Terraform Cloud the workspace stores state data, has it's own set variables values and environment variables, and allows for remote operations and logging. Terraform Cloud workspaces also provide access controls, version control integration, API access and policy management.
+
 
 ###### Terraform commands
 
