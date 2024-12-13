@@ -27,3 +27,5 @@ Docker requires that virtualization to be enabled in the Bios, <span style="colo
 	- To use Docker CLI to work with remote docker engine, simply use the dash option (<code style="color:#689d6a">-H</code>) on the Docker command and specify the remote Docker engine address and a port <span style="color: #3588E9">--></span> <code style="color:#689d6a">docker -H=[remote-docer-engine]:[port]</code> <strong>Example:</strong> <code style="color:#689d6a">docker -H=10.123.2.1:2375 run nginx</code>
 	- <span style="color: #3588E9">--></span> <span style="color:#98971a">docker daemon</span> can also communicate with other daemons to manage Docker services.
 	- The Docker engine also utilizes <span style="color: #d65d0e">cgroups</span> for isolation, which are used for controlling container resources, primarily around CPU and memory, they provide resource isolation. Cgroups in Docker are strict Kernel requirements, which means that they need to be compatible.
+
+Docker consist of multiple tools that are grouped toeghterL like Dockder CLI, Docker API, the build tools for buldign images.
