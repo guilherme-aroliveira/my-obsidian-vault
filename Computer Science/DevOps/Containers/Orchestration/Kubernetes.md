@@ -126,6 +126,12 @@ Pods <strong style="color: #d79921">usually have a 1 to 1 relationship with cont
 >There are cases that it needs a helper container that might be doing some kind of supporting task for the web application, such as processing a user, enter data processing a file uploaded by the user, etc. <span style="color: #3588E9">--></span> these helper containers should live alongside the application container.
 >The two containers can also communicate with each other directly by referring to each other as local host since they share the same network space, plus they can easily share the same storage space as well.
 
+<span style="color:#98971a">minikube</span> <span style="color: #3588E9">--></span> is a software (utility) that allows developers to run a Kubernetes cluster on the local machine. It's a very useful tool that helps in the process of learning Kubernetes.
+- all the basic operations can be done on a <span style="color:#98971a">minikube</span> cluster
+- it uses the <span style="color:#98971a">kubectl</span> tool to manage the cluster
+- <code style="color:#689d6a">minikube start --driver=virtualbox</code>
+- <code style="color:#689d6a">minikube status</code>
+
 >[!example] <span style="color:#98971a">kubectl</span> - Creating Pods
 >The `kubectl` command deploys a Docker container by creating a Pod. It first creates a Pod automatically and deploy an instance of the nginx Docker image.
 >```shell 
@@ -134,12 +140,6 @@ Pods <strong style="color: #d79921">usually have a 1 to 1 relationship with cont
 >kubectl get pods -o wide # to check status of the pod
 >```
 >While the Pod name could be anything, the image name has to be the name of an image available at Docker Hub or any other container registry
-
-<span style="color:#98971a">minikube</span> <span style="color: #3588E9">--></span> is a software (utility) that allows developers to run a Kubernetes cluster on the local machine. It's a very useful tool that helps in the process of learning Kubernetes.
-- all the basic operations can be done on a <span style="color:#98971a">minikube</span> cluster
-- it uses the <span style="color:#98971a">kubectl</span> tool to manage the cluster
-- <code style="color:#689d6a">minikube start --driver=virtualbox</code>
--  
 ###### <strong style="color:#98971a">ReplicaSets</strong>
 ###### <strong style="color:#98971a">Deployments</strong>
 

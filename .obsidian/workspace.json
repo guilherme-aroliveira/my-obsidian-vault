@@ -112,7 +112,7 @@
               "type": "markdown",
               "state": {
                 "file": "Computer Science/DevOps/Containers/Orchestration/Kubernetes.md",
-                "mode": "source",
+                "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
@@ -303,7 +303,7 @@
       "vscode-editor:Create Code File": false
     }
   },
-  "active": "3898fd55b9107adb",
+  "active": "10e26bcaa82c768c",
   "lastOpenFiles": [
     "Computer Science/DevOps/Containers/Orchestration/Openshift.md",
     "Computer Science/DevOps/Containers/Orchestration/Kubernetes.md",
