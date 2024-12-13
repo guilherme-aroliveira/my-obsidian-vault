@@ -246,7 +246,47 @@ jobs:
           key: deps-node-modules-#{{ hashFiles('**/package-lock.json') }}
 ```
 
-The `key` keyword will be used for retrieving the cache in the future and recreating the folder on the runner machine based on that cachaed managed by GitHub in the future. It also indicated wether the cache should be discarded because it must be recreated, in case of some depedency changed.
+The `key` keyword will be used for retrieving the cache in the future and recreating the folder on the runner machine based on that cached managed by GitHub in the future. It also indicated whether the cache should be discarded because it must be recreated, in case of some dependency changed.
 
 The `hashFiles()` function produces a unique hash value based on a file path passed to it. The hash value will change whenever the file passed to it changes too.
+
+Environment Variables
+
+values that are dynamic in the code. Example: password that is used for a database.
+Using secrets
+
+Also environment variables but stored, such that no one can access them.
+
+```yaml
+name:
+on:
+  push:
+    branches: [main, dev]
+env:
+  MONGODB_DB_NAME: gha-demo # at workflow level
+
+jobs:
+  test:
+	environment: staging
+    env: # variáveis disponíveis at job level
+      MONGODB_CLUSTER_ADDRESS: cluster0.15pwqcc.mongodb.net
+      MONGODB_USERNAME: ${{ secrets.MONGODB_USERNAME }}
+      MONGODB_PASSWORD: ${{ secrets.MONGODB_PASSWORD }}
+      PORT: 8080
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Run server
+        run: npm start & npx wait-on https://127.0.0.1:$PORT
+      - name: Output information
+        run: echo "MONGODB_USERNAME: ${{ env.MONGODB_USERNAME }}"
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Ouput information
+        run: |
+	      echo "MONGODB_DB_NAME: $MONGODB_USERNAME"
+```
+
 
