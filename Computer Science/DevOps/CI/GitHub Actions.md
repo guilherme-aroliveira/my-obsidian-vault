@@ -290,3 +290,486 @@ jobs:
 ```
 
 
+controlling workflow & Job execution
+conditional steps
+
+control Step or Job execution with `if` and dynamic expressions  
+
+```yaml
+    steps:
+    
+	  - name: Test code
+	    run: npm run test
+	    id: test
+	    
+      - name: Upload rest report 
+        if: steps.test.outcome == 'failure'
+	    uses: actions/upload-artifact@v3
+	    with:
+	      name: test-report
+	      path: test.json
+```
+
+The step "Upload test report" will only "Test code" is successful
+
+Other dependent (!) Jobs (using "needs") would be cancelled / aborted, if a previous job fails.
+default behavior of GitHub Actions is that if one steps fails, the entire job to which the step belongs is canceled, is aborted.
+
+${{ }} --> the condition can be wrapped in here (Github Actions expression syntax) , it evaluates an expression, the syntax can be omitted for the `if` field.
+
+`if: failue() & steps.test.outcome == 'failure'` --> the Steps should still be evaluated if it has failing steps of Jobs before that step.
+special conditions functions: failure(), success(), always(), cancelled()
+failure() --> returns true when any previous Step or Job failed
+
+
+If isn't true (not able to use the cache), than manually install the dependencies again, if it's true the step os skipped based of the condition.
+
+```yaml
+- name: Install dependencies
+  if: steps.cache.outputs.cache-it != 'true'
+  run: npm ci
+```
+
+
+Conditional Jobs
+
+```yaml
+report:
+  needs: [lint, deploy] # run the job only if any other job fails
+  if: failure()
+  runs-on: ubuntu-latest
+  steps: 
+    ... 
+```
+
+runs the jobs only if some other job failed.
+make sure that the job will run if any other job failed
+
+`needs: [lint, deploy]` --> GitHub Actions will delay the execution of the job until the other jobs have finished, than evaluates if any other job in front of that job has failed. The entire chain is evaluated.
+
+Ignoring Errors and Failures
+
+```yaml
+- name: Test code
+  continue-on-error: true
+  id: run-tests
+  run: npm run test
+```
+
+`continue-on-error: true` --> The job will continue it's execution even if the step fails. It treats the step as a success, despite it's technically failing because it basically overrides the default behavior. 
+
+Matrix strategies
+
+Run multiple Job configuratins in parallel; add or remove individual cominations; control whether a single failling Job should cancel all other Matrix Jobsd via conrinue-on-error.
+
+```yaml
+jobs:
+  build:
+    strategy: 
+      matrix: 
+        operating-system: [ubuntu-latest, windows-latest]        
+    runs-on: ${{ matrix.operating-system }}    
+```
+
+it can be any value that could be changing and for which Job to run for different values. 
+
+`runs-on: ${{ matrix.operating-system }}` --> run the job multiples times, once per value, in the operation system array. The Jobs will be run in parallel by default.
+
+node version example
+
+```yaml
+jobs:
+  build:
+    continue-on-error: true
+    strategy: 
+      matrix: 
+        node-version: [12, 14, 16]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install NodeJS
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+```
+
+`continue-on-error: ` on job level tells GitHub Actions to continue executing jobs that are related to this matrix, even if some jobs for some combinations failed.
+
+The `include` key allows to add a list with dashes of the key values that should be included without adding a bunch of new combinations.
+
+```yaml
+strategy: 
+  matrix: 
+    node-version: [12, 14, 16]
+    include:
+      - node-version: 18
+        operating-system: ubuntu-latest
+```
+
+The `exclude key` will exclude some combinations.
+
+```yaml
+strategy: 
+  matrix: 
+    node-version: [12, 14, 16]
+    exclude:
+      - node-version: 18
+        operating-system: windows-latest
+```
+
+Reusable Workflows 
+
+```yaml
+name: Reusable Deploy
+on: workflow_call 
+jobs: 
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+     - name: Output information
+       run: echo "Deploying & uploading ..."
+```
+
+`on: workflow_call` --> allows a certain workflow to be called from other workflows.
+Workflow can be reused via the `workflow_call` event; reuse any logic (as many Jobs & Steps as needed)
+
+```yaml
+deploy:
+  needs: build
+  uses: ./.github/workflows/reusable.yaml
+```
+
+`uses` --> references an entire workflow by providing a full path to the workflow file seen relative from the route project folder. 
+
+to vie the reusable workflows all the data it might need and to also pass data back to the workflow that uses the reusable workflow.
+
+Adding data (input)
+
+```yaml
+on: 
+  workflow_call :
+    inputs: 
+      artifact-name:
+        description: The name of the deployable artifact files
+        required: true
+        default: dist
+        type: string
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get Code
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ inputs.arfifact-name }}
+```
+
+`${{ inputs.arfifact-name }}` --> to use an input
+
+```yaml
+deploy:
+  uses: ./.github/workflows/reusable.yaml
+  with:
+    arifact-name: dist-files
+```
+
+secrets
+
+```yaml
+on: 
+  workflow_call :
+    secrets:
+      some-secret:
+        required: true
+```
+
+```yaml
+deploy:
+  uses: ./.github/workflows/reusable.yaml
+  secrets: 
+    some-secret: ${{ secrets.some-secret }}
+```
+
+Outputs
+
+```yaml
+name: Reusable Workflow
+on:
+  workflow_call:
+    outputs:
+      result:
+        description: The result of the deployment operation
+        value: ${{ jobs.deploy.outputs.outcome }}
+jobs:
+  deploy:
+	outputs:
+	  outcome:  ${{ steps.set-result.outputs.step-result}}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set result ouput
+        id: set-result
+        run: echo "step-result=success" >> $GITHUB_OUTPUT
+```
+
+The `value` is typically taken from the steps in one of  the Jobs.
+
+```yaml
+deploy:
+  uses: ./.github/workflows/reusable.yaml
+  with:
+    ...
+print-deploy-result: 
+  needs: deploy
+  runs-on: ubuntu-latest
+  steps:
+    - name: print deploy output
+      run: echo "${{ needs.deploy.outputs.result }}"
+report:
+  ... 
+```
+
+Docker Containers 
+
+And the advantage of using Containers instead of "Just the Runner" machine as we did it thus far, is that with a Container, since you defined the entire environment you have full control over the environment over the installed software and the setup steps that were performed for setting up that environment.
+
+ GitHub Actions supports Docker Containers and you can simply run Docker Containers on top of those Runners provided by GitHub and by GitHub Actions.
+Your containerized job is then simply hosted by the Runner so it's running on that Runner machine but in an isolated environment. The environment defined by you in the Container definition and the steps, and that's the important part the steps of the job are then executed inside the Container.
+
+```yaml
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container: 
+	  image: node:16
+```
+
+The names of the images must be the ones available on Docker Hub.
+
+service containers --> 
+
+
+Custom Actions
+
+to simplify workflow steps
+- build and use a single custom actiosn instrad or writing multiple Step definitions
+- multiples Steps can be grouped into a single custom Action
+
+existing public Actions might not solve a specific problem in a workflow
+
+Custom Actions can contain any logic needed to solve a specific Workflow problem.
+
+types of custom actions:
+- JavaScrit Actions --> actions where the its logic is written in JavaScript
+	- execute a JavaSript file 
+	- use JavaScript (NodeJS) and any other package 
+- Docker Actions --> containeeized acrtion, which create a Dockerfile with the required configuration.
+	- perform any task(s) with any language
+- Composite Actions --> combine multiple Workflow Steps in one single Action
+	- Combine `run` commands and `uses` actions
+	- allows for reusing shared Steps
+
+Composite Actions
+
+actions can be added to projects tha I already havem --> only available in that prpject. Is must have a action.yaml file
+
+Example: 
+
+.github --> actions --> contains the actions only usable by the current project  / cached-deps; workflows 
+
+action.yaml --> file tha tcontains the configuration and the definition of that action.
+```yaml
+name: 'Get & Cache Dependencies'
+description: 'Get the depdencies (via npm) and cache them.'
+runs: 
+ using: 'composite'
+ steps:
+  - name: Cache dependencies
+    id: cache
+    uses: action/cache@v3
+    with:
+     path: node_modules
+  - name: Install depdencies
+    if: 
+    run: npm ci
+    shell: bash
+```
+
+To create actiosn that are available to different workflows in different repos, they must be created as standalone repos.
+
+to use custom actions on another project
+deploy.yaml
+
+```yaml
+lint:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+     - name: Load cache
+       uses: <repo_name>/action
+```
+
+using custom action on the same project
+```yaml
+lint:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+     - name: Load cache
+       uses: ././github/actions/cached-deps
+```
+
+Adding inputs
+
+```yaml
+name: 'Get & Cache Dependencies'
+description: 'Get the depdencies (via npm) and cache them.'
+inputs: 
+  caching: # can be any name
+    description: 'Whether to cache dependencies' # must be added
+    required: false
+    default: 'true'
+runs: 
+ using: 'composite'
+ steps:
+  - name: Cache dependencies
+    if: inputs caching == 'true'
+    ...
+```
+
+```yaml
+lint:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+     - name: Load cache
+       uses: ./.github/actions/cached-deps
+       with:
+         caching: 'false'
+```
+
+outputs
+
+```yaml
+name: 'Get & Cache Dependencies'
+description: 'Get the depdencies (via npm) and cache them.'
+outputs: 
+  used-cache: # can be any name
+    description: 'Whether the cache was used' # must be added
+    value: ${{ steps.install}}
+runs: 
+ using: 'composite'
+ steps:
+  - name: Install dependencies
+    id: install
+    if: steps.cache.outputs.cache-hit != 'true'
+    run: echo "cache=${{ inputs.caching }}" >> $GITHUB_OUTPUT
+```
+
+```yaml
+lint:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+     - name: Load cache
+       uses: ./.github/actions/cached-deps
+       id: cache-deps
+    - name: Output information
+      run: echo "Cache used? ${{ steps.cache-deps.outputs.used-cache }}"
+```
+
+Javascript custom actions
+
+```yaml
+name: 'Deploy to AWS S3'
+description: 'Deploy a static website voa AWS S3'
+inputs:
+ ...
+outputs:
+ ...
+runs: 
+ using: 'node16'
+ main: 'main.js'
+```
+
+the file for the `main` field must be created, but it can be any name. It will execute the `main.js` file whenever the custom action is used in a workflow step.
+
+```js
+const core = require('@actions/core')
+//const github = require('@actions/github')
+const exec = require('@actions/exec')
+
+function run() {
+	// 1) Get some input values
+	const bucket = core.getInput('bucket', { required: true });
+	const bucketRegion = core.getInput('bucket-region', { required: true });
+	const distFolder = core.getInput('dist-folder', { required: true });
+
+	// 2) Upload files
+	const s3Uri = `s3://${bucket}`
+	exec.exec(`aws s3 sync ${distFolder} ${s3Uri} --region ${bucketRegion}`)
+
+	const websiteUrl = `http://${bucket}.s3-website-${bucketRegion}.amazonaws.com`
+	core.setOutput(`website-url`, websiteUrl); //::set-output
+
+	//core.notice('Hello from my custom JavaScript Action')
+}
+
+run();
+```
+
+`npm init -y` --> to use `npm` command
+install dependencies to use the javascript actions
+`npm install @actions/core @actions/github @actions/exec`
+
+`github.getOctokit()` --> tool provided by Github that makes easier to send requests to the Github Rest API
+
+Custom Docker actions
+
+It uses a `.py` file with all the logic behind the action that will be executed, a dockerfile that creates the environment where the code will run, and a requirements file specifiyng the packages that should be installed into the environemnt.
+
+```dockerfile
+FROM python:3
+
+COPY requirements.txt /requirements.txt
+
+RUN pip install -r requirements.txt
+
+COPY deployment.py /deployment.py
+
+CMD ["python", "/deployment.py"]
+```
+
+action.yaml
+
+```yaml
+name: 'Deploy to AWS S3'
+description: 'Deploy a static website via AWS S3'
+inputs:
+  bucket:
+    description: 'The S3 bucket name'
+    required: true
+outputs:
+  website-url:
+    description: 'The URL of the deployed website'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+```
+
+
+Security
+
+concerns
+- Script Injection
+	- a value, set outside a Workflow, is used in a workflow
+	- example: issue title used in workflow shell command
+	- workflow / command behavior could be changed
+- Malicious Third-Party Actions
+	- Actions can perform any logic, including potentially malicious logic
+	- Example: a third-party Action that reads and exports secrets
+	- Only use trusted Actions and inspect code of unknown/untrusted authors
+- Permission Issues
+	- Consider avoiding overly permissive permissions
+	- Example: only allow checking out code ("read only")
+	- GitHub Actions supports fine-grained permissions control
+
+--> only use your own actions 

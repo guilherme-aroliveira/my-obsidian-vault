@@ -40,6 +40,18 @@ The <span style="color:#98971a">Kubelet</span> It's also responsible to carry ou
 
 The <span style="color:#d65d0e">worker node</span> is where the containers are hosted, like Docker containers for example. The master server has the <span style="color:#98971a">kube-api-server</span> and that is what makes it a master. All the information gathered by the <span style="color:#98971a">Kubelet</span> agent about the worker nodes are stored in <span style="color:#98971a">etcd</span> on the master node. The <strong style="color: #b16286">master also has the control manager and the scheduler</strong>.
 
+<span style="color:#98971a">minikube</span> <span style="color: #3588E9">--></span> is a software (utility) that allows developers to run a Kubernetes cluster on the local machine. It's a very useful tool that helps in the process of learning Kubernetes.
+- all the basic operations can be done on a <span style="color:#98971a">minikube</span> cluster
+- it uses the <span style="color:#98971a">kubectl</span> tool to manage the cluster
+- <code style="color:#689d6a">minikube start --driver=virtualbox</code>
+- <code style="color:#689d6a">minikube status</code>
+
+<span style="color:#98971a">kubeadm</span> <span style="color: #3588E9">--></span> tool that helps to set up a Multi-node cluster using Kubernetes best practices. 
+- it needs to have multiple system or VMs provisioned
+- one node must be designated as the master and the rest as worker nodes
+- it needs a container runtime on the hosts (can be container D)
+- the kubeadm tool must be installed on all the nodes
+
 <span style="color:#98971a">kubectl</span> <span style="color: #3588E9">--></span> is the Kubernetes command line interface (CLI), stands for <span style="color:#d65d0e">Kube Command Line Tool</span>. It's <strong style="color: #d79921">used to deploy and manage applications on a Kubernetes cluster</strong> to get cluster information, to get status of other nodes in the cluster, inspect and manage cluster resources, view logs, and more. Key commands types: Imperative commands, Imperative object configuration and Declarative object configuration.
 - <code style="color:#98971a">kubectl [<span style="color:#689d6a">command</span>] [<span style="color:#689d6a">type</span>] [<span style="color:#689d6a">name</span>] [<span style="color:#689d6a">flags</span>]</code>
 	- [<span style="color:#689d6a">command</span>] <span style="color: #3588E9">=</span> any operation to be performed (create, get, apply, delete)
@@ -76,7 +88,7 @@ The <span style="color:#d65d0e">worker node</span> is where the containers are h
 
 >[!info]
 >A <code style="color:#98971a">kubectl</code> <strong style="color: white">context</strong> is a <strong style="color: #b16286">group of access parameters</strong>, including a cluster, a user, and a namespace.
-###### Container D
+###### <strong style="color: #d79921">Container D</strong>
 
 Kubernetes introduced an interface called <span style="color:#d65d0e">Container Runtime Interface</span> (CRI), which allowed any vendor to work as a container runtime for Kubernetes as long as they adhere to the OCI standards. 
 
@@ -110,7 +122,58 @@ Kubernetes does not deploy containers directly on the worker nodes, containers a
 
 >[!info]
 ><span style="color:#d65d0e">Kubernetes objects</span> are persistent entities. Examples: Pod, Namespace, Replica Sets and Deployments. They consist of two main fields: object spec and status.
-###### <strong style="color:#98971a">PODs</strong>
+
+Kubernetes <strong style="color: #d79921">use YAML files as inputs for the creation of objects</strong>, such as PODs, replicas, deployments, services, etc. All of them follow similar structure.
+
+A Kubernetes <span style="color:#d65d0e">definition file</span> <strong style="color: #d79921">always contain 4 tops level fields</strong>: apiVersion, kind, metadata and spec <span style="color: #3588E9">--></span> top level or root level properties, which are <strong style="color: #b16286">required fields</strong>. 
+
+For any Kubernetes definition file the spec definition defines what's inside the object that will be created.
+
+>[!example] definition.yaml
+>```yaml
+>apiVersion: v1
+>kind: Pod
+>metadata:
+>  name: myapp
+>  labels:
+>    app: myapp
+>    type: front-end
+>spec:
+>  containers: # List/Array
+>    - name:  nginx-container # dash indicates that this is the first item in the list
+>      image: nginx
+>```
+
+- <span style="color: #d65d0e">apiVersion</span> <span style="color: #3588E9">--></span> the version of the Kubernetes API that will be used the object. <strong style="color: #d79921">Some possible values are</strong>: `v1` for Pod and Service, `apps/v1` for ReplicaSet and Deployment.
+- <span style="color: #d65d0e">kind</span> <span style="color: #3588E9">--></span> refers to the type of the Kubernetes object that will be created
+- <span style="color: #d65d0e">metadata</span> <span style="color: #3588E9">--></span> data about the object, like its name, labels, etc. It's in the form of a dictionary.
+- <span style="color: #d65d0e">spec</span> <span style="color: #3588E9">--></span> provides additional information to Kubernetes pertaining to that object, it's going to be different for different objects. It's also a dictionary, so each property must be added under it.
+
+>[!note]
+>A YAML file is used to represent data, which in Kubernetes is called Kubernetes manifests. Every manifest must define an API version to use.
+
+<span style="color:#689d6a">object spec</span> <span style="color: #3588E9">--></span> provided by the user which dictates an object's desired state.
+
+<span style="color:#689d6a">status</span> <span style="color: #3588E9">--></span> provided by Kubernetes, this describes the current state of the object.
+
+<span style="color:#689d6a">labels</span> <span style="color: #3588E9">--></span> key/value pairs attached to objects. The are intended for identification of objects, which can have the same labels.
+- <span style="color: #3588E9">--></span> Labels and selectors are the core grouping method in Kubernetes. They are used to link services and Pods together.
+
+<span style="color:#98971a">Namespaces</span> <span style="color: #3588E9">--></span> provides a mechanism for isolating group of resources within a single cluster. They isolate and manage applications and services.
+- they are ideal when  the number of cluster users is large, and it also provides a scope for the names of objects
+- each object must have a unique name for the resource type within a namespace
+
+<span style="color:#98971a">StatefulSet</span> <span style="color: #3588E9">--></span> object that manages stateful applications. Manages deployment and scaling of Pods, and provides guarantees about ordering and uniqueness of Pods. 
+- a StatefulSet maintains a sticky identity for each Pod request and provides persistent storage volumes for the workloads
+
+<span style="color:#98971a">DaemonSet</span> <span style="color: #3588E9">--></span> object that makes sure that Nodes run a copy of a Pod. 
+- as nodes are added to a cluster, Pods are added to the nodes. Pods are garbage collected when removed form a cluster
+- if a DaemonSet is deleted, all Pods are removed
+- a DaemonSet is ideally used for storage, logs, and monitoring nodes
+
+<span style="color:#98971a">Ingress</span> <span style="color: #3588E9">--></span> <span style="color: #d65d0e">API object</span> that when combined with a Controller, provides routing rules to manage external users access to multiple services in a Kubernetes cluster. 
+- in production, Ingress exposes applications to the internet via port 80 (HTTP) or port 443 (HTTPS).
+###### <strong style="color:#98971a">Pods</strong>
 
 <span style="color:#98971a">Pod</span> <span style="color: #3588E9">--></span> single instance of an application. It's the <strong style="color: #b16286">smallest deployable compute object</strong> that can be created in Kubernetes and higher-level abstraction to run workloads.
 
@@ -126,12 +189,6 @@ Pods <strong style="color: #d79921">usually have a 1 to 1 relationship with cont
 >There are cases that it needs a helper container that might be doing some kind of supporting task for the web application, such as processing a user, enter data processing a file uploaded by the user, etc. <span style="color: #3588E9">--></span> these helper containers should live alongside the application container.
 >The two containers can also communicate with each other directly by referring to each other as local host since they share the same network space, plus they can easily share the same storage space as well.
 
-<span style="color:#98971a">minikube</span> <span style="color: #3588E9">--></span> is a software (utility) that allows developers to run a Kubernetes cluster on the local machine. It's a very useful tool that helps in the process of learning Kubernetes.
-- all the basic operations can be done on a <span style="color:#98971a">minikube</span> cluster
-- it uses the <span style="color:#98971a">kubectl</span> tool to manage the cluster
-- <code style="color:#689d6a">minikube start --driver=virtualbox</code>
-- <code style="color:#689d6a">minikube status</code>
-
 >[!example] <span style="color:#98971a">kubectl</span> - Creating Pods
 >The `kubectl` command deploys a Docker container by creating a Pod. It first creates a Pod automatically and deploy an instance of the nginx Docker image.
 >```shell 
@@ -140,31 +197,194 @@ Pods <strong style="color: #d79921">usually have a 1 to 1 relationship with cont
 >kubectl get pods -o wide # to check status of the pod
 >```
 >While the Pod name could be anything, the image name has to be the name of an image available at Docker Hub or any other container registry
-###### <strong style="color:#98971a">ReplicaSets</strong>
-###### <strong style="color:#98971a">Deployments</strong>
 
-Kubernetes uses <span style="color: #d65d0e">YAML files</span> as inputs for the <strong style="color: #b16286">creation of objects</strong> such as pods, replicas, deployments, services, etc. All of these follow a similar structure. A Kubernetes definition file <strong style="color: #b16286">always contains four top level fields</strong>: <span style="color: #d65d0e">apiVersion, kind, medata and spec.</span>
+The `apply` and `create` commands can be used to create a new object. The `-f` option specifies the file name.
 
 ```yaml
-apiVersion: v1
-kind: Pod
-metadata:
-  name: myaapp-pod
-  labels:
-    app: myapp
-    tier: front-end
-spec:
-  containers: # List/Array 
-    - name: nginx-container # dash indicates that this is the first item in the list
-      image: nginx
+kubectl apply -f pod.yaml
 ```
 
-> Note: A YAML file is used to represent data, which in Kubernetes is called Kubernetes manifests. Every manifest must define an API version to use.
+###### <strong style="color:#98971a">Job</strong>
 
-- <span style="color: #d65d0e">apiVersion</span> <span style="color: #3588E9">--></span> the version of the Kubernetes API that will be used the object. <strong style="color: #d79921">Some possible values are</strong>: `v1` for Pod and Service, `apps/v1` for ReplicaSet and Deployment.
-- <span style="color: #d65d0e">kind</span> <span style="color: #3588E9">--></span> refers to the type of the Kubernetes object that will be created
-- <span style="color: #d65d0e">metadata</span> <span style="color: #3588E9">--></span> data about the object, like its name, labels, etc. It's in the form of a dictionary.
-- <span style="color: #d65d0e">spec</span> <span style="color: #3588E9">--></span> provides additional information to Kubernetes pertaining to that object, it's going to be different for different objects. It's also a dictionary, so each property must be added under it
+It creates Pods and track its completion process.  
 
-> For any Kubernetes definition file the spec definition defines what's inside the object that will be created.
+>[!note]
+>Jobs are retried until completed
+>Deleting a Job will remove the created Pods
+>Suspending a Job will delete its active Pods until the Job resumes
 
+A Job can run several Pods in parallel, and a <span style="color:#d65d0e">cronjob</span> is regularly used to create Jobs on interactive schedule
+
+Job it's the final way to deploy more than one Pods at a time. A Job will create one or more Pods and run the container inside of them until it has successfully completed its task.
+###### <strong style="color:#98971a">Replication Controller</strong>
+
+To prevent users from losing access to the application, it should have more than one instance or pod running at the same time.
+
+The <span style="color: #98971a">Replication Controller</span> <strong style="color: #d79921">helps to run multiple instances of a single Pod</strong> in the Kubernetes cluster, thus providing high availability. Even if it has single pod, the replication controller can help by automatically bringing up a new pod when the existing one fails.
+
+The Replication Controller <strong style="color: #d79921">ensures that the specified number of pods are running at all times.</strong>
+
+Another reason to use replication controller is to create multiple ports to share the load across them. It spans across multiple nodes in the cluster.
+
+>[!example] Replication Controller
+>```yaml
+>apiVersion: v1
+>kind: ReplicationController
+>metadata:
+>  name: myapp-rc
+>  labels:
+>    app: myapp
+>    type: front-ned
+>spec:
+>  template:
+>    metadata:
+>      # Pod configuration
+>  replicas: 3 # define number of replicas
+>```
+>When the replication controller is created, it first creates the Pod using the pod definition template as many as required.
+>```shell
+>kubectl create -f rc.definition.yml
+>```
+
+>[!note]
+>Replication controller is the older technology that is being replaced by replica set
+###### <strong style="color:#98971a">ReplicaSets</strong>
+
+The ReplicaSet ensures that a minimum number os replicas are available all the time. It's the new recommended way to set up replication.
+
+The <strong style="color: #b16286">role</strong> of the <span style="color: #98971a">ReplicaSet</span> is to  <strong style="color: #d79921">monitor the pods and if any of them were to fail deploy new ones</strong>. The ReplicaSet is in fact a process that monitors the parts, and it can also manage PODs that were not created as part of the ReplicaSet creation.
+
+The ReplicaSet <strong style="color: #b16286">monitors Pods by using labels as a filter</strong>. The same concept of labels and selectors is used in many other places throughout Kubernetes.
+
+<strong style="color: white">Use Case:</strong>
+- monitor existing PODs, if they haven't been created, the ReplicaSet will create them.
+
+>[!example] replicaset-definition.yml
+>```yaml
+>apiVersion: apps/v1
+>kind: ReplicaSet
+>metadata:
+>  name: myapp-replicaset
+>  labels: 
+>    app: myapp
+>    type: front-end
+>    
+>spec:
+>  template:
+>    metadata:
+>      name: myapp-pod
+>      labels:
+>        app: myapp
+>        type: front-end
+>    spec:
+>      containers:
+>      - name: nginx-controller
+> 	    image: nginx
+>  replicas: 3
+>  selector:
+>    matchLabels:
+>      type: front-end
+>```
+>Changes made to this file are directly applied on the running configuration on the cluster as soon as the file is saved.
+
+The ReplicaSet requires a <span style="color: #d65d0e">selector</span> definition, which helps the ReplicaSet to identify what Pods fall under it <span style="color: #3588E9">--></span> ReplicaSet can also manage Pods that were not created as part of the ReplicaSet creation.
+
+The <span style="color: #d65d0e">labels</span> for the Pod template and for the <span style="color: #d65d0e">matchLabels</span> <strong style="color: #b16286">must be the same</strong>. The <span style="color: #d65d0e">matchLabels</span> selector simply matches the labels specified under it to the labels on the Pod.
+
+>[!example] ReplicaSet - kubectl commands
+>```shell
+># to replace or update the replica
+>kubectl replace -f replicaset-definition.yml 
+>
+># to edit the replica set definition file
+>kubectl edit replicaset replicaset_name (myapp-rs)
+>``` 
+
+To update the number of replicas:
+- update the number of replicas in the definition file 
+- run `kubectl scale --replicas=6 -f replicaset.definition.yml` 
+- run `kubectl scale --replicas=6 replicaset(TYPE) mapp-replicaset(NAME)` 
+- automatically scaling based on load
+
+>[!note]
+>Using the file name as input will not result in the number of replicas being updated automatically in the file.
+###### <strong style="color:#98971a">Deployments</strong>
+
+<span style="color:#98971a">Deployments</span> <span style="color: #3588E9">--></span> higher-level object that provides updates for Pods and ReplicaSets. Deployments run multiple replicas of an application using ReplicaSets and offer additional management capabilities on top of these ReplicaSets.
+
+Examples of Deployments include: the deployment of a replicated application, Pod updates managed by a Deployment, or the scaling up of an application.
+
+it can hep to perform rolling updates and rollbacks and maintain a record of revisions and record the cause of change.
+
+kubernetes objestc that comer higher in the hirarchy. the deployment provides the capability to upgrade the underlyings instances seamslessly usin grolling updates.
+
+The contents of the deployment definition file are exactly similar to the replica set definition file except for the kind which is now going to be deployment.
+
+The deployment automatically creates a replica set. deployments, creates a new Kubernetes object called deployment.
+
+>[!example] Definition - kubectl
+>```shell
+># to create a deployment
+>kubectl create -f deployment-definition.yml
+>
+># to see all the created objects at once
+>kubectl get all
+>
+># 
+>kubectl apply -f deployment-definition.yml
+>
+>```
+
+When you first create a deployment, it triggers a rollout. A new rollout creates a new deployment revision (revision 1). when the application is upgraded (when the container vversion is updated), a new rollout is triggered and a new deployment revision is created named Revision two. helps us keep track of the changes made to our deployment and enables us to roll back to a previous version of deployment if necessary.
+
+`kubectl rollout status deplpyment/myapp-deployment` # show the status if the rollout
+
+to show the revisions and history of rollout
+`kubectl roolout history deplpyment/myapp-deployment`
+
+There are two types of deployment strategies.
+- recreate strategy --> destroy all instances and than deploy new ones of the applications version. This strategy (not default) let the application down and inaccessible to users. 
+- rolling updates -->  upgrade instances one after the other
+
+the difference betweem each atrategy can be seen when view the deployent in detail.
+
+if a strategy is not specified while creating a deployment, it will assume it to be rolling updates (default deployment strategy.
+
+
+A new rollout is triggered and a version of the deployment is created an apply is executed.
+
+Another way to update the container image of a deployment:
+`kubectl set image deployemtm/myapp-deployemnt nginx \ nginx-container=nginx:1.9.1`
+Obs: will result in the deployment definition file having a different configuration.
+
+upgrades
+when a new deployment is created, if first create a replica set automatically, which ins turn creates the number of pods required to meet the number of replicas. When an application is upgraded, the kubernetes deployment objetct creates a new replcia set under the hood, and start deploying the container there, at the same time taking down the pods in the old replcia set, following a rolling update strategy.
+###### <strong style="color:#98971a">Services</strong>
+
+service can be used to expose and application to other applications or users for external access.
+a service is only required if the application has some kind of process or database service or web service the needs to be exposed.
+
+ClusterIP
+##### <strong style="color: #689d6a">Kubernetes Networking</strong>
+##### <strong style="color: #689d6a">Storage</strong>
+
+Two ways to handle data storage in Kubernetes:
+	- connect the application with a database that is running outside the cluster
+	- use Kubernetes <span style="color:#d65d0e">Persistent Volume</span>
+
+app
+the redis database is accessed by the voting app and the worker app
+the voting app save the vote to the rediz database, and the work app read the vote from the redis database
+the worker PostgreSQL database is accessed by the worker app to update it with the total count of votes, and it's also accessed by the result- pap to read the total count of votes to be deployed in the resulting web page in the browser.
+the voting app s accessed by the external users, and te result app is alo accessed by the external users to view the results.
+The worker app simply read the count of votes from the database and then updates the total count of votes on the PostgreSQL database.
+voting app --> python web server - port 80
+result app --> node JS server - port 80
+redis service - port 6379
+PostgreSQL service - port 5432
+worker app has no services
+these services are not to be accessed outside the cluster, type Cluster IP
+
+vagrant status
+vagrant up
+vagrant ssh kubemaster

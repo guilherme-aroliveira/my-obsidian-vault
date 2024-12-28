@@ -29,3 +29,8 @@ Docker requires that virtualization to be enabled in the Bios, <span style="colo
 	- The Docker engine also utilizes <span style="color: #d65d0e">cgroups</span> for isolation, which are used for controlling container resources, primarily around CPU and memory, they provide resource isolation. Cgroups in Docker are strict Kernel requirements, which means that they need to be compatible.
 
 Docker consist of multiple tools that are grouped toeghterL like Dockder CLI, Docker API, the build tools for buldign images.
+
+Link is a command line option which can be used to link to container together
+
+docker run -d --name-vote -p 5000:80 --link redis:redis voting-app
+it creates an entrypoiny on ETcd host file one the voting app container, adding and entry with the host name redis whot the internal IP of the redis container.
