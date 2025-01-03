@@ -321,7 +321,6 @@ To store sensitive information <span style="color: #d65d0e">secrets</span> must 
 >The `key` keyword will be used for retrieving the cache in the future and recreating the folder on the runner machine based on that cache. It also indicated whether the cache should be discarded because it must be recreated, in case of some dependency changed.
 >
 >The `hashFiles()` function produces a unique hash value based on a file path passed to it. The hash value will change whenever the file passed to it changes too.
-
 ###### <span style="color: #d79921">Conditions</span>
 
 The `if` keyword and the usage of <span style="color: #d65d0e">dynamic expressions</span> allows to control steps and jobs executions in a workflow.
@@ -345,36 +344,21 @@ The are four special conditions functions:
 - `always()` <span style="color: #3588E9">--></span> 
 - `cancelled()` <span style="color: #3588E9">--></span> 
 
->[!example] `failure()` function
+>[!example] failure() function
 >```yaml
 >if: failure() & steps.test.outcome == 'failure'
 >```
 > the Steps should still be evaluated even if previous Steps of Jobs have failed.
+> ```yaml
+> reports:
+>   needs: lint
+>   if: failure()
+>   steps:
+>     ....
+> ```
+> The job will run if any other job failed.
 
-Conditional Jobs
-
-```yaml
-report:
-  needs: [lint, deploy] # run the job only if any other job fails
-  if: failure()
-  runs-on: ubuntu-latest
-  steps: 
-    ... 
-```
-
-runs the jobs only if some other job failed.
-make sure that the job will run if any other job failed
-
-Ignoring Errors and Failures
-
-```yaml
-- name: Test code
-  continue-on-error: true
-  id: run-tests
-  run: npm run test
-```
-
-`continue-on-error: true` --> The job will continue it's execution even if the step fails. It treats the step as a success, despite it's technically failing because it basically overrides the default behavior. 
+The `continue-on-error` directive allows to ignore erros and failure. If the value is set to `true`, the job will continue it's execution even if the step fails. it overrides the default behavior. 
 ###### <span style="color: #d79921">Matrix strategies</span>
 
 Run multiple Job configuratins in parallel; add or remove individual cominations; control whether a single failling Job should cancel all other Matrix Jobsd via conrinue-on-error.
