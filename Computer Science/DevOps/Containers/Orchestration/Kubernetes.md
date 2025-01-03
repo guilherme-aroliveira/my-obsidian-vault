@@ -359,6 +359,14 @@ Obs: will result in the deployment definition file having a different configurat
 
 upgrades
 when a new deployment is created, if first create a replica set automatically, which ins turn creates the number of pods required to meet the number of replicas. When an application is upgraded, the kubernetes deployment objetct creates a new replcia set under the hood, and start deploying the container there, at the same time taking down the pods in the old replcia set, following a rolling update strategy.
+
+control groups are used to constrain resources that are allocated to different processes running on your on your machine.
+
+both Kubelet as well as the container runtime actually need to interface with these control groups to enforce various resource management for pods. So think of things like setting the CPU and memory requests and limits. These are all things that need to be kind of communicated to the cgroups.
+
+if you are using a systemd init system you have to use the systemd cgroup driver.
+
+ps -p 1
 ###### <strong style="color:#98971a">Services</strong>
 
 service can be used to expose and application to other applications or users for external access.
