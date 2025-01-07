@@ -84,6 +84,23 @@ on: workflow_dispatch # manually trigger
 >```
 
 Most of the <span style="color:#98971a">Events</span> are repository related <span style="color: #3588E9">--></span> push, fork, watch, pull_request, issues, discussion, create, issue_comment. 
+
+Is possible to execute a workflow at a specific time using a trigger, which is called <span style="color: #d65d0e">Schedule event</span> <span style="color: #3588E9">--></span> configured through the `schedule` keyword which uses a cron syntax. 
+
+The <span style="color: #d65d0e">cron syntax</span> uses five fields, separated by spaces to describe a schedule. Reading from left to right , these fields represent minutes, hours, the day of the month, month, and the day of the week. 
+
+>[!example] Scheduled event
+>```yaml
+>on:
+>  schedule:
+>    - cron: '*/10 * * * *' # run every 10 minutes
+>```
+>All `schedule` use Coordinated Universal Time (UTC)
+>
+>`*` <span style="color: #3588E9">--></span> used to represent all values for that field. The asterisk is a special character in yaml. So, the cron schedule must be quoted.
+
+>[!note]
+>The shortest internal for <span style="color: #d65d0e">Schedule Triggers</span> is five minutes, and they are deactivated when a public repository is forked, and after 60 days of inactivity.
 ###### <span style="color:#98971a">Jobs</span>
 
 A <span style="color:#98971a">Job</span> <strong style="color: #d79921">made up of steps that are performed on the same runner.</strong> A workflow includes one or more jobs <span style="color: #3588E9">--></span> It can have one job that build de component, and another to publish it to an artifact repository. 
@@ -127,6 +144,8 @@ Jobs can also optionally define required services for the workflow.
 
 Every job defines a so-called <span style="color:#98971a">Runner</span>, which is the <strong style="color: #d79921">execution environment</strong> <span style="color: #3588E9">--></span> the <strong style="color: #b16286">machine and operating system</strong> that will be used for executing the steps. 
 
+The runner application manages all the jobs, steps and actions in a workflow. It's an open-source application hosted on GitHub.com.
+
 There are built-in runners (predefined by GitHub) for different virtual environments, or a self-hosted runner that can be used in a owned environment. Example: ubuntu-latest.
 
 >[!Example]
@@ -135,6 +154,31 @@ There are built-in runners (predefined by GitHub) for different virtual environm
 >  build: 
 >    runs-on: ubuntu-22.04 # runner
 >```
+>hosted runners start in a fresh new compute environment on each workflow run.
+
+GitHub Actions provider 3 different platforms for Jobs and workflows, Ubuntu linux, macOS, and Windows.
+
+self-hosted runners lets you configure your job's compute environment to your specifications.  deploy and manage by the user. offers more control over the compute environment where the jobs run.
+
+it can be associated with a single repository, organizaion or an enterprise. Runners added at the organization and enterprie ;evel can be used in mujltipe repositories. and simplify the management of multiple runners.
+
+jobs; build; runson: sel-hosted
+
+>[!example] self-hosted runner
+>```yaml
+>on:
+>  build:
+>    runs-on: self-hosted
+>```
+>Different labels can be used to identify different runners. <strong style="color: white">Example:</strong> redhat-linux.
+
+
+
+any hardware can be used as long as the operating system is compatible with the runner application. Servers in an on-premises data server can be used. 
+
+only use self-hosed runner with private repositories. Malicious code can persiste across workflow runs
+
+
 ###### <span style="color:#98971a">Steps</span>
 
 A <span style="color:#98971a">Step</span> is a <strong style="color: #d79921">task comprising one or more shell commands</strong> or actions (predefined scripts that perform a certain task).
@@ -566,6 +610,57 @@ Services belong to a job, so to one specific job. If different jobs need differe
 
 services always run in containers, but they can be used using just the runner.
 
+push event --> ideal for building images
+
+```yaml
+on:
+  push:
+    branches: [main]
+    tags:['v*.*.*']
+```
+push event will be use to tag images with a brnach name adn the sha associated with the commit that triggered the psh. 
+These tags can be used for testing and other dynamic scenarios
+
+Push events with tags like release are best used to create images that can be referenced in places where the image is fixed.
+
+```yaml
+- uses: docker/login-action
+  with: 
+    registry: gcrh.io
+    username: ${{ github.actor }}
+    password: ${{ secrets.GITHUB_TOKEN }}
+```
+to authenticate to the docker registry
+
+```yaml
+- uses: docker/metadat-action
+  id: meta
+  with: 
+    images: |
+      registry_1/image_name
+      registry_2/image_name
+```
+helps to extract metadata from the code that can be used to create tags an labels
+Multiples images can be provided if we are pushing to multiple registries
+
+```yaml
+- uses: docker/build-push-action
+  with:
+    context: . 
+    tags: ${{ steps.meta.outputs.tags }}
+    labels: ${{ steps.meta.outputs.labels }}
+```
+build and publish the image to the target registry
+
+using an image
+```yaml
+run: docker run ghst.io/account/image:main # run step
+```
+`uses: account/image@main` --> in uses step
+
+
+
+
 ##### <strong style="color: #689d6a">Custom Actions</strong>
 
 to simplify workflow steps
@@ -579,9 +674,15 @@ Custom Actions can contain any logic needed to solve a specific Workflow problem
 types of custom actions:
 - JavaScrit Actions --> actions where the its logic is written in JavaScript
 	- execute a JavaSript file 
+	- bundled with dependencies 
+	- runs directly on the runner system
+	- all supported runners
 	- use JavaScript (NodeJS) and any other package 
 - Docker Actions --> containeeized acrtion, which create a Dockerfile with the required configuration.
+	- self-contained
 	- perform any task(s) with any language
+	- pulled or build on each workflow run
+	- requires a linux-based runner
 - Composite Actions --> combine multiple Workflow Steps in one single Action
 	- Combine `run` commands and `uses` actions
 	- allows for reusing shared Steps
@@ -696,6 +797,16 @@ lint:
 ```
 
 Javascript custom actions
+requirements :
+- repository for the code
+- use `.gitinore` file for Node projects
+- node runtime installed
+- run `npm init`
+- run `npm install --globak @vercel/ncc` --> installs a global package, it helps compile the action into a single file along with all of its depoendencies
+- install dependencies: `@actions/core` and `@actions/github`
+- add an action metadata file and a README file
+
+The metada file is the inteface that a Gighutb action's workflow will use to connect tto the javascript action. it describes the name of the action, along with the runtime, and any inputs and outputs. The pasth to the index file mus be specified. 
 
 ```yaml
 name: 'Deploy to AWS S3'
@@ -706,10 +817,40 @@ outputs:
  ...
 runs: 
  using: 'node16'
- main: 'main.js'
+ main: 'dist/index.js'
 ```
 
-the file for the `main` field must be created, but it can be any name. It will execute the `main.js` file whenever the custom action is used in a workflow step.
+the package.json must be updaded byt addinf a valid test, ad na buidl script to make it easier to compile the action.
+
+```json
+"sctipts": {
+	"test": "node dist/index.js",
+	"build": "ncc build index.js"
+},
+npm run test
+npm run build
+```
+
+example
+```javascript
+// require the libraries for actions
+const core = require('@actions/core')
+const github = require('@actions/github')
+
+// use an async function ro the main tasks
+async function main() {
+	console.log('Hello')
+}
+
+// call the function
+main();
+```
+
+
+
+
+
+the file for the `main` field must be created, but it can be any name. It will execute the `index.js` file whenever the custom action is used in a workflow step.
 
 ```js
 const core = require('@actions/core')
@@ -741,9 +882,45 @@ install dependencies to use the javascript actions
 
 `github.getOctokit()` --> tool provided by Github that makes easier to send requests to the Github Rest API
 
+Github actions Toolkit --> a collection of javascript packages that help developers to create javascript actions. the most essentials are core and github.
+`@actions/core` --> provides functionality for working with GitHub actions front-end and internals of the GitHub actions framework
+- read inputs, set outputs
+- create annotations --> useful for bringing atention to details in workflow logs
+- set exit code
+
+core.info() --> used for logging
+core.notice(), core.warning(), core.error() for annotations  --> appear on the log but have color styling and are also added to the summary page of a workflow run
+annotations --> useful for indicating when an action had to handle an exception, 
+or encountered some sort of problem. 
+
+core.setFailed() more useful if the condidtion is critial enough to cause a workflow to fail. set the status of the step to a non-zero exit code. 
+
+call to the info function are printed in the workflow log.
+
+`@actions/github` --> exposes the workflow-action context as JSON
+provides an authenticated octokit client (GitHub client) --> allows javascript action s to directly access the GitHub API
+
+ workflow-action context --> json object that contains all the properties related to a GitHub event. `cont { context } = require('@actions/github')`
+ `context.payload` --> context object
+ context values can be used as parameter for octokit API calls.
+example
+```yaml
+const { context } = require('@actions/github')
+const { pull_request } = context.payload
+
+await ocktokit.rest.issues.createComment({
+	owner: repo.repo.owner,
+	repo: repo.repo.repo,
+	issues_number: context.payload.number,
+	body: 'Thanks for the issue!'
+});
+```
+
+
+
 Custom Docker actions
 
-It uses a `.py` file with all the logic behind the action that will be executed, a dockerfile that creates the environment where the code will run, and a requirements file specifiyng the packages that should be installed into the environemnt.
+It uses a `.py` file with all the logic behind the action that will be executed, a dockerfile that creates the environment where the code will run, and a requirements file specifying the packages that should be installed into the environment.
 
 ```dockerfile
 FROM python:3
@@ -807,3 +984,19 @@ If you would be vulnerable to script injection, those scripts would not be able 
 an then be attached to requests being sent to GitHub's API to authenticate the request and perform certain actions.
 
 --> only use your own actions 
+
+Github Actions allows to build human interactions  with  envronment protection rules that include manual apprvoals. 
+environments --> descirves a target for a deployment
+to protect environment, rules can be defined to identify which branches can deployt to a given invoronment --> deployment branches 
+
+environemnt secrets are useful for configurations that use the same variable but have different values.
+
+workflows that are protected by manual approvals can only access environemnt secrets after te deployment is approved
+
+GitHub packages also provides built int controls for permissions and visibiliy of any packages that are publish.For packages, permissions and visibilitu are inherited fomr the repo where the package ois hosted.
+
+container image permissins can be customized (granularity) to accounts and organizations.
+
+Authentication is required to create and access softwagre pacgages. in owrkflows, the GITHUB_TOKEN must be used to autehntica to the package management tools.
+
+For private packages, each account receives a certain amount of storage and data transfer.

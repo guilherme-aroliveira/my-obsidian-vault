@@ -39,6 +39,7 @@ The <span style="color:#98971a">controllers</span> are the brain behind orchestr
 The <span style="color:#98971a">Kubelet</span> It's also responsible to carry out actions requested by the master on the worker nodes. All the information gathered are stored in a key value store on the master, which is based on the popular <span style="color:#98971a">etcd</span> framework.
 
 The <span style="color:#d65d0e">worker node</span> is where the containers are hosted, like Docker containers for example. The master server has the <span style="color:#98971a">kube-api-server</span> and that is what makes it a master. All the information gathered by the <span style="color:#98971a">Kubelet</span> agent about the worker nodes are stored in <span style="color:#98971a">etcd</span> on the master node. The <strong style="color: #b16286">master also has the control manager and the scheduler</strong>.
+###### <strong style="color: #d79921">Kubernetes Tools</strong>
 
 <span style="color:#98971a">minikube</span> <span style="color: #3588E9">--></span> is a software (utility) that allows developers to run a Kubernetes cluster on the local machine. It's a very useful tool that helps in the process of learning Kubernetes.
 - all the basic operations can be done on a <span style="color:#98971a">minikube</span> cluster
@@ -88,6 +89,22 @@ The <span style="color:#d65d0e">worker node</span> is where the containers are h
 
 >[!info]
 >A <code style="color:#98971a">kubectl</code> <strong style="color: white">context</strong> is a <strong style="color: #b16286">group of access parameters</strong>, including a cluster, a user, and a namespace.
+
+<span style="color:#98971a">Helm</span> <span style="color: #3588E9">--></span> package manager running on Kubernetes, it simplifies micro services management.
+- <span style="color:#d65d0e">Chart</span> <span style="color: #3588E9">--></span> a Helm package which contains all of the recourse definitions necessary to run an application, tool, or service inside of a kubernetes cluster.
+	- it contains the template and configuration which is required for the kubernetes resource execution --> templates are converted into YAML files
+	- when helm chart is executed, Helm executes the resource on the Kubernetes cluster.
+	- instead of writing separate yaml files for each application, the user can simply create a helm chart and let Helm deploy the application to the cluster.
+	- it can be customized when deploying it on different kubernetes cluster.
+	- Helm CLI commands can be executes on helm charts
+- <span style="color:#d65d0e">Release</span> <span style="color: #3588E9">--></span> an instance of chart running in a Kubernetes cluster. One chart can often be installed many times into the same cluster. And each time it is installed, a new release is created.
+- <strong style="color: #d79921">Helm commands</strong>
+	- `helm repo list` --> show all helm repositories 
+	- `helm repo add <name> <url>` --> add helm repo
+	- `helm repo remove <name>` --> deletes a helm repo
+
+>[!info]
+>when the helm command is triggered, it will download the chart which have the templates. 
 ###### <strong style="color: #d79921">Container D</strong>
 
 Kubernetes introduced an interface called <span style="color:#d65d0e">Container Runtime Interface</span> (CRI), which allowed any vendor to work as a container runtime for Kubernetes as long as they adhere to the OCI standards. 
@@ -160,7 +177,7 @@ For any Kubernetes definition file the spec definition defines what's inside the
 - <span style="color: #3588E9">--></span> Labels and selectors are the core grouping method in Kubernetes. They are used to link services and Pods together.
 
 <span style="color:#98971a">Namespaces</span> <span style="color: #3588E9">--></span> provides a mechanism for isolating group of resources within a single cluster. They isolate and manage applications and services.
-- they are ideal when  the number of cluster users is large, and it also provides a scope for the names of objects
+- they are ideal when the number of cluster users is large, and it also provides a scope for the names of objects
 - each object must have a unique name for the resource type within a namespace
 
 <span style="color:#98971a">StatefulSet</span> <span style="color: #3588E9">--></span> object that manages stateful applications. Manages deployment and scaling of Pods, and provides guarantees about ordering and uniqueness of Pods. 

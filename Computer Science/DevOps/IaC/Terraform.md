@@ -17,20 +17,20 @@ Terraform is written in <span style="color: #d65d0e">HCL (Hashicorp Configuratio
 
 <span style="color: #d65d0e">HCL</span> a simple <strong style="color: #b16286">declarative language to define the infrastructure resources</strong> to be provisioned using code configuration blocks. The files has a `.tf` extension and can be created using any text editor. 
 
-```hcl
-# Template
-	<BLOCK TYPE> "<BLOCK LABEL>" "<BLOCK LABEL>" {
-	 # Block body
-	<IDENTIFIER> = <EXPRESSION> # Argument
-}
-
-# AWS EC2 Example
-resource "aws_instance" "web_server" { # BLOCK
-	ami = "ami-04d29b6f966df1537" # Argument
-	instance_type = var.instance_type # Argument with value as expression (Variable value replaced 11 
-}
-```
-
+>[!example] HCL - example
+>```hcl
+># Template
+>BLOCK TYPE "BLOCK LABEL" "BLOCK LABEL" {
+>	# Block body
+>	IDENTIFIER = EXPRESSION # Argument
+>}
+>
+># AWS EC2 Example
+>resource "aws_instance" "web_server" { # BLOCK
+>	ami = "ami-04d29b6f966df1537" # Argument
+>	instance_type = var.instance_type # Argument with value as expression (Variable value replaced 11 
+>}
+>```
 >A block in Terraform contains information about the infrastructure platform and a set of resource within that platform that is going to be created.
 
 Terraform Code Configuration block types: Settings, Providers, Resource, Data, Input Variables, Local Variables, Output Values, Module.

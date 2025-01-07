@@ -1,3 +1,11 @@
+AWS EKS --> Amazon Elastic Container Service for Kubernetes is a highly available, scalable and secure Kubernetes Service.
+
+Kubernetes can run on any public cloud providers (or even on-premises)
+
+AWS EKS providers managed Kubernetes master nodes
+the master nodes are multi-AZ to provide redundancy
+the master nodes will scale automatically when necessary
+
 O cluster de EKS (Kubernetes) necessita que pelo menos duas subnets sejram criadas em diferentes zonas de disponibilidades (availability zones) --> para obter alta disponibilidades.
 
 with any managed service, master nodes can't be created. The master nodes do not host any application or workloads. it can't ssh or access them, because in managed Kubernetes services, the master node are maintained by the service provider. 
@@ -17,6 +25,24 @@ As subnets devem ser padronidazas com tags especificas para o cluster de kuberne
 
 Uma IAM role deve ser criada para fornecer permissões que o cluster de Kubernetes necessita. É a policy que fornece a permissão, sendo atrelada a uma role --> Amazon Kluter Policy. Deve ser cirada um role atrelada à essa policy.
 Managed Policy são policies padrão da AWS.
+
+AWS EKS - setup
+- Step 1: Provision an EKS Cluster
+	- EKS Cluster
+	- IAM Roles
+	- Security Groups
+	- VPC
+- Step 2: Deploy worker nodes
+	- Launch Configuration
+	- Auto Scaling Group
+	- IAM Roles
+	- Security Groups
+- Setup 3: Connect to EKS
+	- ~/.kube/config
+	- ConfigMap
+	- kubectl
+	- Heptio auth
+
 
 Criação do cluter de EKS
 pre-requisits:
