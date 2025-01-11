@@ -6,6 +6,8 @@ Kubernetes is supported on all public cloud services providers like GCP, Azure, 
 ><span style="color: #d65d0e">Kubernetes</span> it's an open-source platform written in Go, which was developed by Google and maintained by the <span style="color: #d65d0e">Cloud Native Computing Foundation</span> (CNCF). 
 
 It's also known as "Kates" or K8s. Kubernetes is widely supported by leading cloud providers, many of whom now offer fully managed Kubernetes service. Kubernetes can run in any kind of server, such as on-premise data centers, public, private and hybrid cloud.
+
+---
 ##### <strong style="color: #689d6a">Kubernetes Architecture</strong>
 
 A <span style="color:#d65d0e">node</span> or minion is a machine, physical or virtual, on which Kubernetes is installed. Node is a <strong style="color: #d79921">worker machine where containers are launched</strong> by Kubernetes. In other words, user applications run on nodes. Nodes include <span style="color:#689d6a">Pods</span>, and Pods include one or more containers.
@@ -39,72 +41,6 @@ The <span style="color:#98971a">controllers</span> are the brain behind orchestr
 The <span style="color:#98971a">Kubelet</span> It's also responsible to carry out actions requested by the master on the worker nodes. All the information gathered are stored in a key value store on the master, which is based on the popular <span style="color:#98971a">etcd</span> framework.
 
 The <span style="color:#d65d0e">worker node</span> is where the containers are hosted, like Docker containers for example. The master server has the <span style="color:#98971a">kube-api-server</span> and that is what makes it a master. All the information gathered by the <span style="color:#98971a">Kubelet</span> agent about the worker nodes are stored in <span style="color:#98971a">etcd</span> on the master node. The <strong style="color: #b16286">master also has the control manager and the scheduler</strong>.
-###### <strong style="color: #d79921">Kubernetes Tools</strong>
-
-<span style="color:#98971a">minikube</span> <span style="color: #3588E9">--></span> is a software (utility) that allows developers to run a Kubernetes cluster on the local machine. It's a very useful tool that helps in the process of learning Kubernetes.
-- all the basic operations can be done on a <span style="color:#98971a">minikube</span> cluster
-- it uses the <span style="color:#98971a">kubectl</span> tool to manage the cluster
-- <code style="color:#689d6a">minikube start --driver=virtualbox</code>
-- <code style="color:#689d6a">minikube status</code>
-
-<span style="color:#98971a">kubeadm</span> <span style="color: #3588E9">--></span> tool that helps to set up a Multi-node cluster using Kubernetes best practices. 
-- it needs to have multiple system or VMs provisioned
-- one node must be designated as the master and the rest as worker nodes
-- it needs a container runtime on the hosts (can be container D)
-- the kubeadm tool must be installed on all the nodes
-
-<span style="color:#98971a">kubectl</span> <span style="color: #3588E9">--></span> is the Kubernetes command line interface (CLI), stands for <span style="color:#d65d0e">Kube Command Line Tool</span>. It's <strong style="color: #d79921">used to deploy and manage applications on a Kubernetes cluster</strong> to get cluster information, to get status of other nodes in the cluster, inspect and manage cluster resources, view logs, and more. Key commands types: Imperative commands, Imperative object configuration and Declarative object configuration.
-- <code style="color:#98971a">kubectl [<span style="color:#689d6a">command</span>] [<span style="color:#689d6a">type</span>] [<span style="color:#689d6a">name</span>] [<span style="color:#689d6a">flags</span>]</code>
-	- [<span style="color:#689d6a">command</span>] <span style="color: #3588E9">=</span> any operation to be performed (create, get, apply, delete)
-	- [<span style="color:#689d6a">type</span>] <span style="color: #3588E9">=</span> resource type (pod, deployment, replica set)
-	- [<span style="color:#689d6a">name</span>] <span style="color: #3588E9">=</span> resource name (if applicable)
-	- [<span style="color:#689d6a">flags</span>] <span style="color: #3588E9">=</span> special options or modifiers that override default values
-- <strong style="color: #d79921">Imperative commands</strong>:
-	- Allows to create, update and delete objects directly. Operations should be specified as arguments or flags.
-	- They don't provide an audit trail. They also don't use templates, and they can't integrate with change review processes.
-	- <span style="color: #3588E9">--></span> ideal for development and test environments.
-	- <code><span style="color:#98971a">$ kubectl</span> <span style="color:#689d6a">run</span></code> <span style="color: #3588E9">--></span> used to deploy an application on the cluster. Ex: kubectl run hello-minikybe
-	- <code style="color:#689d6a">kubectl cluster-info</code> <span style="color: #3588E9">--></span> to view information about the cluster
-	- <code style="color:#689d6a">kubectl get nodes</code> <span style="color: #3588E9">--></span> to list all the nodes of the cluster
-	- <code style="color:#689d6a">kubectl get deployments</code>
-	- <code style="color:#689d6a">kubectl get pods</code>
-	- $ kubectl get po -A --> check the running pods
-- <strong style="color: #d79921">Imperative object configuration</strong>:
-	- The kubectl command specifies required operations, optional flags, and at least one file name.
-	- The specified configuration file specified must contain a full definition of the objects in YAML or JSON format.
-	- <code><span style="color:#98971a">$ kubectl <span style="color:#689d6a">create -f pod-definition.yaml</span></span></code>
-	- Configuration templates help replicate identical results.
-- <strong style="color: #d79921">Declarative object configuration</strong>:
-	- Stores configuration data in files.
-	- Operations are identified by <code style="color:#98971a">kubectl</code> not the user.
-	- Works on directories or individual files
-	- <code><span style="color:#98971a">$ kubectl <span style="color:#689d6a">apply -f nginx/</span></span></code>
-	- The user isn't required to perform any operations, since they are performed by the system automatically.
-	- Configuration files define desired state, and Kubernetes actualizes the state.
-	- <span style="color: #3588E9">--></span> ideal method for production system.
-
->[!example] Creating a Resource
-> <code style="color:#98971a">$ kubectl <span style="color:#689d6a">apply -f nginx.yaml</span></code>
-> <code style="color:#98971a">$ kubectl <span style="color:#689d6a">get deployment my-dep</span></code>
-
->[!info]
->A <code style="color:#98971a">kubectl</code> <strong style="color: white">context</strong> is a <strong style="color: #b16286">group of access parameters</strong>, including a cluster, a user, and a namespace.
-
-<span style="color:#98971a">Helm</span> <span style="color: #3588E9">--></span> package manager running on Kubernetes, it simplifies micro services management.
-- <span style="color:#d65d0e">Chart</span> <span style="color: #3588E9">--></span> a Helm package which contains all of the recourse definitions necessary to run an application, tool, or service inside of a kubernetes cluster.
-	- it contains the template and configuration which is required for the kubernetes resource execution --> templates are converted into YAML files
-	- when helm chart is executed, Helm executes the resource on the Kubernetes cluster.
-	- instead of writing separate yaml files for each application, the user can simply create a helm chart and let Helm deploy the application to the cluster.
-	- it can be customized when deploying it on different kubernetes cluster.
-	- Helm CLI commands can be executes on helm charts
-- <span style="color:#d65d0e">Release</span> <span style="color: #3588E9">--></span> an instance of chart running in a Kubernetes cluster. One chart can often be installed many times into the same cluster. And each time it is installed, a new release is created.
-- <strong style="color: #d79921">Helm commands</strong>
-	- `helm repo list` --> show all helm repositories 
-	- `helm repo add <name> <url>` --> add helm repo
-	- `helm repo remove <name>` --> deletes a helm repo
-
->[!info]
->when the helm command is triggered, it will download the chart which have the templates. 
 ###### <strong style="color: #d79921">Container D</strong>
 
 Kubernetes introduced an interface called <span style="color:#d65d0e">Container Runtime Interface</span> (CRI), which allowed any vendor to work as a container runtime for Kubernetes as long as they adhere to the OCI standards. 
@@ -220,7 +156,6 @@ The `apply` and `create` commands can be used to create a new object. The `-f` o
 ```yaml
 kubectl apply -f pod.yaml
 ```
-
 ###### <strong style="color:#98971a">Job</strong>
 
 It creates Pods and track its completion process.  
@@ -384,12 +319,89 @@ both Kubelet as well as the container runtime actually need to interface with th
 if you are using a systemd init system you have to use the systemd cgroup driver.
 
 ps -p 1
+
+Update the deployment to use this version instead:
+
+`kubectl set image deployment/hello-world hello-world=us.icr.io/$MY_NAMESPACE/hello-world:2`
 ###### <strong style="color:#98971a">Services</strong>
 
 service can be used to expose and application to other applications or users for external access.
 a service is only required if the application has some kind of process or database service or web service the needs to be exposed.
 
+. Sevice biding manages configuration and credentuals for back-end services while protecting sensitive data. In addition, it makes Service credentiasl available automatically as a Secret.
+
+. Sevice biding consumes the external Service by biding the application to a deployment. Then, the appliation code uses the credentials from the biding and calls the corresponding Service.
+
+Cluster IPs are only accesible within the cluster. To make this externally accessible, we will create a proxy.
+
 ClusterIP
+
+kubectl expose deployment/hello-world --> In order to access the application, we have to expose it to the internet via a Kubernetes Service. This creates a service of type ClusterIP.
+
+
+##### <strong style="color: #689d6a">Kubernetes Tools</strong>
+
+###### <span style="color:#98971a">minikube</span>
+
+<span style="color:#98971a">minikube</span> <span style="color: #3588E9">--></span> is a software (utility) that allows developers to run a Kubernetes cluster on the local machine. It's a very useful tool that helps in the process of learning Kubernetes.
+- all the basic operations can be done on a <span style="color:#98971a">minikube</span> cluster
+- it uses the <span style="color:#98971a">kubectl</span> tool to manage the cluster
+- <code style="color:#689d6a">minikube start --driver=virtualbox</code>
+- <code style="color:#689d6a">minikube status</code>
+###### <span style="color:#98971a">kubectl</span>
+
+<span style="color:#98971a">kubectl</span> <span style="color: #3588E9">--></span> is the Kubernetes command line interface (CLI), stands for <span style="color:#d65d0e">Kube Command Line Tool</span>. It's <strong style="color: #d79921">used to deploy and manage applications on a Kubernetes cluster</strong> to get cluster information, to get status of other nodes in the cluster, inspect and manage cluster resources, view logs, and more. Key commands types: Imperative commands, Imperative object configuration and Declarative object configuration.
+- <code style="color:#98971a">kubectl [<span style="color:#689d6a">command</span>] [<span style="color:#689d6a">type</span>] [<span style="color:#689d6a">name</span>] [<span style="color:#689d6a">flags</span>]</code>
+	- [<span style="color:#689d6a">command</span>] <span style="color: #3588E9">=</span> any operation to be performed (create, get, apply, delete)
+	- [<span style="color:#689d6a">type</span>] <span style="color: #3588E9">=</span> resource type (pod, deployment, replica set)
+	- [<span style="color:#689d6a">name</span>] <span style="color: #3588E9">=</span> resource name (if applicable)
+	- [<span style="color:#689d6a">flags</span>] <span style="color: #3588E9">=</span> special options or modifiers that override default values
+- <strong style="color: #d79921">Imperative commands</strong>:
+	- Allows to create, update and delete objects directly. Operations should be specified as arguments or flags.
+	- They don't provide an audit trail. They also don't use templates, and they can't integrate with change review processes.
+	- <span style="color: #3588E9">--></span> ideal for development and test environments.
+	- <code><span style="color:#98971a">$ kubectl</span> <span style="color:#689d6a">run</span></code> <span style="color: #3588E9">--></span> used to deploy an application on the cluster.
+		-  Ex: `kubectl run hello-minikybe`
+	- <code style="color:#689d6a">kubectl cluster-info</code> <span style="color: #3588E9">--></span> to view information about the cluster
+	- <code style="color:#689d6a">kubectl get nodes</code> <span style="color: #3588E9">--></span> to list all the nodes of the cluster
+	- <code style="color:#689d6a">kubectl get deployments</code>
+	- <code style="color:#689d6a">kubectl get pods</code>
+	- <code style="color:#689d6a">kubectl get secrets</code> --> shows all the secrets in the kubernetes cluster
+		- Ex: `kubectl get secrets -n database`
+		- `kubectl get secrets -n database <secret_name> -o yaml`
+- <strong style="color: #d79921">Imperative object configuration</strong>:
+	- The kubectl command specifies required operations, optional flags, and at least one file name.
+	- The specified configuration file specified must contain a full definition of the objects in YAML or JSON format.
+	- <code><span style="color:#98971a">$ kubectl <span style="color:#689d6a">create -f pod-definition.yaml</span></span></code>
+	- Configuration templates help replicate identical results.
+- <strong style="color: #d79921">Declarative object configuration</strong>:
+	- Stores configuration data in files.
+	- Operations are identified by <code style="color:#98971a">kubectl</code> not the user.
+	- Works on directories or individual files
+	- <code><span style="color:#98971a">$ kubectl <span style="color:#689d6a">apply -f nginx/</span></span></code>
+	- The user isn't required to perform any operations, since they are performed by the system automatically.
+	- Configuration files define desired state, and Kubernetes actualizes the state.
+	- <span style="color: #3588E9">--></span> ideal method for production system.
+
+>[!example] Creating a Resource
+> <code style="color:#98971a">$ kubectl <span style="color:#689d6a">apply -f nginx.yaml</span></code>
+> <code style="color:#98971a">$ kubectl <span style="color:#689d6a">get deployment my-dep</span></code>
+
+>[!info]
+>A <code style="color:#98971a">kubectl</code> <strong style="color: white">context</strong> is a <strong style="color: #b16286">group of access parameters</strong>, including a cluster, a user, and a namespace.
+>
+###### <span style="color:#98971a">kubeadm</span>
+
+<span style="color:#98971a">kubeadm</span> <span style="color: #3588E9">--></span> tool that helps to set up a Multi-node cluster using Kubernetes best practices. 
+- it needs to have multiple system or VMs provisioned
+- one node must be designated as the master and the rest as worker nodes
+- it needs a container runtime on the hosts (can be container D)
+- the kubeadm tool must be installed on all the nodes
+###### <span style="color:#98971a">Kops</span>
+
+kops --> stands for Kubernetes Operations, it allows to do production grade Kubernetes installations, upgrades and management
+
+kops --> best tool to setup kubernetes on AWS, has AWS integrations automatically kops is still recommendend (on AWS)
 ##### <strong style="color: #689d6a">Kubernetes Networking</strong>
 ##### <strong style="color: #689d6a">Storage</strong>
 
