@@ -2111,34 +2111,34 @@ APIs can enable integrating different systems, allowing them to work together se
 - permite garantir qualidade de dados submetidas por um cliente ou servidor
  - possui alguns atributos, tais como: versão do esquema, URI do esquema, etc.
 - ferramentas: JSON Schema Validator, JSON to JSON Schema Converter
-- <strong style="color: white">Exemplo:</strong>
-	```json
-	{ ...// Definição de esquema e tipo de dados
-	"$schema": "https://json-schema.org/draft/2020-12/schema",
-	"$id": "https://example.com/schemas/product",
-	"title": "Produto",
-	"description": "Um produto do catálago",
-	"type": "object",
-	 
-	...// Definição das propriedade
-	 "properties:" {
-		"productId": {
-			"description": "Identificador único",
-			"type": "integer" },
-		"tags": {
-			"description": "Rótulos para o produto",
-			"type": "array", "items": { "type": "string"},
-			"minItems": 1, "uniqueItems": true },
-	},
-				  
-	...// Definição das propriedades requeridas
-	"required": [ "productId" ],
-				  
-	"$defs": {
-		"name": { "type": "string" }
-		}	
-	}
-	```
+
+>[!example] Exemplo - JSON schema
+>```json
+>{ ...// Definição de esquema e tipo de dados
+>	"$schema": "https://json-schema.org/draft/2020-12/schema",
+>	"$id": "https://example.com/schemas/product",
+>	"title": "Produto",
+>	"description": "Um produto do catálago",
+>	"type": "object",
+>
+>	...// Definição das propriedade
+>	"properties:" {
+>		"productId": {
+>			"description": "Identificador único", 
+>			"type": "integer" },
+>		"tags": {
+>			"description": "Rótulos para o produto",
+>			"type": "array", "items": { "type": "string"},
+>			"minItems": 1, "uniqueItems": true },
+>	},
+>	...// Definição das propriedades requeridas
+>	"required": [ "productId" ],
+>	"$defs": {
+>		"name": { "type": "string" }
+>	}
+>}
+>```
+
 - Palavras reservadas:
 	- $schema --> indica a versão utilizada para descreve o esquema.
 	- $id --> indica o base URI para esta definição de esquema na Internet
@@ -2146,7 +2146,6 @@ APIs can enable integrating different systems, allowing them to work together se
 		- `"shiping_address":" { "$ref": "/schemas/address" }` --> referencia relativa
 	- $defs --> indica um local para definição de esquemas e sub-esquema JSON reutilizáveis.
 		- `"first_name": { $ref": "#/$defs/name" }` --> faz referencia a uma parte interna do documento
-
 
 <span style="color: #d65d0e">Gartner Group</span> <span style="color: #3588E9">--></span> instituto que faz avaliações de tecnologias
 - quadrante mágico: ferramenta que identifica quem são os fornecedores lideres, visionários, de nicho e os desafiadores.
@@ -2486,8 +2485,8 @@ With REST, the APIs are the resources that provide endpoints to perform a partic
 
 Estado da aplicação --> momento do fluxo da aplicação. Ex: identificar se o login foi realizado.
 
-Recurso - entidade (alvo da aplicação) exposta por um sistema Web via API, como usuários, posts, localidades, booksmarks, empresas.
-- tudo que haverá interação em um aplicação que exporta um webservice REST esta baseado nesses recursos
+Recurso - entidade (alvo da aplicação) exposta por um sistema Web via API, como usuários, posts, localidades, bookmarks, empresas.
+- tudo que haverá interação em um aplicação que exporta um web service REST esta baseado nesses recursos
 
 <span style="color: #d65d0e">Estado de um recurso</span> <span style="color: #3588E9">--></span> situação a que um recurso, pode-se ter a representação desse estado. Exemplo: representação em arquivo JSON, representação em imagens, em texto, etc...
 
@@ -2515,14 +2514,13 @@ Data format --> Typically uses lightweight data formats, commonly JSON, for data
 
 Exemplos de RESTful APIs: The Movie DB e News API
 
-Dados de controle - inofrmações que podem ser passadas no momenta da interação com um API
+Dados de controle - informações que podem ser passadas no momenta da interação com um API
 
 Metadados do recurso - link de origem, alternativas, variações
 
-Representação - documento html, imagem, documento XML ou qualquer tipo de imformação que vá caracterizar um recusor
+Representação - documento html, imagem, documento XML ou qualquer tipo de informação que vá caracterizar um recurso.
 
-Identificador do recurso - recursos possuem um identificador pelo qual são acessíveis, baseado no padrão URI
-		- Exemplo: `http://myservice.org/v1/user/1`
+Identificador do recurso - recursos possuem um identificador pelo qual são acessíveis, baseado no padrão URI. Exemplo: `http://myservice.org/v1/user/1`
 
 Use of <strong style="color: #b16286">definitions</strong> of the HTTP protocol as a basis for the client-server communication.
 - uso correto dos http verbs. Exemplo: GET /bookmarks/1 --> para leitura
@@ -2578,7 +2576,7 @@ The name of the method describes what happens to the resource when the method is
 - Diferentes métodos HTTP invocados na mesma URL fornecem funcionalidades diferentes.
 - <span style="color:#98971a">POST</span> <span style="color: #3588E9">--></span> usado na maioria dos casos, para criar novos recursos
 - <span style="color:#98971a">GET</span> <span style="color: #3588E9">--></span> usado para ler recursos. Requisições GET nunca mudam o estado do recurso. O GET é idempotente.
-- <span style="color:#98971a">PUT</span> <span style="color: #3588E9">--></span> usado para substitui um recurso, também é indepotente
+- <span style="color:#98971a">PUT</span> <span style="color: #3588E9">--></span> usado para substitui um recurso, também é idempotente
 - <span style="color:#98971a">PATCH</span> <span style="color: #3588E9">--></span> usado para atualizações parciais para os recursos existentes.
 - <span style="color:#98971a">DELETE</span> <span style="color: #3588E9">--></span> usado para excluir recursos existentes. Também é idempotente
 
@@ -2590,10 +2588,10 @@ When the service completes a request, it returns a response. An HTTP status code
 
 <strong style="color: #d3869b">Códigos de Resposta</strong>
 - Os códigos de status de reposta HTTP padrão são desenvolvidos pelo servidor indicando sucesso ou falha.
-- Códigos na faixa 2XX indicam sucesso
-- Códigos 3XX indicam que um recurso se moveu
-- Códigos na faixa 4XX indicam um erro do lado do cliente
-- Códigos na faixa 5XX indicam erros do lado do servidor
+- Códigos na faixa `2XX` indicam sucesso
+- Códigos `3XX` indicam que um recurso se moveu
+- Códigos na faixa `4XX` indicam um erro do lado do cliente
+- Códigos na faixa `5XX` indicam erros do lado do servidor
 
 <strong style="color: #d3869b">Nomeclatura</strong>
 - Os recursos fazem parte das URLs, como <span style="color: #55ffff">/usuarios</span>

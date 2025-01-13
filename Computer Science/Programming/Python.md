@@ -61,6 +61,9 @@ Terms package and library are often used interchangeably. Therefore, numpy, pyto
 2. Install pip
 	1. <code>sudo apt install python3-pip</code>
 	2. <code>pip3 --version</code> --> check the pip version
+3. Create a virtual environment
+	1. `python3 -m venv .venv`
+	2. `source .venv/bin/activate`
 ###### <strong style="color: red">Workflow</strong>
 - Run the program
 	- `python3 main.py`

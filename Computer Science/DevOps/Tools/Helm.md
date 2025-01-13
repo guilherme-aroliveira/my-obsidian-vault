@@ -1,20 +1,37 @@
-<span style="color:#98971a">Helm</span> is the package management system for Kubernetes, it simplifies micro services management on K8s.
+<span style="color:#98971a">Helm</span> is a <strong style="color: #d79921">package management system</strong> for Kubernetes, it simplifies micro services management on K8s.
 
-<strong style="color: #d79921">Helm components:</strong>
+Helm is maintained by the CNCF - The Cloud native Computing Foundation. 
 
-- <span style="color:#d65d0e">Chart</span> <span style="color: #3588E9">--></span> a Helm package which contains all of the recourse definitions necessary to run an application, tool, or service inside of a kubernetes cluster.
-	- it contains the template and configuration which is required for the kubernetes resource execution --> templates are converted into YAML files
-	- when helm chart is executed, Helm executes the resource on the Kubernetes cluster.
-	- instead of writing separate yaml files for each application, the user can simply create a helm chart and let Helm deploy the application to the cluster.
-	- it can be customized when deploying it on different kubernetes cluster.
-	- Helm CLI commands can be executes on helm charts
-- <span style="color:#d65d0e">Repository</span> <span style="color: #3588E9">--></span> the place where charts can be collected and shared.
-- <span style="color:#d65d0e">Release</span> <span style="color: #3588E9">--></span> an instance of chart running in a Kubernetes cluster. One chart can often be installed many times into the same cluster. And each time it is installed, a new release is created.
+Helm uses a packaging format called <span style="color:#d65d0e">charts</span>. A <span style="color:#d65d0e">chart</span> ia <strong style="color: #d79921">collection of file that describe</strong> a set of Kubernetes <strong style="color: #b16286">resources</strong>. A single chart can deploy an app, or a database. 
 
-<strong style="color: #d79921">Helm Workflow</strong>
-- <span style="color:#d65d0e">Load Charts and Dependencies</span> <span style="color: #3588E9">--></span> <span  style="color: #689d6a">Parse the Values to yaml file</span> <span style="color: #3588E9">--></span> <span style="color:#98971a">Generate the yamls</span> <span style="color: #3588E9">--></span> <span style="color: #d79921">Parse yaml to Kube Object & Validate</span> <span style="color: #3588E9">--></span> <span style="color: #b16286">Send Validates yamls to K8s</span>
+A <span style="color:#d65d0e">chart</span> can have dependencies, e.g to install wordpress chart, it needs a mysql chart. 
 
-<span style="color: #3588E9">--></span> When a helm command is triggered, it  downloads the chart which have the templates.
+<span style="color:#d65d0e">Charts</span> use <span style="color:#d65d0e">templates</span> that are typically developed by a package maintainer. They will generate yaml file that kubernetes understands. When a chart is executed, Helm runs the resource on the Kubernetes cluster.
+
+>[!example] Example - template within a chart
+>```yaml
+>apiVersion: 1
+>kind: ConfigMap
+>metadata:
+>  name: {{ .Release.Name }}-configmap
+>data:
+>  myvalue: "Hello World"
+>  drink: {{ .Values.favoriteDrink }}  
+>```
+>When a helm command is triggered, it  downloads the chart which have the templates.
+
+Instead of writing separate yaml files for each application, the user can simply create a helm chart and let Helm deploy the application to the cluster.  It can be customized when deploying it on different kubernetes cluster.
+
+A <span style="color:#d65d0e">repository</span> is the place where  charts can be collected and shared. 
+
+A <span style="color:#d65d0e">release</span> is an instance of chart running in a Kubernetes cluster. One chart can often be installed many times into the same cluster. And each time it is installed, a new release is created.
+
+<strong style="color: #689d6a">Helm Workflow</strong>
+1. Load Charts and Dependencies
+2. Parse the Values to yaml file
+3. Generate the YAMLs
+4. Parse yaml to Kube Object & Validate
+5. Send Validates YAMLs to K8s
 
 >[!example] custom values - YAML file
 >```yaml
@@ -28,7 +45,7 @@
 >```shell
 >helm install -n database --values values.yaml my-mariadb chart --version 11.4.0
 >```
-###### <span style="color: #d79921">Helm commands</span>
+###### <span style="color: #689d6a">Helm commands</span>
 
 - `helm repo list` -->  check the installed repo
 - `helm repo add <name> <url>` --> add helm repository
@@ -64,30 +81,32 @@
 	- `--keep-history` --> to keep the previous release (maintain the secrets)
 - `helm rollback` --> restore a revision
 	- Ex: `helm rollback mymariadb 3 -n database`
-###### <span style="color: #d79921">Custom charts</span>
+###### <span style="color: #689d6a">Custom charts</span>
 
 Each Helm Chart contains a predictable set of directories and files, and Helm provides a basic template for these, that can be generated from the command line.
 
-```shell
-# To generate a boilerplate Helm chart template
-helm create <chart_name>
-```
+>[!example]
+>```shell
+># To generate a boilerplate Helm chart template
+helm create chart_name
+>```
 
 The custom Helm charts have the following directory structure:
 
-```text
-my_chart
-├── Chart.yaml
-├── charts/ 
-├── templates/   
-│	├── Notes.txt
-│	├── _helpers.tpl
-│	├── deployment.yaml
-│	├── hpa.yaml
-│	├── service.yaml
-│	└── tests/
-└── values.yaml
-```
+>[!example]
+>```text
+>my_chart
+>├── Chart.yaml
+>├── charts/
+>├── templates/
+>│	├── Notes.txt
+>│	├── helpers.tpl
+>│	├── deployment.yaml
+>│	├── hpa.yaml
+>│	├── service.yaml
+>│	└── tests/
+>└── values.yaml
+>```
 
 `Chart.yaml` <span style="color: #3588E9">--></span> chart that defines the structure of the chart, contains the metadata of the deployment. 
 
@@ -160,7 +179,7 @@ To rollback to the most recent version:
 ```shell
 helm rollback first-chart
 ```
-###### <span style="color: #d79921">Helm Templates</span>
+###### <span style="color: #689d6a">Helm Templates</span>
 
 To write a custom template, it must use the same template language, but it doesn't have to be the go language. 
 

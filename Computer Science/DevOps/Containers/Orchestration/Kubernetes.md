@@ -397,7 +397,7 @@ kubectl expose deployment/hello-world --> In order to access the application, we
 - one node must be designated as the master and the rest as worker nodes
 - it needs a container runtime on the hosts (can be container D)
 - the kubeadm tool must be installed on all the nodes
-###### <span style="color:#98971a">Kops</span>
+###### <span style="color:#98971a">kops</span>
 
 kops --> stands for Kubernetes Operations, it allows to do production grade Kubernetes installations, upgrades and management
 
