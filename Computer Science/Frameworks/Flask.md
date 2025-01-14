@@ -7,8 +7,6 @@ Flask only provides the basic dependencies needed to create a web application, a
 The developer can choose other extensions that provide additional features.
 
 Flask is not opinionated about what database or template engine to use, it is a good choice for RESTful APIs
-
-
 ###### <strong style="color: #689d6a">Features</strong>
 
 Flask has a built-in web server that runs applications in development mode, a built-in unit testing and also has has a debugger to help debug applications.
@@ -43,7 +41,7 @@ To build websites, Flask has features like debugging servers,  routing, templa
 ###### <strong style="color: #689d6a">Built-in dependencies</strong>
 
 - Werkzeug: implements web server gateway interface (WSGI)
-- Jinja: Template language
+- Jinja: Template language --> way to evalute functions as python 
 - MarkupSafe: Provides security features in templates
 - ItsDangerous: Signing library for session cookies
 - Click: framework for writing command-line applications
