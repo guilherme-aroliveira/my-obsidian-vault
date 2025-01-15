@@ -109,9 +109,6 @@ For any Kubernetes definition file the spec definition defines what's inside the
 
 <span style="color:#689d6a">status</span> <span style="color: #3588E9">--></span> provided by Kubernetes, this describes the current state of the object.
 
-<span style="color:#689d6a">labels</span> <span style="color: #3588E9">--></span> key/value pairs attached to objects. The are intended for identification of objects, which can have the same labels.
-- <span style="color: #3588E9">--></span> Labels and selectors are the core grouping method in Kubernetes. They are used to link services and Pods together.
-
 <span style="color:#98971a">StatefulSet</span> <span style="color: #3588E9">--></span> object that manages stateful applications. Manages deployment and scaling of Pods, and provides guarantees about ordering and uniqueness of Pods. 
 - a StatefulSet maintains a sticky identity for each Pod request and provides persistent storage volumes for the workloads
 
@@ -454,10 +451,239 @@ kops --> stands for Kubernetes Operations, it allows to do production grade Kube
 
 kops --> best tool to setup kubernetes on AWS, has AWS integrations automatically kops is still recommendend (on AWS)
 ##### <strong style="color: #689d6a">Kubernetes Networking</strong>
+##### <strong style="color: #689d6a">Scheduling</strong>
+
+Every pod has a field called Node Name that, by default, is not set. Added automatically by Kubernetes. The scheduler goes through all the pods and looks for those that do not have this property set.
+
+It then identifies the right node for the pod by running the scheduling algorithm.
+Once identified, it schedules the pod on the node by setting the node name property to the name of the node by creating a binding object.
+
+If there is no scheduler to monitor and schedule nodes, The pods continue to be in a pending state.
+
+without a scheduler, the easiest way to schedule a pod is to simply set the node name field to the name of the node in your pod specification file while creating the pod.
+
+another way to assign a node to an existing pod is to create a binding object and send a POST request to the pod's binding API.
+
+```yaml
+apiVersion: v1
+kind: Biding
+metadata:
+	name: nginx
+target:
+	apiVersion: v1
+	kind: node
+	name: node02 # name of the node
+```
+
+```shell
+curl --header "Content-Type:application/json" --request POST --data '{"apiVersion": "v1", "kind": "Biding" ...}'
+```
+
+<span style="color:#689d6a">labels</span> <span style="color: #3588E9">--></span> key/value pairs attached to objects. The are intended for identification of objects, which can have the same labels.
+- <span style="color: #3588E9">--></span> Labels and selectors are the core grouping method in Kubernetes. They are used to link services and Pods together.
+
+filter and view different objects by different categories, such as to group objects by their type or view objects by application or by their functionality.
+stand methods to group thing together. you can group and select objects
+using labels and selectors.
+For each object, attach labels as per your needs,
+like app, function, et cetera.
+Then, while selecting, specify a condition to filter specific objects.
+For example, app equals app one. app = App1, function = Front-end
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+	name: simple-webapp
+	lables:
+		app: App1
+		function: Front-End
+```
+pod
+select pods with labels --> `kubectl get pods --selector app=App1`
+Kubernetes objects use labels and selectors internally to connect different objects together.
+```yaml
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: simple-webapp
+  # Labels of the replica set
+  labels: 
+    app: App1
+    function: Front-End
+  annotations:
+    buildVersion: 1.34
+spec: 
+  replicas: 3
+	# Match the labels defined on the pod
+    selector:  
+	  matachLabels:
+	    app: App1
+	template:
+	  metadata:
+	    labels:
+	      app: App1
+	      function: Fron-End
+```
+replica set
+Example: When a service is created, it uses the selector defined in the service definition file to match the labels set on the pods in the replica set definition file.
+
+Annotations: annotations are used to record other details for informatory purpose. For example, tool details like name, version, build information, et cetera, or contact details, phone numbers, email IDs, et cetera that may be used for some kind of integration purpose.
+
+Taints and tolerations are used to set restrictions on what pods can be scheduled on a node. taints are set on nodes and tolerations are set on pods.
+`kubeclt taint nodes node-name key=value:taint-effect` --> to taint a node
+The taint effect defines what would happen to the pods if they do not tolerate the taint.The taint effect defines what would happen to the pods if they do not tolerate the taint.
+- noSchedule --> pods will not be scheduled on the node
+- PreferNoSchedule --> the system will try to avoid placing a pod on the node, but that is not guaranteed
+- NoExecute --> new pods will not be scheduled on the node and existing pods on the node, if any, will be evicted if they do not tolerate the taint.
+
+example: `kubectl taint node1 app=blue:NoSchedule`
+
+To add a toleration to a pod,
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+	name: myapp-pod
+spec: 
+  containers:
+  ...
+  tolerations:
+  - key: "app"
+    operator: "Equal"
+    value: "blue"
+    effrect: "NoSchedule"
+```
+all of these values need to be encoded in double codes.
+
+When the pods are now created or updated with the new tolerations, they are either
+not scheduled on nodes or evicted from the existing nodes depending on the effect set.
+
+Remember taints and tolerations are only meant to restrict nodes from accepting certain pods.
+
+taints and tolerations does not tell the pod to go to a particular node. Instead, it tells the node to only accept pods with certain tolerations.
+
+best practice is to not deploy application workloads on a master server.
+to see this taint --> `kubectl describe noe kubemaster | grep Taint`
+
+node selectors: 
+To limit this pod to run on the larger node, we add a new property called node selector. 
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+	name: myapp-pod
+spec: 
+  containers:
+  ...
+  nodeSelector: 
+    size: Large
+```
+The key value pair of size and large are in fact labels assigned to the nodes.
+The scheduler uses these labels to match and identify the right node to place the pods on.
+Obs: To use labels in a node selector like this, you must have first labeled your nodes prior to creating this pod.
+to label nodes: `kubectl nodes <node-name> <label-key>=<label-value>`
+example: `kubectl label nodes node-1 size=Large`
+limitations: We used a single label and selector to achieve our goal here.
+
+node affinity --> to restrict a pod to certain nodes,
+The primary purpose of node affinity feature is to ensure that pods are hosted on particular nodes.
+provides us with advanced capabilities to limit pod placement on specific nodes.
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+	name: myapp-pod
+spec: 
+  containers:
+  ...
+  affinity:
+    nodeAffinity: 
+      # type of node affinity.
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: size
+            operator: In
+            values:
+            - Large
+            - Medium
+```
+
+The in operator ensures that the pod will be placed on a node whose label size has any value in the list of values specified.
+NotIn operator --> node affinity will match the nodes with a size not set to the defined size.
+Exists --> check if the label size exists on the nodes
+
+The type of node affinity defines the behavior of the scheduler with respect to node affinity and the stages in the life cycle of the pod.
+There are currently two types of node affinity available
+During scheduling is the state where a pod does not exist and is created for the first time.
+
+During execution is the state where a pod has been running and a change is made in the environment that affects node affinity, such as a change in the label of a node.
+
+, a combination of taints, and tolerations, and node affinity rules can be used together to completely dedicate nodes for specific pods.
+
+Resource and requirements
+every pod requires a set of resources to run.
+
+If nodes have no sufficient resources available, the scheduler avoids placing the pod on those nodes and instead places the pod on one where sufficient resources are available.
+
+specify the amount of CPU and memory required for a pod --> resource request for a container
+Now one count of CPU is equivalent to one vCPU.
+
+Now similarly with memory, you could specify 256 Mi or specify the same value in memory like this 268435456  (whole number).
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+	name: myapp-pod
+spec: 
+  containers:
+  - name:
+    resources:
+      requests: 
+        memory: "4Gi" # Gibibyte
+        cpu: 1
+      limits:
+        memory: "2Gi"
+        cpu: 2
+```
+So when the scheduler gets a request to place this pod, it looks for a node that has this amount of resources available.
+
+1 Ki (Kibibyte) = 1,024 bytes
+By default, a container has no limit to the resources it can consume on a node.
+
+Is possible to set a limit for the resource usage on these pods.
+
+A container can use more memory resources than its limit. So if a pod tries to consume more memory than its limit constantly, the pod will be terminated
+OOM --> Out of Memory
+
+So by default, Kubernetes does not have a CPU or memory request or limit set.
+So this means that any pod can consume as much resources as required on any node and suffocate other pods or processes that are running on the node of resources.
 ##### <strong style="color: #689d6a">Logging & Monitoring</strong>
+
+Heapster was one of the original projects that enabled monitoring and analysis features for Kubernetes. Deprecated
+
+Metrics Server slimmed-version of Heapster
+You can have one Metrics Server per Kubernetes cluster.
+retrieves metrics from each of the Kubernetes nodes and pods, aggregates them, and stores them in memory.
+
+Note that the Metrics Server is only an in-memory monitoring solution
+and does not store the metrics on the disk. And as a result, you cannot see historical performance data.
+
+kubelet --> is responsible for receiving instructions from the Kubernetes API master server and running pods on the nodes. The kubelet also contains a sub component
+known as the cAdvisor or Container Advisor.
+
+cAdvisor is responsible for retrieving performance metrics from pods and exposing them through the kubelet API to make the metrics available for the Metrics Server.
+
+`minikube addons enable metric-server`
+`kubectl create -f deploy/1.8+` -->  deploys a set of pods, services, and roles
+to enable Metrics Server to pull for performance metrics from the nodes in the cluster.
+`kubectl top node` --> cluster performance can be viewed
+`kubectl top node` --> to view performanc metri of pods
+`kubectl logs -f event-simulator-pod` -->  view the logs
+
 ##### <strong style="color: #689d6a">Cluster Maintenance</strong>
 ##### <strong style="color: #689d6a">Security</strong>
-##### <strong style="color: #689d6a">Scheduling</strong>
 ##### <strong style="color: #689d6a">Storage</strong>
 
 Two ways to handle data storage in Kubernetes:
