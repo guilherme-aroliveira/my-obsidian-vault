@@ -117,6 +117,24 @@ For any Kubernetes definition file the spec definition defines what's inside the
 - if a DaemonSet is deleted, all Pods are removed
 - a DaemonSet is ideally used for storage, logs, and monitoring nodes
 
+DaemonSets are like ReplicaSets, as in it helps you deploy multiple instances of pods. But it runs one copy of your pod on each node in your cluster.
+Whenever a new node is added to the cluster, a replica of the pod is automatically added to that node. And when a node is removed the pod is automatically removed.
+
+The DaemonSet ensures that one copy of the pod is always present in all nodes in the cluster.
+
+Uses cases: 
+- deploy a monitoring agent or log collector on each of your nodes in the cluster -- as it can deploy your monitoring agent in the form of a pod in all the nodes in your cluster.
+- kube proxy --> can be deployed as a DaemonSet in the cluster
+- networking --> Networking solutions like Vivenet requires an agent to be deployed on each node in the cluster.
+
+Creating a DaemonSet is similar to the ReplicaSet creation process. except that the kind is a DaemonSet. 
+Ensure the labels in the selector matches the ones in the pod template.
+`kubectl create -f daemon-set-definition.yaml` --> create the DaemonSet
+`kubectl gert daemonset` --> to view created daemon sets
+`kubectl describe daemonsets monitoring-daemon` --> to view more details
+
+From version 1.12 onwards the DaemonSet uses the default scheduler and node affinity rules to schedule pods on nodes.
+
 <span style="color:#98971a">Ingress</span> <span style="color: #3588E9">--></span> <span style="color: #d65d0e">API object</span> that when combined with a Controller, provides routing rules to manage external users access to multiple services in a Kubernetes cluster. 
 - in production, Ingress exposes applications to the internet via port 80 (HTTP) or port 443 (HTTPS).
 ###### <strong style="color:#98971a">Pods</strong>
@@ -659,6 +677,45 @@ OOM --> Out of Memory
 
 So by default, Kubernetes does not have a CPU or memory request or limit set.
 So this means that any pod can consume as much resources as required on any node and suffocate other pods or processes that are running on the node of resources.
+
+Limit ranges --> ensure that every pod created has come default set, 
+define default values to be set for containers in pods that are created without a request or limit specified in the pod-definition files. Its an object
+```yaml
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name:
+spec:
+  limits:
+  - defaults:
+    cpu: 500m
+    defaultRequest:
+      cpu: 500m
+    max:
+      cpu: "1"
+    min:
+      cpu: 100m
+    type: Container
+```
+
+So if you create or change a limit range, it does not affect existing pods.
+It'll only affect newer pods that are created after the limit range is created or updated. And finally, is there any way to restrict the
+
+resource quota--> way to restrict the total amount of resources that can be consumed by applications deployed in a Kubernetes cluster
+So a resource quota is a namespace level object that can be created to set hard limits for requests and limits.
+```yaml
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: my-resource-quota
+spec:
+  hard:
+    requests.cpu: 4
+    requests.memory: 4Gi
+    limits.cpu: 10
+    limits.memory: 10Gi
+```
+
 ##### <strong style="color: #689d6a">Logging & Monitoring</strong>
 
 Heapster was one of the original projects that enabled monitoring and analysis features for Kubernetes. Deprecated
