@@ -189,6 +189,8 @@ RESTful API requires resource ID in the URL
 
 Flask  also allows to set the parameter type. The framework uses this information to validate incoming requests. Example: create an endpoint of terminals and SFO to get the number of terminals at the San Francisco airport.
 - `@app.route("terminal/<string:airport_code">)` --> triggers if the user sends a string at the end of the URL
+Mime type --> browsers use it to determine how to process a URL, it looks to the content-type.
+multipurpose internet mail extensions 
 
 Parameter Types:
 - string --> any String

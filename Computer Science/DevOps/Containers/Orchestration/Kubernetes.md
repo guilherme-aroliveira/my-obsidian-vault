@@ -112,10 +112,6 @@ For any Kubernetes definition file the spec definition defines what's inside the
 <span style="color:#689d6a">labels</span> <span style="color: #3588E9">--></span> key/value pairs attached to objects. The are intended for identification of objects, which can have the same labels.
 - <span style="color: #3588E9">--></span> Labels and selectors are the core grouping method in Kubernetes. They are used to link services and Pods together.
 
-<span style="color:#98971a">Namespaces</span> <span style="color: #3588E9">--></span> provides a mechanism for isolating group of resources within a single cluster. They isolate and manage applications and services.
-- they are ideal when the number of cluster users is large, and it also provides a scope for the names of objects
-- each object must have a unique name for the resource type within a namespace
-
 <span style="color:#98971a">StatefulSet</span> <span style="color: #3588E9">--></span> object that manages stateful applications. Manages deployment and scaling of Pods, and provides guarantees about ordering and uniqueness of Pods. 
 - a StatefulSet maintains a sticky identity for each Pod request and provides persistent storage volumes for the workloads
 
@@ -338,6 +334,60 @@ ClusterIP
 
 kubectl expose deployment/hello-world --> In order to access the application, we have to expose it to the internet via a Kubernetes Service. This creates a service of type ClusterIP.
 
+###### <strong style="color:#98971a">Namespaces</strong>
+
+<span style="color:#98971a">Namespaces</span> <span style="color: #3588E9">--></span> provides a mechanism for isolating group of resources within a single cluster. They isolate and manage applications and services.
+- they are ideal when the number of cluster users is large, and it also provides a scope for the names of objects
+- each object must have a unique name for the resource type within a namespace
+- the default namespace is created automatically by Kubernetes when the cluster is first set up.
+- kubernetes creates a set of pods and services for its internal purpose, and to isolate them from the user, kubernetes creates them under the at the kube-system namespace.  
+- kupe-public --> a third namespace created automatically by Kubernetes
+	- where where resources that should be made available to all users are created.
+In a small environment namespace is not necessary, but in case it grows or for productions purposes it should be used. 
+Each of these name spaces can have its own set of policies that define who can do what.
+You can also assign quota of resources to each of these name spaces. That way, each name space is guaranteed a certain amount and does not use more than its allowed limit.
+Example: for the web pod in the default name space to connect to the database in the dev environment or namespace use the servicename.namespace.svc.cluster.local format. --> `mysql.connect("db-service.dev.svc.cluster.local")`
+
+kubectl get pods --namespace=kube-system --> To list pods in another name space
+kubectl create -f pods.definition.yaml --namespace=dev --> To create the pod in another name space
+
+ex:
+```yaml
+apiVersion: v1
+kind: Pod
+metadata: 
+	name: myapp-pod
+	namespace: dev
+```
+good way to ensure your resources are always created in the same name space
+a new namesapcae is created like any other object
+```yaml
+apiVersion: v1
+kind: Namespace
+metadata: 
+	name: dev
+```
+kubectl create -f namespace.dev.yaml
+kubectl create namespace dev
+kubectl config  set-context $(kubectl config current-context) --namespace=dev --> to switch to the dev name space permanently - set the name space in the current context to dev.
+kubectl get pods --all-namespace --> to view pods in all name spaces
+
+To limit resources in a name space, create a resource quota.
+```yaml
+apiVersion: v1
+kind: ResourceQuota
+metadata: 
+	name: compute-quota
+	namescape: dev
+spec:
+	hard:
+		pods: "10"
+		requests.cpu "4"
+		requests.memory: 5Gi
+		limits.cpu: "10"
+		limits.memomry: 10Gi
+```
+
 
 ##### <strong style="color: #689d6a">Kubernetes Tools</strong>
 
@@ -363,6 +413,7 @@ kubectl expose deployment/hello-world --> In order to access the application, we
 	- <code><span style="color:#98971a">$ kubectl</span> <span style="color:#689d6a">run</span></code> <span style="color: #3588E9">--></span> used to deploy an application on the cluster.
 		-  Ex: `kubectl run hello-minikybe`
 	- <code style="color:#689d6a">kubectl cluster-info</code> <span style="color: #3588E9">--></span> to view information about the cluster
+	- kubectl get all --> to list all objects
 	- <code style="color:#689d6a">kubectl get nodes</code> <span style="color: #3588E9">--></span> to list all the nodes of the cluster
 	- <code style="color:#689d6a">kubectl get deployments</code>
 	- <code style="color:#689d6a">kubectl get pods</code>
@@ -403,6 +454,10 @@ kops --> stands for Kubernetes Operations, it allows to do production grade Kube
 
 kops --> best tool to setup kubernetes on AWS, has AWS integrations automatically kops is still recommendend (on AWS)
 ##### <strong style="color: #689d6a">Kubernetes Networking</strong>
+##### <strong style="color: #689d6a">Logging & Monitoring</strong>
+##### <strong style="color: #689d6a">Cluster Maintenance</strong>
+##### <strong style="color: #689d6a">Security</strong>
+##### <strong style="color: #689d6a">Scheduling</strong>
 ##### <strong style="color: #689d6a">Storage</strong>
 
 Two ways to handle data storage in Kubernetes:
