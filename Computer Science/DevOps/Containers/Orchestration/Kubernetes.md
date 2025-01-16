@@ -111,32 +111,6 @@ For any Kubernetes definition file the spec definition defines what's inside the
 
 <span style="color:#98971a">StatefulSet</span> <span style="color: #3588E9">--></span> object that manages stateful applications. Manages deployment and scaling of Pods, and provides guarantees about ordering and uniqueness of Pods. 
 - a StatefulSet maintains a sticky identity for each Pod request and provides persistent storage volumes for the workloads
-
-<span style="color:#98971a">DaemonSet</span> <span style="color: #3588E9">--></span> object that makes sure that Nodes run a copy of a Pod. 
-- as nodes are added to a cluster, Pods are added to the nodes. Pods are garbage collected when removed form a cluster
-- if a DaemonSet is deleted, all Pods are removed
-- a DaemonSet is ideally used for storage, logs, and monitoring nodes
-
-DaemonSets are like ReplicaSets, as in it helps you deploy multiple instances of pods. But it runs one copy of your pod on each node in your cluster.
-Whenever a new node is added to the cluster, a replica of the pod is automatically added to that node. And when a node is removed the pod is automatically removed.
-
-The DaemonSet ensures that one copy of the pod is always present in all nodes in the cluster.
-
-Uses cases: 
-- deploy a monitoring agent or log collector on each of your nodes in the cluster -- as it can deploy your monitoring agent in the form of a pod in all the nodes in your cluster.
-- kube proxy --> can be deployed as a DaemonSet in the cluster
-- networking --> Networking solutions like Vivenet requires an agent to be deployed on each node in the cluster.
-
-Creating a DaemonSet is similar to the ReplicaSet creation process. except that the kind is a DaemonSet. 
-Ensure the labels in the selector matches the ones in the pod template.
-`kubectl create -f daemon-set-definition.yaml` --> create the DaemonSet
-`kubectl gert daemonset` --> to view created daemon sets
-`kubectl describe daemonsets monitoring-daemon` --> to view more details
-
-From version 1.12 onwards the DaemonSet uses the default scheduler and node affinity rules to schedule pods on nodes.
-
-<span style="color:#98971a">Ingress</span> <span style="color: #3588E9">--></span> <span style="color: #d65d0e">API object</span> that when combined with a Controller, provides routing rules to manage external users access to multiple services in a Kubernetes cluster. 
-- in production, Ingress exposes applications to the internet via port 80 (HTTP) or port 443 (HTTPS).
 ###### <strong style="color:#98971a">Pods</strong>
 
 <span style="color:#98971a">Pod</span> <span style="color: #3588E9">--></span> single instance of an application. It's the <strong style="color: #b16286">smallest deployable compute object</strong> that can be created in Kubernetes and higher-level abstraction to run workloads.
@@ -271,6 +245,30 @@ To update the number of replicas:
 
 >[!note]
 >Using the file name as input will not result in the number of replicas being updated automatically in the file.
+###### <strong style="color:#98971a">DaemonSets</strong>
+
+<span style="color:#98971a">DaemonSet</span> <span style="color: #3588E9">--></span> object that makes sure that Nodes run a copy of a Pod. 
+- as nodes are added to a cluster, Pods are added to the nodes. Pods are garbage collected when removed form a cluster
+- if a DaemonSet is deleted, all Pods are removed
+- a DaemonSet is ideally used for storage, logs, and monitoring nodes
+
+DaemonSets are like ReplicaSets, as in it helps you deploy multiple instances of pods. But it runs one copy of your pod on each node in your cluster.
+Whenever a new node is added to the cluster, a replica of the pod is automatically added to that node. And when a node is removed the pod is automatically removed.
+
+The DaemonSet ensures that one copy of the pod is always present in all nodes in the cluster.
+
+Uses cases: 
+- deploy a monitoring agent or log collector on each of your nodes in the cluster -- as it can deploy your monitoring agent in the form of a pod in all the nodes in your cluster.
+- kube proxy --> can be deployed as a DaemonSet in the cluster
+- networking --> Networking solutions like Vivenet requires an agent to be deployed on each node in the cluster.
+
+Creating a DaemonSet is similar to the ReplicaSet creation process. except that the kind is a DaemonSet. 
+Ensure the labels in the selector matches the ones in the pod template.
+`kubectl create -f daemon-set-definition.yaml` --> create the DaemonSet
+`kubectl gert daemonset` --> to view created daemon sets
+`kubectl describe daemonsets monitoring-daemon` --> to view more details
+
+From version 1.12 onwards the DaemonSet uses the default scheduler and node affinity rules to schedule pods on nodes.
 ###### <strong style="color:#98971a">Deployments</strong>
 
 <span style="color:#98971a">Deployments</span> <span style="color: #3588E9">--></span> higher-level object that provides updates for Pods and ReplicaSets. Deployments run multiple replicas of an application using ReplicaSets and offer additional management capabilities on top of these ReplicaSets.
@@ -469,6 +467,9 @@ kops --> stands for Kubernetes Operations, it allows to do production grade Kube
 
 kops --> best tool to setup kubernetes on AWS, has AWS integrations automatically kops is still recommendend (on AWS)
 ##### <strong style="color: #689d6a">Kubernetes Networking</strong>
+
+<span style="color:#98971a">Ingress</span> <span style="color: #3588E9">--></span> <span style="color: #d65d0e">API object</span> that when combined with a Controller, provides routing rules to manage external users access to multiple services in a Kubernetes cluster. 
+- in production, Ingress exposes applications to the internet via port 80 (HTTP) or port 443 (HTTPS).
 ##### <strong style="color: #689d6a">Scheduling</strong>
 
 Every pod has a field called Node Name that, by default, is not set. Added automatically by Kubernetes. The scheduler goes through all the pods and looks for those that do not have this property set.
