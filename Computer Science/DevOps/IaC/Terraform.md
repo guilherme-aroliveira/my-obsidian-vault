@@ -34,8 +34,7 @@ Terraform is written in <span style="color: #d65d0e">HCL (Hashicorp Configuratio
 >A block in Terraform contains information about the infrastructure platform and a set of resource within that platform that is going to be created.
 
 Terraform Code Configuration block types: Settings, Providers, Resource, Data, Input Variables, Local Variables, Output Values, Module.
-
-<strong>Terraform Based Architecture</strong>
+##### <span style="color: #689d6a">Terraform Based Architecture</span>
 
 Terraform relies on plugins called "<span style="color: #d65d0e">providers</span>" to interact with remote systems and expand functionality.
 
@@ -46,19 +45,24 @@ Terraform providers are <strong style="color: #b16286">plugins that implement re
 
 Popular Terraform Providers include: AWS, Azure, Google Cloud, VMware, Kubernetes and Oracle.
 
-Terraform configuration can have one to many providers actually installed within the configuration. <strong style="color: white">Example</strong>: a kubernetes resource can be a dependency from an EKS resource.
+Terraform Providers release is separate from Terraform release.
 
-The `required_version` property allows to define a specific version of terraform that has to be used in a specific system. 
+Terraform configuration must declare which providers they require so that Terraform can install and use them. It can have one to many providers actually installed within the configuration. <strong style="color: white">Example</strong>: a kubernetes resource can be a dependency from an EKS resource.
 
-```hcl
-terraform {
-  required_version = ">= 1.0.0"
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 3.0"
-    }
-```
+>[!example] Terraform providers
+>```hcl
+>terraform {
+>  required_version = ">= 1.0.0"
+>  
+>  required_providers {
+>    aws = {
+>      source = "hashicorp/aws"
+>      version = "~> 3.0"
+>    }
+>  }
+>}
+>```
+>The `required_version` property allows to define a specific version of terraform that has to be used in a specific system. 
 
 Terraform initializes the project and identifies the providers to be used for the target environment.
 
@@ -114,18 +118,6 @@ provider "aws" {
 >[!note]
 >inside the provider block --> not recommended, it har code the credentiasl on th state file that can be versioned
 
-<strong style="color: #d79921">Environment variables</strong>
-
-The aws credentials can be provided via the `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`, environment variables, representing the AWS Access Key and AWS Secret Key, respectively.
-
-```shell
-export AWS_ACCESS_KEY_ID="anaccesskey"
-export AWS_SECRET_ACCESS_KEY="asecretkey"
-export AWS_DEFAULT_REGION="us-east-1"
-```
-
-<strong style="color: #d79921">Shared credentials</strong>
-
 The AWS credentials or configuration file can be used to specify the credentials. The default location is `$HOME/.aws/credentials` on Linux and macOS.
 
 Optionally a different location can be specified in the Terraform configuration by providing the shared_credentials_file argument or using the `AWS_SHARED_CREDENTIALS_FILE` environment variable. This method also supports a profile configuration and matching `AWS_PROFILE` environment variable.
@@ -143,27 +135,36 @@ provider "aws" {
 
 `terraform.lock` file --> hashicorp hashes out the provider version so that Terraform can do a comparison during the `terrafrom init` command. This file tracks the versions of providers and modules and it <strong style="color: #d79921">should be commit</strong> to git.
 
-<strong>Terraform Concepts</strong>
+<strong style="color: #d79921">Environment variables</strong>
+
+The aws credentials can be provided via the `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`, environment variables, representing the AWS Access Key and AWS Secret Key, respectively.
+
+```shell
+export AWS_ACCESS_KEY_ID="anaccesskey"
+export AWS_SECRET_ACCESS_KEY="asecretkey"
+export AWS_DEFAULT_REGION="us-east-1"
+```
+
+##### <span style="color: #689d6a">Terraform Concepts</span>
 
 Terraform uses <span style="color: #d65d0e">resources block</span> to <strong style="color: #d79921">manage infrastructure</strong>, such as virtual networks, comute instances, or higher-level components such as DNS records. 
 
 <span style="color: #d65d0e">Resource blocks</span> <strong style="color: #b16286">represent one or more infrastructure objects in the terraform configuration</strong>. A resource can be a file on a local host, a computer instance, a database server in the cloud or on a physical server on premise that Terraform manages.
 
-```hcl
-# Template
-<BLOCK TYPE> "<BLOCK LABEL>" "<BLOCK LABEL>" {
-	# Block body
-	<IDENTIFIER> = <EXPRESSION> # Argument
-}
-```
-
-<strong style="color: white">Example</strong>
-
-```hcl
-resource "aws_s3_bucket" "my-new-S3-bucket" {   
-  bucket = "my-new-tf-test-bucket-bryan"
-}
-```
+>[!example] 
+>```hcl
+># Template
+>(BLOCK TYPE) (BLOCK LABEL) (BLOCK LABEL) {
+>  # Block body
+>  (IDENTIFIER) = (EXPRESSION) # Argument
+>}
+>```
+>---
+>```hcl
+>resource "aws_s3_bucket" "my-new-S3-bucket" {
+>  bucket = "my-new-tf-test-bucket-bryan"
+>}
+>```
 
 Within a resource block, there are arguments that are specific to the type of resource that will be deployed.
 
@@ -190,42 +191,68 @@ Even from resources that Terraform does not manage, it can read attributes such 
 >Terraform can also import other resources outside of Terraform that were either created manually or by the means of other IaC tools and bring it under its control so that it can manage those resources going forward.
 
 Just as in any general purpose programming language such as Bash, scripting or Python, is possible to make use of <span style="color: #d65d0e">input variables</span> in Terraform to assign variables.
+###### <span style="color: #d79921">Input variables</span>
 
-<span style="color: #d65d0e">Input variables</span> allows aspects of a module or configuration to be customized without altering the module's own source code. This allows modules to be shared between different configurations.
+<span style="color: #d65d0e">Input variables</span> allows aspects of a module or configuration to be customized without altering the module's own source code. This allows modules to be shared between different environments.
 
-Input variables (commonly referenced as just variables) are often declared in a separate file called `variables.tf`, although this is not required. Each variable used in a Terraform configuration <strong style="color: #d79921">must be declared before it can be used</strong>, which has its own block.
+Input variables (commonly referenced as just variables) are often declared in any `.tf` file within the Terraform project. Each variable used in a Terraform configuration <strong style="color: #d79921">must be declared before it can be used</strong>, which has its own block.
 
-```hcl
-variable "VARIABLE_NAME" {
-	# Block body
-	type = <VARIABLE_TYPE>
-	description = <DESCRIPTION>
-	default = <EXPRESSION>
-	sensitive = <BOOLEAN>
-	validation = <RULES>
-}
-```
+>[!example] Input Variables
+>```hcl
+>variable "VARIABLE_NAME" {
+>  # Block body
+>  type = "variable_type"
+>  description = "description"
+>  default = "expression"
+>  sensitive = "boolean"
+>  validation = "rules"
+>}
+>```
+>Input variables make the Terraform configuration more flexible.
 
-<strong style="color: white">Example:</strong>
-
-```hcl
-variable "vpc_cidr" {
-	description = "CIDR Block for the VPC"
-	type = string
-	default = "10.0.0.0/16"
-}
-
-resource "aws_vpc" "main_vpc" {
-	cidr_block = var.cidr_block
-}
-```
-
-> Input variables make the Terraform configuration more flexible.
+>[!example] Example
+>```hcl
+>variable "vpc_cidr" {
+>  description = "CIDR Block for the VPC"
+>  type = string
+>  default = "10.0.0.0/16"
+>}
+>
+>resource "aws_vpc" "main_vpc" {
+>  cidr_block = var.cidr_block
+>}
+>```
 
 To call a variable on a resource or module: `var.<variable_name>`
 
 >[!note]
 >A best practice is to create a `variables.tf` file to use input variables
+
+The Input Variable can also have a custom validation rules defined, which are defined by adding a `validation` block within the variable block.
+
+>[!example] Example - validation
+>```hcl
+>variable "location" {
+>  type = string
+>  description = "The Azure Region to deploy resources"
+>
+>  validation {
+>    condition = contains(["eastus", "westus"], lower(var.location))
+>    error_message = "Unsupported Azure Region specified. Supported regions include: eastus, westus"
+>  }
+>}
+>```
+>It will validate the value of a variable based on certain condition or criteria.
+
+- Primitive Types --> terraform supports three primitive types: string, number, bool.
+- Complex Types --> complex types allow to group multiples values together sinto a single variable. Collection types, Structural types.
+	- Collection Types --> a collection of multiple values grouped together as a single value
+		- `list(...)` --> a sequence of values identified by an index starting with zero
+		- `map(...)` --> a collection of values; each with a string label identifier
+		- `set(...)` --> a collection of unique values without any secondary identifiers or ordering. 
+	- Structural types --> a collection of multiple values of several distinct types grouped together as a single value
+		- `object(...)` --> a collection of values each with their own type
+		- `tuple(...)` --> a sequence of values each with their own type
 
 Variable - <strong style="color: white">order of precedence:</strong>
 1. `-var` and `-var-file`
@@ -266,6 +293,16 @@ To interpolate variables in strings:
 ```hcl
 "Name" = "Production ${var.main_vpc.name}"
 ```
+
+data types
+data source
+output
+remote state
+
+
+
+terraform modules
+Conditions, Loops
 
 <span style="color: #d65d0e">Local block</span> (often referred to as locals) are <strong style="color: #b16286">defined values in Terraform that are used to reduce repetitive references</strong> to expressions or values. Locals are defined in `locals block` (plural) and include named local variables with their defined values.
 
@@ -418,8 +455,7 @@ The output can be redirected to file any time using shell redirection
 ```shell
 terraform output -json > outputs.json
 ```
-
-<strong>Commenting Terraform Code</strong>
+###### <strong>Commenting Terraform Code</strong>
 
 The <strong style="color: #d79921">use of comment</strong> is a way to make the code easier to understand for others who might want to contribute.
 
@@ -455,8 +491,7 @@ provider "aws" {
   region = "us-east-1"
 }
 ```
-
-<strong>Multiple Terraform Providers</strong>
+##### <strong>Multiple Terraform Providers</strong>
 
 Due to the plug-in based architecture of Terraform providers, it is easy to install and utilize <span style="color: #d65d0e">multiple providers</span> within the same Terraform configuration.
 
@@ -490,7 +525,7 @@ version = "~> 2.0"
 version = "~> 3.0"
 ```
 
-<strong>Terraform Provisioners</strong>
+###### <strong>Terraform Provisioners</strong>
 
 <span style="color: #d65d0e">Provisioners</span> can be used to model specific actions on the local machine or on a remote machine in order to prepare servers or other infrastructure objects for service.
 
@@ -551,7 +586,7 @@ To manage existing resources there weren't created by Terraform use the `import`
 terraform import aws_instance.aws_linux <resource_id>
 ```
 
-<strong>Terraform Workflow</strong>
+###### <strong>Terraform Workflow</strong>
 
 The `terraform init` command initialize the working directory/project, it also downloads and installs necessary plugins to execute the configuration.
 
@@ -622,8 +657,7 @@ The `-destroy` simulates a destroy action.
 ```shell
 terraform plan -destroy
 ```
-
-<strong>Terraform modules</strong>
+##### <strong>Terraform modules</strong>
 
 A <span style="color: #d65d0e">module</span> is a set of Terraform configuration files in a single directory. Even the simplest configuration consisting of a single directory with one `.tf`.
 
@@ -718,7 +752,7 @@ To view the outputs returned by any module and their values, the `console` comma
 terraform console
 ```
 
-<strong>Terraform Workspaces</strong>
+##### <strong>Terraform Workspaces</strong>
 
 Workspaces is a Terraform feature that allows to organize infrastructure by environments and variables in a single directory.
 
@@ -752,7 +786,7 @@ terraform workspace select default
 
 > Workspaces isolate their state, if `terraform plan` is executed, Terraform will not see any existing state for this configuration.
 
-<strong>Terraform state</strong>
+##### <strong>Terraform state</strong>
 
 Terraform stores and operates on the state of the managed infrastructure. Terraform uses this <span style="color: #d65d0e">state</span> on each execution to make plan and make changes. This state must be stored and maintained on each execution so future operations can be performed correctly.  
 
@@ -949,7 +983,7 @@ terraform init -backend-config=state_config/dev-s3-state.hcl
 >[!info]
 >If backend settings are provided in multiple locations, the top level settings are merged such that the command line options will override the settings in the main configuration.
 
-<strong>Debugging</strong>
+##### <strong>Debugging</strong>
 
 Terraform allows to enable logging in order to do some troubleshooting. This can be done by setting `TF_LOG` environment variable to any value. The log levels are trace, debug, info, warn or error.  
 
@@ -1056,31 +1090,6 @@ output "ec2_instance_arn" {
 }
 ```
 
-<strong>Variable Validation</strong>
-
-```hcl
-variable "cloud" {
-	type = string
-
-	validation {
-		condition = contains("aws", "azure", "gcp"), lower(var.cloud)
-		error_message = "You must use an approved cloud"
-	}
-}
-```
-
-> It will validate the value of a variable based on certain condition or criteria.
-
-To suppress sensitive information:
-
-```hcl
-variable "phone_number" { 
-	type = string
-	sensitive = true
-	default = "867-5309"
-}
-```
-
 >[!note]
 >Even if the values are marked as sensitive in the Terraform input and output, it still needs to add the value to the state file. 
 
@@ -1125,11 +1134,8 @@ output "phone_number" {
 
 <strong>Collections and Structure Types</strong>
 
-string: a sequence os Unicode characters representing some text, like "hello".
-
 number: a numeric value. The number type can represent both whole numbers like 15 and fractional values like 6.283185.
 
-bool: a boolean value, either true or false, bool values can be used in conditional logic.
 
 list( or tuple): a sequence of values, like `["us-west-1a", "us-weat-1c"]`. Elements in a list or tuple are identifies by consecutive whole numbers, starting with zero. 
 
@@ -1228,6 +1234,85 @@ variable "bella" {
 >[!note]
 >List/tuples and maps/objects are sometimes called complex types, structural types, or collection types.
 
+<strong>Conditions and Loops</strong>
+
+Booleans can be used in a terraform ternary operation to create an if-selse statement - `CONDITION ? TRUE_VAL : FALSE_VAL`
+
+>[!example] Example - condition
+>```hcl
+>resource "aws_eip" "web_eip" {
+>  count = var.create_eip == true ? 1 : 0
+>}
+>```
+>---
+>```hcl
+>module "ec2_cluster" {
+>  source = ""
+>  instance_count = var.environment == "Production" ? 2 : 1
+>
+>  tags = {
+>    Environment = var.environment
+>  }
+>}
+>```
+
+count --> parameter used to loop over the resources. Can be used to create multiple copies of resources in TF
+
+>[!example] Example - count
+>```hcl
+>resource "aws_iam_user" "user-example" {
+>  count = 3
+>  name = "myuser.$(count.index)"
+>}
+>```
+
+for --> parameter used to iterate over lists and maps. For loop is used to generate a single Value. Syntax of `for` loop: `for ITEM in LIST : OUTPUT`
+syntax map: `for KEY, VALUE in MAP : OUTPUT`
+
+>[!example] Example - for
+>```hcl
+>variable "names" {
+>  type = list(string)
+>  default = ["mark", "trinity", "john]
+>}
+>
+>output "uper_names" {
+>  value = [for name in var.names : upper(name)]
+>}
+>```
+
+>[!example] Example - for with map
+>```hcl
+>variable "program" {
+>  type = map(string)
+>  default = {
+>    mark = "software engineer"
+>    trinity = "AI Program"
+>    john = "machine operator"
+>  }
+>}
+>
+>output "roles" {
+>  value = [for name, role in var.program : "$(name) in the - $(role)"]
+>}
+>```
+
+for_each --> parameter used to create multiple copies of resource or inline blocks. Syntax: `for_each = COLLECTION`
+
+>[!example] Example - for_each
+>```hcl
+>variable "user_names" {
+>  description = ""
+>  type = list(string)
+>  default = ["mark", "trinity", "john"]
+>}
+>
+>resource "aws_iam_user" "user_example" {
+>  for_each = toset(var.user_names)
+>  name = each.value
+>}
+>```
+
 <strong>Data Blocks</strong>
 
 Terraform uses data sources to fetch information from cloud provider APIs, such as disk image IDs, or information about the rest of your infrastructure through the outputs of other Terraform configurations.
@@ -1240,7 +1325,32 @@ data "aws_s3_bucket" "data_bucket" {
 
 <strong>Built-in Function</strong>
 
-Terraform language has many built-in functions that can be used in expressions to transform and combine values.
+Terraform language has many built-in functions that can be used in expressions to transform and combine values. Syntax: `func_name(arg1, arg2, ...)`
+
+Some functions aaacepta asinglular arguments, others multiple arguments and some accept just a specifc data type.
+
+Example: `file("level-up.key")` --> used to read public key
+
+`base64encode(string)` --> returns a base64-encoded representation of the given string.
+`base64decode(string)` --> returns a base64-encoded string, decodes it and returns the original string.
+`chomp(string)` --> removes trailing newline fro teh given string
+`chunklist(list, size)` --> return the list items chunked by size
+- Example: `chunklist(aws_subnet.foo.*.id, 1)` --> will outputs a list of `id1`, `id2`, `id3`. 
+- `(chunklist(var_list_of_strings, 2)` 
+`coalesce(strin1, strin2, ...)` --> 
+`coalescelist(list1, list2, ...)` -->
+`compact(list)` --> 
+`concat(list1, list2)` --> 
+`contains(list, element)` --> 
+`element(list, index)` --> 
+- Example: `subnet_id = element(var.PUBLIC_SUBNETS, 0)`
+`file(path)` --> 
+`length(list)` --> 
+`lookup(map, key, [default])` --> 
+- Example: `ami = lookup(var.AMIS, var.AWS_REGION)`
+`timestamp()` --> returns a UTC timestamp string in RFC 3339 format.
+`trimspace(string)` --> 
+`uuid()` --> 
 
 `max` --> function that takes on or more numbers and return the greatest number from the set.
 
@@ -1323,7 +1433,7 @@ using variables
 
 ```hcl
 variable "web_ingress" {
-	type = mac(object(
+	type = map(object(
 	{
 		description = string
 		port = number

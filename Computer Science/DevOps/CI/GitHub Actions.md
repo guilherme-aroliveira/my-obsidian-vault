@@ -734,7 +734,7 @@ lint:
     runs-on: ubuntu-latest
     steps:
      - name: Load cache
-       uses: ././github/actions/cached-deps
+       uses: ./.github/actions/cached-deps
 ```
 
 Adding inputs

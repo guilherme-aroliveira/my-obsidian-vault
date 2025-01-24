@@ -162,7 +162,7 @@
             }
           }
         ],
-        "currentTab": 7
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -291,10 +291,10 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Computer Science/DevOps/Containers/Orchestration/Kubernetes.md"
+                "file": "Computer Science/DevOps/IaC/Terraform.md"
               },
               "icon": "lucide-list",
-              "title": "Outline of Kubernetes"
+              "title": "Outline of Terraform"
             }
           },
           {
@@ -331,21 +331,21 @@
       "vscode-editor:Create Code File": false
     }
   },
-  "active": "10e26bcaa82c768c",
+  "active": "d69cdc3c5ae438ba",
   "lastOpenFiles": [
+    "Computer Science/DevOps/CI/GitHub Actions.md",
+    "Computer Science/DevOps/IaC/Terraform.md",
+    "Computer Science/DevOps/Containers/Docker.md",
     "Computer Science/Cloud Providers/AWS/EKS.md",
-    "Computer Science/DevOps/Containers/Orchestration/Kubernetes.md",
     "Computer Science/Frameworks/Flask.md",
     "Computer Science/DevOps/Tools/Helm.md",
-    "Computer Science/DevOps/Containers/Docker.md",
+    "Computer Science/DevOps/Containers/Orchestration/Kubernetes.md",
     "Computer Science/DevOps/IaC/Ansible.md",
     "Computer Science/Programming/Python.md",
-    "Computer Science/DevOps/IaC/Terraform.md",
     "Computer Science/DevOps.md",
     "Computer Science/Software Engineering.md",
     "Computer Science/Frameworks/REST-API.md",
     "Computer Science/Frameworks/NodeJS.md",
-    "Computer Science/DevOps/CI/GitHub Actions.md",
     "Computer Science/DevOps/Tools",
     "Computer Science/DevOps/Containers/Orchestration/Tools/Kops.md",
     "Computer Science/DevOps/Containers/Orchestration/Tools/Kubectl.md",

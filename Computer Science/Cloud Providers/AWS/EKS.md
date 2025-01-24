@@ -61,10 +61,9 @@ kube-proxy --> cria as regras de IPtables
 
 `nc -v <api server endpoint> 443`
 
-`aws eks update-kubeconfig --region us-east-1 --name <cluster_name>` -> retorna o contexto 
+`aws eks update-kubeconfig --region us-east-1 --name <cluster_name>` -> --> adiciona um novo contexto
 
-atualiza o kubeconfig para chegar até o cluster:
-`kubectl config use-context <context>`
+`kubectl config use-context <context>` --> altera para um novo contexto
 
 
 criar um role com as seguintes policies: `AamazonEKSWorkerNodePolicy`, `AmazomnEC2ContainerRegistryReadOnly` --> para que seja feito o pull das imagens do ECR, e a `AmazonEKS_CNI_Policy` --> para realizar as configurações da interfaces de rede.
@@ -81,3 +80,5 @@ AWS Load Balancer Controller --> utilizado para a criação dos ingress do clust
 aws eks --region us-west-2 update-kubeconfig --name example-voting-app
 kubectl get nodes
 access the application using the load balancer IP address
+
+aws sts get-caller-identity
