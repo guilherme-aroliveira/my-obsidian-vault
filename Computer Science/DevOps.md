@@ -552,6 +552,10 @@ Some of the <strong style="color: white">features</strong> include:
 ECS receives the docker image and maintain the entire cluster, including scaling principles (like Kubernetes environment, but in a form of managed service by AWS).
 
 <span style="color: #d65d0e">Fargate</span> <span style="color: #3588E9">--></span> it'a an <strong style="color: #b16286">AWS managed service</strong> (serverless infrastructure) that allows to set all the configuration in a UI.
+- underlying EC2 instances don't have to be managed
+- run containers without having to manage infrastructure
+- total integration and part of AW Elastic Container Service (ECS)
+- it uses an on-demand pricing model
 
 <strong style="color: white">Best practices:</strong>
 - One EC2 instance to one TASK

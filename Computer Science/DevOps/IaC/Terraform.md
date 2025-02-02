@@ -105,7 +105,40 @@ The command `terraform providers mirror ` allows to copy provider plugins needed
 terraform providers mirror /root/terraform/new_local_file
 ```
 
-<strong style="color: #d79921">Shared credentials</strong>
+###### <span style="color: #98971a">Multiple Providers</span>
+
+Due to the plug-in based architecture of Terraform providers, it is easy to install and utilize <span style="color: #d65d0e">multiple providers</span> within the same Terraform configuration.
+
+```hcl
+terraform {
+	required_providers {
+	    aws = {
+	      source = "hashicorp/aws"
+	    }
+	    tls = {
+		    source  = "hashicorp/tls"
+		    version = "3.1.0" 
+		}
+	}
+}
+```
+
+Run a `terraform init -upgrade` to validate you pull down the provider versions specified in the configuration and validate with a `terraform version` or a `terraform providers` command.
+
+```shell
+terraform init -upgrade
+```
+
+You can modify the version line of the AWS provider to be as specific or general as desired. Update the `version` line within your `terraform.tf` file to try these different versioning techniques.
+
+```shell
+version = "~> 3.0"
+version = ">= 3.0.0, < 3.1.0"
+version = ">= 3.0.0, <= 3.1.0"
+version = "~> 2.0"
+version = "~> 3.0"
+```
+###### <span style="color: #98971a">Shared credentials</span>
 
 ```hcl
 provider "aws" {
@@ -134,8 +167,7 @@ provider "aws" {
 >The functionality of a provider plugin may vary drastically from one version to another. Order from configuration may not work as expected when using a version different than the one it was written in.
 
 `terraform.lock` file --> hashicorp hashes out the provider version so that Terraform can do a comparison during the `terrafrom init` command. This file tracks the versions of providers and modules and it <strong style="color: #d79921">should be commit</strong> to git.
-
-<strong style="color: #d79921">Environment variables</strong>
+###### <span style="color: #98971a">Environment variables</span>
 
 The aws credentials can be provided via the `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`, environment variables, representing the AWS Access Key and AWS Secret Key, respectively.
 
@@ -144,7 +176,6 @@ export AWS_ACCESS_KEY_ID="anaccesskey"
 export AWS_SECRET_ACCESS_KEY="asecretkey"
 export AWS_DEFAULT_REGION="us-east-1"
 ```
-
 ##### <span style="color: #689d6a">Terraform Concepts</span>
 
 Terraform uses <span style="color: #d65d0e">resources block</span> to <strong style="color: #d79921">manage infrastructure</strong>, such as virtual networks, comute instances, or higher-level components such as DNS records. 
@@ -190,8 +221,22 @@ Even from resources that Terraform does not manage, it can read attributes such 
 >[!note]
 >Terraform can also import other resources outside of Terraform that were either created manually or by the means of other IaC tools and bring it under its control so that it can manage those resources going forward.
 
+The <strong style="color: #d79921">use of comment</strong> is a way to make the code easier to understand for others who might want to contribute.
+
+```hcl
+# begins a single-line comment, ending at the end of the line.
+```
+
+```hcl
+// also begins a single-line comment, as an alternative to #.
+```
+
+```hcl
+/* and */ are start and end delimiters for a comment that might span over multiple lines.
+```
+
 Just as in any general purpose programming language such as Bash, scripting or Python, is possible to make use of <span style="color: #d65d0e">input variables</span> in Terraform to assign variables.
-###### <span style="color: #d79921">Input variables</span>
+###### <span style="color: #98971a">Input variables</span>
 
 <span style="color: #d65d0e">Input variables</span> allows aspects of a module or configuration to be customized without altering the module's own source code. This allows modules to be shared between different environments.
 
@@ -228,6 +273,8 @@ To call a variable on a resource or module: `var.<variable_name>`
 >[!note]
 >A best practice is to create a `variables.tf` file to use input variables
 
+To transform an input from optional to required, is by removing the `default` value from the input block.
+
 The Input Variable can also have a custom validation rules defined, which are defined by adding a `validation` block within the variable block.
 
 >[!example] Example - validation
@@ -244,15 +291,80 @@ The Input Variable can also have a custom validation rules defined, which are de
 >```
 >It will validate the value of a variable based on certain condition or criteria.
 
-- Primitive Types --> terraform supports three primitive types: string, number, bool.
-- Complex Types --> complex types allow to group multiples values together sinto a single variable. Collection types, Structural types.
-	- Collection Types --> a collection of multiple values grouped together as a single value
-		- `list(...)` --> a sequence of values identified by an index starting with zero
-		- `map(...)` --> a collection of values; each with a string label identifier
-		- `set(...)` --> a collection of unique values without any secondary identifiers or ordering. 
-	- Structural types --> a collection of multiple values of several distinct types grouped together as a single value
-		- `object(...)` --> a collection of values each with their own type
-		- `tuple(...)` --> a sequence of values each with their own type
+- <span style="color: #d65d0e">Primitive Types</span> <span style="color: #3588E9">--></span> terraform supports three primitive types: string, number, bool.
+- <span style="color: #d65d0e">Complex Types</span> <span style="color: #3588E9">--></span> complex types allow to group multiples values together sinto a single variable. Collection types, Structural types.
+	- <span style="color: #d65d0e">Collection Types</span> <span style="color: #3588E9">--></span> a collection of multiple values grouped together as a single value
+		- `list(...)` <span style="color: #3588E9">--></span> a sequence of values identified by an index starting with zero. <strong style="color: white">Example:</strong>`["us-west-1a", "us-weat-1c"]`
+		- `map(...)` <span style="color: #3588E9">--></span> a collection of values identified by named labels, maps are used to store key/value pairs. <strong style="color: white">Example:</strong>`[us-east-1 = "ami-"]`
+		- `set(...)` <span style="color: #3588E9">--></span> a collection of unique values without any secondary identifiers or ordering.
+	- <span style="color: #d65d0e">Structural types</span> <span style="color: #3588E9">--></span> a collection of multiple values of several distinct types grouped together as a single value
+		- `object(...)` <span style="color: #3588E9">--></span> a collection of values each with their own type, objects allows to create complex data structures by combining all the variable types. <strong style="color: white">Example:</strong> `{name = "bella", age = 7, color = true}`
+		- `tuple(...)` <span style="color: #3588E9">--></span> a sequence of values each with their own type. <strong style="color: white">Example:</strong> `["cat", 7, true]`
+
+>[!example] Example - List
+>```hcl
+>variable "us-east-1-asz" {
+>  type = list(string)
+>  default = [ "us-east-1a", "us-east-1b" ]
+>}
+>```
+
+>[!example] Example - Tuple
+>```hcl
+>variable "kitty" {
+>  type = tuple([string, number, bool])
+>  default = ["cat", 7, true]
+>}
+>```
+
+>[!example] Example - Map
+>```hcl
+>variable "ip" {
+>  type = map(string)
+>  default = [ 
+>    prod = "10.0.150.0/24"
+>    dev = "10.0.250.0/24"
+>  ]
+>}
+>```
+
+>[!example] Example - Map of maps
+>```hcl
+>variable "env" {
+>  type = map(any)
+>  default = {
+>    prod = {
+>      ip = "10.0.150.0/24"
+>      az = "us-east-1a"
+>    }
+>    dev = {
+>      ip = "10.0.250.0/24"
+>      az = "us-east-1e"
+>    }
+>  }
+>}
+>```
+
+>[!example] Example - Map of maps
+>```hcl
+>variable "bella" {
+>  type = object ({
+>    name = string
+>    color = string
+>    age = number
+>    food = list(string)
+>    favorite_pet = bool
+>  })
+>  
+>  default = {
+>    name = "bella"
+>    color = "brown"
+>    age = 7
+>    food = ["fish", "chicken", "turkey"]
+>    favorite_pet = true
+>  }
+>}
+>```
 
 Variable - <strong style="color: white">order of precedence:</strong>
 1. `-var` and `-var-file`
@@ -293,16 +405,97 @@ To interpolate variables in strings:
 ```hcl
 "Name" = "Production ${var.main_vpc.name}"
 ```
+###### <span style="color: #98971a">Output</span>
 
-data types
-data source
-output
-remote state
+Along with input variables, Terraform also supports output variables. These variables can be used to store the value of an expression.
 
+<span style="color: #d65d0e">Terraform output</span> values <strong style="color: #b16286">allow to export structured data</strong> about the resources. Outputs are also necessary to share data from a child module the root module.
 
+>[!example] 
+>```hcl
+>output "(NAME)" {
+>  # Block body
+>  value = EXPRESSION # Argument
+>}
+>```
+>---
+>```hcl
+>output "vpc_id" {
+>  description = "Output the ID for the primary VPC"
+>  value = aws_vpc.main_vpc.id
+>  sensitive = true
+>}
+>```
 
-terraform modules
-Conditions, Loops
+>[!info]
+>Output values are like functions returning values.
+
+>outputs are a way to export data from individual modules. The root module can use outputs to print values ta the terminal after running terraform values.
+
+>[!note]
+>The mandatory argument for value is the reference expression. A description can also be added, which is an optional argument to describe what this output variable will be used for.
+
+<span style="color: #d65d0e">Output declarations</span> can appear anywhere in the terraform files, but <strong style="color: #d79921">it's recommended</strong> to put them into a separate file called `output.tf`
+
+Output values can be designated as <strong style="color: #d79921">sensitive</strong>, and terraform won't print them in the console. To declare it as sensitive add the argument with its value to the output block.
+
+The `output` command prints all outputs variables that are in the configuration directory. 
+
+```shell
+terraform output
+```
+
+The `-json` flag generates JSON formatted output, so that it can be easily parsed by other applications.
+
+To print the value of a specific output variable:
+
+```shell
+terraform output <variable_name>
+```
+
+The output can be redirected to file any time using shell redirection
+
+```shell
+terraform output -json > outputs.json
+```
+###### <span style="color: #98971a">Data Source</span>
+
+Terraform uses data sources to fetch information from cloud provider APIs, such as disk image IDs, or information about the rest of your infrastructure through the outputs of other Terraform configurations.
+
+<span style="color: #d65d0e">Data sources</span> are <strong style="color: #b16286">used in Terraform to load or query data</strong> from APIs or other Terraform `workspaces`. To use data sources, declare it using a `data block` in the Terraform configuration.
+
+Data Source provides the dynamic information about entities that are no manged by the current Terraform configuration.
+
+>[!info]
+>Data sources are API that fetches dynamic data from cloud providers.  
+
+Data block within Terraform HCL are comprised of the following components:
+- Data Block - "resource" is a top-level keyword like "for" and "while" in other programming languages.
+- Data Type - The next value is the type of the resource. Resources types are always prefixed woth their provider.
+- Dta Local Name - The next value o=is the name of the resource. The resource type and name together from the resource identifier, or ID, which mus tbe uniquer for a give nconfiguration, even if multiple files are used.
+- Data Arguments - Most of the arguments within the body of a resource block are specifies to the selected resource type.
+
+<strong style="color: white">Example:</strong> A data block request that Terraform read from a given data source ("`aws_ami`") and export the result under the given local name ("example"). The name is used to refer to this resource from elsewhere in the same Terraform module.
+
+>[!example]
+>```hcl
+># Retrieve the Availability Zone
+>data "aws_availability_zones" "current" {}
+>
+>resource "aws_instance" "ec2_instance" {
+>  ami = lookup (var.AMIS, var.AWS_REGION)
+>  availability_zone = data.aws_availability_zones.current.names[2]
+>}
+>```
+> Use `data` to get the all the availability zones
+> 
+>```hcl
+>data "aws_s3_bucket" "s3_bucket" {
+>  bucket = "my-data-lookup-bucket-btk"
+>}
+>```
+>Retrieves a specific S3 bucket from AWS
+###### <span style="color: #98971a">Local</span>
 
 <span style="color: #d65d0e">Local block</span> (often referred to as locals) are <strong style="color: #b16286">defined values in Terraform that are used to reduce repetitive references</strong> to expressions or values. Locals are defined in `locals block` (plural) and include named local variables with their defined values.
 
@@ -330,43 +523,15 @@ The `console` command retrieves values from the `locals.tf` file
 terrarom console
 > local.common-tags
 ```
+###### <span style="color: #98971a">Modules</span>
 
-<span style="color: #d65d0e">Data sources</span> are <strong style="color: #b16286">used in Terraform to load or query data</strong> from APIs or other Terraform `workspaces`. To use data sources, declare it using a `data block` in the Terraform configuration.
+A <span style="color: #d65d0e">module</span> is a set of Terraform configuration files in a single directory. Even the simplest configuration consisting of a single directory with one `.tf`. It's used <strong style="color: #b16286">used to combine resources that are frequently used together into a reusable container</strong>.
 
-> Data sources are API that fetches dynamic data from cloud providers. 
+Terraform <strong style="color: #b16286">modules help to organize configuration</strong>, re-use configuration and provides consistency and ensure best practices. Individual modules can be used to construct solution required to deploy applications --> it's a way to reuse code.
 
-Data block within Terraform HCL are comprised of the following components:
-- Data Block - "resource" is a top-level keyword like "for" and "while" in other programming languages.
-- Data Type - The next value is the type of the resource. Resources types are always prefixed woth their provider.
-- Dta Local Name - The next value o=is the name of the resource. The resource type and name together from the resource identifier, or ID, which mus tbe uniquer for a give nconfiguration, even if multiple files are used.
-- Data Arguments - Most of the arguments within the body of a resource block are specifies to the selected resource type.
+The root configuration (also called your <strong style="color: #d79921">root module</strong>) consist of the resources defined in the `.tf` files in the working directory. The root module is the <strong style="color: #d79921">calling module</strong>.
 
-<strong style="color: white">Example:</strong> A data block request that Terraform read from a given data source ("`aws_ami`") and export the result under the given local name ("example"). The name is used to refer to this resource from elsewhere in the same Terraform module.
-
-```hcl
-data "<DATA TYPE>" "<DATA LOCAL NAME>"{
-	# Block body
-	<IDENTIFIER> = <EXPRESSION> # Argument
-}
-```
-
-<strong style="color: white">Example:</strong>
-
-```hcl
-#Retrieve the AWS region
-data "aws_region" "current" { }
-
-#Define the VPC
-resource "aws_vpc" "vpc" {
-	cidr_block = var.vpc_cidr
-
-	tags = {
-		Region = data.aws_region.current.name
-	}
-}
-```
-
-A <span style="color: #d65d0e">module</span> is <strong style="color: #b16286">used to combine resources that are frequently used together into a reusable container</strong>. Individual modules can be used to construct solution required to deploy applications.
+All the configuration that are imported from other directories into the root module are called <strong style="color: #d79921">child modules</strong>. There are two types of modules: local and remote.
 
 >[!note]
 >When creating modules, make sure that variables are being used everywhere, and its being made as flexible as possible.
@@ -375,156 +540,157 @@ Modules <span style="color: #3588E9">--></span> make terraform more organized
 - use third party modules <span style="color: #3588E9">--></span> modules from GitHub 
 - reuse parte of the code
 
-Modules are called by a parent or a <strong style="color: #d79921">root module</strong>, and then any modules that his parent module calls are actually known as <strong style="color: #d79921">child modules</strong>.
+To organize, encapsulate, and reuse configuration, all child modules are created under the `modules` directory and are called on the root module. Modules name <strong style="color: white">must</strong> be unique.
 
-Modules can be used from a number of different locations, including remote locations such as the Terraform module registry, or locally within a folder. While not required, local modules are commonly saved in a folder called `modules`, and each module is named for its respective function inside that folder.
+>[!example] Example - module
+>```hcl
+>module "vpc" {
+>  source      = "../modules/vpc"
+>  subnet_id = module.vpc.web_subnet.id
+>}
+>```
 
-```hcl
-module “<MODULE_NAME>” {
-  # Block body
-  source = <MODULE_SOURCE>
-  <INPUT_NAME> = <DESCRIPTION> #Inputs
-  <INPUT_NAME> = <DESCRIPTION> #Inputs
-}
-```
+Modules can be sourced from a number of different locations, including both local and remote sources. 
 
-<strong style="color: white">Example:</strong>
+The <span style="color: #d65d0e">remote modules</span> are loaded from a remote source such as Terraform Registry and are created and maintained by HashiCorp, it's partners and by third parties. 
 
-```hcl
-module "vpc" {
-  source = "./modules/vpc"
-}
-```
-
-Along with input variables, Terraform also supports output variables. These variables can be used to store the value of an expression.
-
-<span style="color: #d65d0e">Terraform output</span> values <strong style="color: #b16286">allow to export structured data</strong> about the resources. Outputs are also necessary to share data from a child module the root module.
-
-```hcl
-output "<NAME>" {
-	# Block body
-	value = <EXPRESSION> # Argument
-}
-```
-
->[!info]
->Output values are like functions returning values.
-
->outputs are a way to export data from individual modules. The root module can use outputs to print values ta the terminal after running terraform values.
+Terraform Public Registry is an index of modules shared publicly. This public registry is the easiest way to get started with Terraform and find modules created by others in the community.
 
 >[!note]
->The mandatory argument for value is the reference expression. A description can also be added, which is an optional argument to describe what this output variable will be used for.
+>Modules are the key to write reusable, maintainable and testable Terraform code. It is a good practice to start building everything as module. Create a library of modules to share with the team.
 
-<strong style="color: white">Example:</strong>
+Installing the module means downloading remote modules into `.terraform` directory, or if the module is local, it will only create a reference to it.
 
-```hcl
-output "vpc_id" {
-	description = "Output the ID for the primary VPC"
-	value = aws_vpc.main_vpc.id
-}
-```
+<span style="color: #d65d0e">parametizing modules</span> <span style="color: #3588E9">--></span> the best practice is to use the same names for variables declared both int root and in child modules.
 
-<span style="color: #d65d0e">Output declarations</span> can appear anywhere in the terraform files, but <strong style="color: #d79921">it's recommended</strong> to put them into a separate file called `output.tf`
+<strong style="color: #d79921">After importing</strong> child modules into the root module, the `terraform init` command must be executed.
 
-Output values can be designated as <strong style="color: #d79921">sensitive</strong>, and terraform won't print them in the console. To declare it as sensitive add the argument with its value to the output block.
+Modules on the public Terraform Registry can be sourced using a registry source address of the form `<NAMESPACE>/<NAME>/<PROVIDER>`, with each module's information page on the registry site including the exact address to use.
 
-```hcl
-output "vpc_id" {
-	description = "Output the ID for the primary VPC"
-	value = aws_vpc.main_vpc.id
-	sensitive = true
-}
-```
+>[!example] Example - remote module
+>```hcl
+>module "autoscaling" {
+>  source  = "terraform-aws-modules/autoscaling/aws"
+>  version = "4.9.0"
+>}
+>```
+>Each module in the Terraform Public registry is versioned. These versions syntactically must follow semantic versioning. The version argument can be specified as part of the module block.
 
-The `output` command prints all outputs variables that are in the configuration directory. 
+Another source of modules that be can used are those that are published directly on GitHub. Terraform will recognize unprefixed github.com URLs and interpret them automatically as Git repository sources.
 
-```shell
-terraform output
-```
+>[!example] Example - modules on GitHub
+>```hcl
+>module "autoscaling" {
+>  source = "github.com/terraform-aws-modules/terraform-aws-autoscaling?ref=v4.9.0"
+>}
+>```
 
-The `-json` flag generates JSON formatted output, so that it can be easily parsed by other applications.
+A child module can use outputs to expose a subset of its resources attributes to a parent module.
 
-To print the value of a specific output variable:
+>[!example] Example - output module
+>```hcl
+>output "vpc_id" {
+>  value = aws_vpc_.main_vpc.id
+>}
+>```
 
-```shell
-terraform output <variable_name>
-```
+A module's outputs can be accessed as read-only attributes on the module object, which is available within the configuration that calls the module. To reference these outputs in expressions, they use the following syntax:
 
-The output can be redirected to file any time using shell redirection
+`module.<MODULE NAME>.<OUTPUT NAME>`
 
-```shell
-terraform output -json > outputs.json
-```
-###### <strong>Commenting Terraform Code</strong>
+>[!example]
+>```hcl
+>resource "aws_subnet" "public" {
+>  vpc = module.aws_vpc.vpc_main.id
+>}
+>```
 
-The <strong style="color: #d79921">use of comment</strong> is a way to make the code easier to understand for others who might want to contribute.
+>[!note]
+>Modules outputs are the only supported way for users to get information about the resources that have been configured within a child module.
 
-```hcl
-# begins a single-line comment, ending at the end of the line.
-```
-
-```hcl
-// also begins a single-line comment, as an alternative to #.
-```
-
-```hcl
-/* and */ are start and end delimiters for a comment that might span over multiple lines.
-```
-
-<strong style="color: white">Example:</strong>
-
-```hcl
-# Configure the AWS Provider
-provider "aws" {
-  region = "us-east-1"
-}
-```
-
-```hcl
-/*
-Name: IaC Buildout for Terraform Associate Exam
-Description: AWS Infrastructure Buildout
-*/
-
-# Configure the AWS Provider
-provider "aws" {
-  region = "us-east-1"
-}
-```
-##### <strong>Multiple Terraform Providers</strong>
-
-Due to the plug-in based architecture of Terraform providers, it is easy to install and utilize <span style="color: #d65d0e">multiple providers</span> within the same Terraform configuration.
-
-```hcl
-terraform {
-	required_providers {
-	    aws = {
-	      source = "hashicorp/aws"
-	    }
-	    tls = {
-		    source  = "hashicorp/tls"
-		    version = "3.1.0" 
-		}
-	}
-}
-```
-
-Run a `terraform init -upgrade` to validate you pull down the provider versions specified in the configuration and validate with a `terraform version` or a `terraform providers` command.
+To view the outputs returned by any module and their values, the `console` command be used for it
 
 ```shell
-terraform init -upgrade
+terraform console
 ```
+###### <span style="color: #98971a">Conditions and Loops</span>
 
-You can modify the version line of the AWS provider to be as specific or general as desired. Update the `version` line within your `terraform.tf` file to try these different versioning techniques.
+Booleans can be used in a terraform ternary operation to create an if-selse statement - `CONDITION ? TRUE_VAL : FALSE_VAL`
 
-```shell
-version = "~> 3.0"
-version = ">= 3.0.0, < 3.1.0"
-version = ">= 3.0.0, <= 3.1.0"
-version = "~> 2.0"
-version = "~> 3.0"
-```
+>[!example] Example - condition
+>```hcl
+>resource "aws_eip" "web_eip" {
+>  count = var.create_eip == true ? 1 : 0
+>}
+>```
+>---
+>```hcl
+>module "ec2_cluster" {
+>  source = ""
+>  instance_count = var.environment == "Production" ? 2 : 1
+>
+>  tags = {
+>    Environment = var.environment
+>  }
+>}
+>```
 
+count --> parameter used to loop over the resources. Can be used to create multiple copies of resources in TF
+
+>[!example] Example - count
+>```hcl
+>resource "aws_iam_user" "user-example" {
+>  count = 3
+>  name = "myuser.$(count.index)"
+>}
+>```
+
+for --> parameter used to iterate over lists and maps. For loop is used to generate a single Value. Syntax of `for` loop: `for ITEM in LIST : OUTPUT`
+syntax map: `for KEY, VALUE in MAP : OUTPUT`
+
+>[!example] Example - for
+>```hcl
+>variable "names" {
+>  type = list(string)
+>  default = ["mark", "trinity", "john]
+>}
+>
+>output "uper_names" {
+>  value = [for name in var.names : upper(name)]
+>}
+>```
+
+>[!example] Example - for with map
+>```hcl
+>variable "program" {
+>  type = map(string)
+>  default = {
+>    mark = "software engineer"
+>    trinity = "AI Program"
+>    john = "machine operator"
+>  }
+>}
+>
+>output "roles" {
+>  value = [for name, role in var.program : "$(name) in the - $(role)"]
+>}
+>```
+
+for_each --> parameter used to create multiple copies of resource or inline blocks. Syntax: `for_each = COLLECTION`
+
+>[!example] Example - for_each
+>```hcl
+>variable "user_names" {
+>  description = ""
+>  type = list(string)
+>  default = ["mark", "trinity", "john"]
+>}
+>
+>resource "aws_iam_user" "user_example" {
+>  for_each = toset(var.user_names)
+>  name = each.value
+>}
+>```
 ###### <strong>Terraform Provisioners</strong>
 
 <span style="color: #d65d0e">Provisioners</span> can be used to model specific actions on the local machine or on a remote machine in order to prepare servers or other infrastructure objects for service.
@@ -657,101 +823,6 @@ The `-destroy` simulates a destroy action.
 ```shell
 terraform plan -destroy
 ```
-##### <strong>Terraform modules</strong>
-
-A <span style="color: #d65d0e">module</span> is a set of Terraform configuration files in a single directory. Even the simplest configuration consisting of a single directory with one `.tf`.
-
-Terraform <strong style="color: #b16286">modules help to organize configuration</strong>, re-use configuration and provides consistency and ensure best practices. It's a way to reuse code.
-
-The root configuration (also called your <strong style="color: #d79921">root module</strong>) consist of the resources defined in the `.tf` files in the working directory. The root module is the <strong style="color: #d79921">calling module</strong>.
-
-All the configuration that are imported from other directories into the root module are called <strong style="color: #d79921">child modules</strong>. There are two types of modules: local and remote.
-
-To organize, encapsulate, and reuse configuration, all child modules are created under the `modules` directory and are called on the root module. Modules name <strong style="color: white">must</strong> be unique.
-
-```hcl
-module "vpc" {
-  source          = "../modules/vpc"
-  subnet_id = module.vpc.web_subnet.id
-}
-```
-
-To transform an input from optional to required, is by removing the `default` value from the input block.
-
-```hcl
-variabe "size" {
-	# default = "t2.micro"
-}
-```
-
-Modules can be sourced from a number of different locations, including both local and remote sources. 
-
-The <span style="color: #d65d0e">remote modules</span> are loaded from a remote source such as Terraform Registry and are created and maintained by HashiCorp, it's partners and by third parties. 
-
-Terraform Public Registry is an index of modules shared publicly. This public registry is the easiest way to get started with Terraform and find modules created by others in the community.
-
->[!note]
->Modules are the key to write reusable, maintainable and testable Terraform code. It is a good practice to start building everything as module. Create a library of modules to share with the team.
-
-Installing the module means downloading remote modules into `.terraform` directory, or if the module is local, it will only create a reference to it.
-
-<span style="color: #d65d0e">parametizing modules</span> <span style="color: #3588E9">--></span> the best practice is to use the same names for variables declared both int root and in child modules.
-
-<strong style="color: #d79921">After importing</strong> child modules into the root module, the `terraform init` command must be executed.
-
-Modules on the public Terraform Registry can be sourced using a registry source address of the form `//`, with each module's information page on the registry site including the exact address to use.
-
-```hcl
-module "autoscaling" {
-	source  = "terraform-aws-modules/autoscaling/aws"
-	version = "4.9.0"
-}
-```
-
-Modules on the public Terraform Registry can be sourced using a registry source address of the form `<NAMESPACE>/<NAME>/<PROVIDER>`, with each module's information page on the registry site including the exact address to use.
-
-Each module in the Terraform Public registry is versioned. These versions syntactically must follow semantic versioning. The version argument can be specified as part of the module block.
-
-```hcl
-module "vpc" {
-  source  = "terraform-aws-modules/vpc/aws"
-  version = "3.11.0"
-}
-```
-
-Another source of modules that be can used are those that are published directly on GitHub. Terraform will recognize unprefixed github.com URLs and interpret them automatically as Git repository sources.
-
-```
-module "autoscaling" {
-  source = "github.com/terraform-aws-modules/terraform-aws-autoscaling?ref=v4.9.0"
-```
-
-A child module can use outputs to expose a subset of its resources attributes to a parent module.
-
-```hcl
-output "vpc_id" {
-	value = aws_vpc_.main_vpc.id
-}
-```
-
-A module's outputs can be accessed as read-only attributes on the module object, which is available within the configuration that calls the module. To reference these outputs in expressions, they use the following syntax:
-
-`module.<MODULE NAME>.<OUTPUT NAME>`
-
-```hcl
-resource "aws_subnet" "public" {
-	vpc = module.aws_vpc.vpc_main.id
-}
-```
-
->Modules outputs are the only supported way for users to get information about the resources that have been configured within a child module.
-
-To view the outputs returned by any module and their values, the `console` command be used for it.
-
-```shell
-terraform console
-```
-
 ##### <strong>Terraform Workspaces</strong>
 
 Workspaces is a Terraform feature that allows to organize infrastructure by environments and variables in a single directory.
@@ -841,7 +912,7 @@ To stop stop managing a resource without destroying it:
 terraform state rm <resource_name>
 ```
 
-If supported, the state backend will "lock" to prevent concurrent modifications which cloud cause corruption. Locking on state allows to make sure to protect the state from being written by multiple users at the same time.
+If supported, the state backend will "lock" to prevent concurrent modifications which cloud cause corruption. Locking on state allows to make sure to protect the state from being written by multiple users at the same time --> race conditions
 
 Using the `apply` command with a locking mechanism:
 
@@ -1131,197 +1202,6 @@ output "phone_number" {
 
 >[!note]
 >Never use in the vault provider block the token on a real-world production scenario.
-
-<strong>Collections and Structure Types</strong>
-
-number: a numeric value. The number type can represent both whole numbers like 15 and fractional values like 6.283185.
-
-
-list( or tuple): a sequence of values, like `["us-west-1a", "us-weat-1c"]`. Elements in a list or tuple are identifies by consecutive whole numbers, starting with zero. 
-
-```hcl
-variable "us-east-1-asz" {
-	type = list(string)
-	default = [
-		"us-east-1a",
-		"us-east-1b",
-		"us-east-1c",
-		"us-east-1d",
-		"us-east-1e"
-	]
-}
-# A list will index the strings
-```
-
-Tuple is similar to a list and consists of a sequence of elements.The difference between a tuple and a list is that list uses elements of the same variable type, such as string or number.
-
-```hcl
-# Tuple
-variable "kitty" {
-	type = tuple([string, number, bool])
-	default = ["cat", 7, true]
-}
-```
-
-map (or object): a group of values identified by named labels, like `{name="Mabel", age=52}`, Maps are used to store key/value pairs.
-
-```hcl
-variable "ip" {
-	type = map(string)
-	default = [
-		prod = "10.0.150.0/24"
-		dev = "10.0.250.0/24"
-	]
-}
-```
-
-```hcl
-resurce "aws_subnet" "list_subnet" {
-	cidr_block = var.ip["prod"]
-}
-```
-
-Map of maps
-
-```hcl
-variable "env" {
-	type = map(any)
-	default = {
-		prod = {
-			ip = "10.0.150.0/24"
-			az = "us-east-1a"
-		}
-		dev = {
-			ip = "10.0.250.0/24"
-			az = "us-east-1e"
-		}
-	}
-}
-```
-
-```hcl
-resurce "aws_subnet" "list_subnet" {
-	for_each = var.env
-	vpc_id = aws_vpc.vpc.id
-	cidr_block = each.value.ip
-	availability_zone = each.value.ip
-}
-```
-
-Objects allows to create complex data structures by combining all the variable types.
-
-```hcl
-variable "bella" {
-	type = object ({
-    	name = string
-        color = string
-        age = number
-        food = list(string)
-        favorite_pet = bool
-    })
-    
-    default = {
-    	name = "bella"
-    	color = "brown"
-        age = 7
-        food = ["fish", "chicken", "turkey"]
-        favorite_pet = true
-    }
-}
-```
-
-
->[!note]
->List/tuples and maps/objects are sometimes called complex types, structural types, or collection types.
-
-<strong>Conditions and Loops</strong>
-
-Booleans can be used in a terraform ternary operation to create an if-selse statement - `CONDITION ? TRUE_VAL : FALSE_VAL`
-
->[!example] Example - condition
->```hcl
->resource "aws_eip" "web_eip" {
->  count = var.create_eip == true ? 1 : 0
->}
->```
->---
->```hcl
->module "ec2_cluster" {
->  source = ""
->  instance_count = var.environment == "Production" ? 2 : 1
->
->  tags = {
->    Environment = var.environment
->  }
->}
->```
-
-count --> parameter used to loop over the resources. Can be used to create multiple copies of resources in TF
-
->[!example] Example - count
->```hcl
->resource "aws_iam_user" "user-example" {
->  count = 3
->  name = "myuser.$(count.index)"
->}
->```
-
-for --> parameter used to iterate over lists and maps. For loop is used to generate a single Value. Syntax of `for` loop: `for ITEM in LIST : OUTPUT`
-syntax map: `for KEY, VALUE in MAP : OUTPUT`
-
->[!example] Example - for
->```hcl
->variable "names" {
->  type = list(string)
->  default = ["mark", "trinity", "john]
->}
->
->output "uper_names" {
->  value = [for name in var.names : upper(name)]
->}
->```
-
->[!example] Example - for with map
->```hcl
->variable "program" {
->  type = map(string)
->  default = {
->    mark = "software engineer"
->    trinity = "AI Program"
->    john = "machine operator"
->  }
->}
->
->output "roles" {
->  value = [for name, role in var.program : "$(name) in the - $(role)"]
->}
->```
-
-for_each --> parameter used to create multiple copies of resource or inline blocks. Syntax: `for_each = COLLECTION`
-
->[!example] Example - for_each
->```hcl
->variable "user_names" {
->  description = ""
->  type = list(string)
->  default = ["mark", "trinity", "john"]
->}
->
->resource "aws_iam_user" "user_example" {
->  for_each = toset(var.user_names)
->  name = each.value
->}
->```
-
-<strong>Data Blocks</strong>
-
-Terraform uses data sources to fetch information from cloud provider APIs, such as disk image IDs, or information about the rest of your infrastructure through the outputs of other Terraform configurations.
-
-```hcl
-data "aws_s3_bucket" "data_bucket" {
-	bucket = "my-data-lookup-bucket-btk"
-}
-```
 
 <strong>Built-in Function</strong>
 

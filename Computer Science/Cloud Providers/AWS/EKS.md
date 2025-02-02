@@ -26,6 +26,15 @@ As subnets devem ser padronidazas com tags especificas para o cluster de kuberne
 Uma IAM role deve ser criada para fornecer permissões que o cluster de Kubernetes necessita. É a policy que fornece a permissão, sendo atrelada a uma role --> Amazon Kluter Policy. Deve ser cirada um role atrelada à essa policy.
 Managed Policy são policies padrão da AWS.
 
+duas formas de criar um cluster no EKS:
+CLI
+- install aws cli
+- install kubectl
+- install eksctl --> create a multi node kubernetes cluster
+- create an IAM role for eks cluster
+console
+
+
 AWS EKS - setup
 - Step 1: Provision an EKS Cluster
 	- EKS Cluster
@@ -82,3 +91,4 @@ kubectl get nodes
 access the application using the load balancer IP address
 
 aws sts get-caller-identity
+
