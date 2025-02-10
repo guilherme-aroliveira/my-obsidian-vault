@@ -56,7 +56,7 @@
               "type": "markdown",
               "state": {
                 "file": "Computer Science/Cloud Providers/AWS/EKS.md",
-                "mode": "source",
+                "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
@@ -105,7 +105,8 @@
               "title": "Jenkins"
             }
           }
-        ]
+        ],
+        "currentTab": 3
       }
     ],
     "direction": "vertical"
@@ -124,7 +125,8 @@
             "state": {
               "type": "file-explorer",
               "state": {
-                "sortOrder": "alphabetical"
+                "sortOrder": "alphabetical",
+                "autoReveal": false
               },
               "icon": "lucide-folder-closed",
               "title": "Files"
@@ -234,10 +236,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Computer Science/DevOps.md"
+                "file": "Computer Science/Cloud Providers/AWS/EKS.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of DevOps"
+              "title": "Outline of EKS"
             }
           },
           {
@@ -267,23 +272,23 @@
       "command-palette:Open command palette": false,
       "workspaces:Manage workspace layouts": false,
       "obsidian-kanban:Create new board": false,
-      "obsidian-git:Open Git source control": true,
+      "obsidian-git:Open Git source control": false,
       "terminal:Open terminal": false,
       "obsidian-full-calendar:Open Full Calendar": false,
       "templater-obsidian:Templater": false,
       "vscode-editor:Create Code File": false
     }
   },
-  "active": "bca1a14235fdfd5f",
+  "active": "41e06ac91dd398f9",
   "lastOpenFiles": [
-    "Computer Science/Cloud Providers/AWS/EKS.md",
-    "Computer Science/Cloud Providers/AWS/VPC.md",
-    "Computer Science/DevOps/CI/GitHub Actions.md",
-    "Computer Science/DevOps/CI/Jenkins.md",
-    "Computer Science/DevOps/Containers/Orchestration/Kubernetes.md",
-    "Computer Science/Cloud Providers/GCP/Google Cloud.md",
-    "Computer Science/DevOps/IaC/Terraform.md",
     "Computer Science/DevOps.md",
+    "Computer Science/DevOps/IaC/Terraform.md",
+    "Computer Science/DevOps/CI/GitHub Actions.md",
+    "Computer Science/Cloud Providers/AWS/EKS.md",
+    "Computer Science/DevOps/Containers/Orchestration/Kubernetes.md",
+    "Computer Science/DevOps/CI/Jenkins.md",
+    "Computer Science/Cloud Providers/GCP/Google Cloud.md",
+    "Computer Science/Cloud Providers/AWS/VPC.md",
     "Computer Science/DevOps/Containers/Docker.md",
     "Computer Science/DevOps/IaC/Ansible.md",
     "Computer Science/DevOps/Tools/Helm.md",

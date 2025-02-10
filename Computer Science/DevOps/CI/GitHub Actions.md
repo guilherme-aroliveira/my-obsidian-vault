@@ -172,13 +172,9 @@ jobs; build; runson: sel-hosted
 >```
 >Different labels can be used to identify different runners. <strong style="color: white">Example:</strong> redhat-linux.
 
-
-
 any hardware can be used as long as the operating system is compatible with the runner application. Servers in an on-premises data server can be used. 
 
 only use self-hosed runner with private repositories. Malicious code can persiste across workflow runs
-
-
 ###### <span style="color:#98971a">Steps</span>
 
 A <span style="color:#98971a">Step</span> is a <strong style="color: #d79921">task comprising one or more shell commands</strong> or actions (predefined scripts that perform a certain task).
