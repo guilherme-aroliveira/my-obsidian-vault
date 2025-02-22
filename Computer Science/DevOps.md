@@ -613,12 +613,11 @@ The <strong style="color: #b16286">Pyramid Metaphor</strong>, is meant to indica
 ##### **<span style="color:#689d6a">Deployment Models</span>**
 
 Deployment models indicate where the infrastructure resides, who owns and manages it, and how cloud resources and services are made available to users. The four cloud deployment models include: Public Cloud, Private Cloud, Community Cloud and Hybrid Cloud.
-
 ###### <span style="color: #d79921">Public Cloud</span>
 
-A public cloud is a <strong style="color: #b16286">virtualized multi-tenant architecture</strong> enabling tenants or users to share computing resources.
+A public cloud is a <strong style="color: #b16286">virtualized multi-tenant architecture</strong> enabling tenants or users to share computing resources (shared environment by a third-party provider).
 
-Users can access servers, storage, network, security and applications as services delivered by cloud service providers over the internet. Using web consoles and APIs, users can provision the resources and services they need.
+Users can access servers, storage, network, security and applications as services delivered on-demand by cloud service providers over the internet. Using web consoles and APIs, users can provision the resources and services they need.
 
 The cloud provider owns, manages, provisions and maintains the infrastructure. The user pays for what he use within a certain period.
 
@@ -626,6 +625,14 @@ Public clouds offer significant cost savings in terms of Total Cost for Ownershi
 
 <strong style="color: white">Characteristics:</strong>
 - Resources are distributed on an as-needed basis offered through a variety of subscription and pay-as-you-go models.
+- Lower cost, less maintenance.
+###### <span style="color: #d79921">Private Cloud</span>
+
+Used exclusively by a business/organization. Services are delivered over a private network.
+
+Hosted by on-prem datacenters or dedicated hardware hosted by a third party providers - involves CAPEX (Capital Expenditure)
+
+More control, higher flexibility, higher maintenance 
 ###### <span style="color: #d79921">Hybrid Cloud</span>
 
 <strong style="color: #b16286">Cloud infrastructure provisioned for exclusive use</strong> by a single organization comprising multiple consumers, such as the business units within the organization. It may be owned, managed, and operated by the organization, a third party or some combination of them, and it may exist on or off premises.
@@ -646,14 +653,14 @@ A private cloud is a virtualized environment modeled to bring in the benefits of
 
 - <strong style="color: white">Benefits:</strong>
 	- Controlled by internal IT
+		- <strong style="color: white">Use Cases:</strong>
+			- modernizing in-house & legacy applications
+			- build applications anywhere and move them without compromising security or compliance
+			- full control over critical security and compliance issues within dedicated cloud
 	- Reduced Costs
 	- Better scalability --> through virtualization and cloud bursting
 	- Controlled access & security
 	- Greater agility
-- <strong style="color: white">Use Cases:</strong>
-	- modernizing in-house & legacy applications
-	- build applications anywhere and move them without compromising security or compliance
-	- full control over critical security and compliance issues within dedicated cloud
 ###### <span style="color: #d79921">Community Cloud</span>
 
 “<strong style="color: #b16286">Cloud infrastructure that is provisioned for exclusive use by a specific community of consumers</strong> from organizations that have shared concerns (e.g., mission, security requirements, policy, and compliance considerations). It may be owned, managed, and operated by one or more of the organizations in the community, a third party, or some combination of them, and it may exist on or off premises.” (NIST definition)
