@@ -62,8 +62,11 @@ Terms package and library are often used interchangeably. Therefore, numpy, pyto
 	1. <code>sudo apt install python3-pip</code>
 	2. <code>pip3 --version</code> --> check the pip version
 3. Create a virtual environment
-	1. `python3 -m venv .venv`
-	2. `source .venv/bin/activate`
+	1. `cd /path/to/project`
+	2. `python3 -m venv .venv`
+	3. `source .venv/bin/activate` --> ativar o ambiente virtual
+	4. `pip install package_name` --> install a library in the virtual environment
+	5. `deactivate` --> desativar um ambiente virtual
 ###### <strong style="color: red">Workflow</strong>
 - Run the program
 	- `python3 main.py`

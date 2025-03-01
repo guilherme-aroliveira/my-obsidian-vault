@@ -16,7 +16,7 @@ project_aws                 <- repository
 >[!info]
 >It doesn't matter the name of the YAML files because each file describes when they should be triggered.
 
-<span style="color: #d65d0e">Workflow</span> is the basic concept in Github Actions. A workflow is <strong style="color: #d79921">series of automated procedures</strong> represented as jobs and steps that GitHub Actions executes. The <strong style="color: #b16286">workflows are attached to the repositories</strong> and each repository can have any number of workflows.
+<span style="color: #d65d0e">Workflow</span> is the basic concept in GitHub Actions. A workflow is <strong style="color: #d79921">series of automated procedures</strong> represented as jobs and steps that GitHub Actions executes. The <strong style="color: #b16286">workflows are attached to the repositories</strong> and each repository can have any number of workflows.
 
 <strong style="color: #c6554f">Workflow limitations</strong> <span style="color: #3588E9">--></span> <strong style="color: #d79921">workflow concurrency</strong> is limited to 20 in the free plan, and Jobs are limited to 6 hours of runtime. If the workflow uses actions that interact with the GitHub API, it will be limited to making 1000 API request per hour. Logs are limited to 4 Kb.
 
@@ -691,7 +691,7 @@ Example:
 
 .github --> actions --> contains the actions only usable by the current project  / cached-deps; workflows 
 
-action.yaml --> file tha tcontains the configuration and the definition of that action.
+action.yaml --> file that contains the configuration and the definition of that action.
 ```yaml
 name: 'Get & Cache Dependencies'
 description: 'Get the depdencies (via npm) and cache them.'
@@ -709,7 +709,7 @@ runs:
     shell: bash
 ```
 
-To create actiosn that are available to different workflows in different repos, they must be created as standalone repos.
+To create actions that are available to different workflows in different repos, they must be created as standalone repos.
 
 to use custom actions on another project
 deploy.yaml
@@ -911,7 +911,6 @@ await ocktokit.rest.issues.createComment({
 	body: 'Thanks for the issue!'
 });
 ```
-
 
 
 Custom Docker actions
