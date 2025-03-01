@@ -103,7 +103,7 @@ The <span style="color: #d65d0e">cron syntax</span> uses five fields, separated 
 >The shortest internal for <span style="color: #d65d0e">Schedule Triggers</span> is five minutes, and they are deactivated when a public repository is forked, and after 60 days of inactivity.
 ###### <span style="color:#98971a">Jobs</span>
 
-A <span style="color:#98971a">Job</span> <strong style="color: #d79921">made up of steps that are performed on the same runner.</strong> A workflow includes one or more jobs <span style="color: #3588E9">--></span> It can have one job that build de component, and another to publish it to an artifact repository. 
+A <span style="color:#98971a">Job</span> <strong style="color: #d79921">made up of steps that are performed on the same runner.</strong> A workflow includes one or more jobs <span style="color: #3588E9">--></span> It can have one job that build the component, and another to publish it to an artifact repository. 
 
 >[!note]
 >Workflows use runners to execute jobs.
@@ -156,13 +156,11 @@ There are built-in runners (predefined by GitHub) for different virtual environm
 >```
 >hosted runners start in a fresh new compute environment on each workflow run.
 
-GitHub Actions provider 3 different platforms for Jobs and workflows, Ubuntu linux, macOS, and Windows.
+GitHub Actions provider 3 different platforms for Jobs and workflows, Ubuntu linux, mac OS, and Windows.
 
-self-hosted runners lets you configure your job's compute environment to your specifications.  deploy and manage by the user. offers more control over the compute environment where the jobs run.
+self-hosted runners allows to configure the job's compute environment based on specifications.  deploy and manage by the user. offers more control over the compute environment where the jobs run.
 
-it can be associated with a single repository, organizaion or an enterprise. Runners added at the organization and enterprie ;evel can be used in mujltipe repositories. and simplify the management of multiple runners.
-
-jobs; build; runson: sel-hosted
+it can be associated with a single repository, organization or an enterprise. Runners added at the organization and enterprise level can be used in multiple repositories. and simplify the management of multiple runners.
 
 >[!example] self-hosted runner
 >```yaml
@@ -174,7 +172,7 @@ jobs; build; runson: sel-hosted
 
 any hardware can be used as long as the operating system is compatible with the runner application. Servers in an on-premises data server can be used. 
 
-only use self-hosed runner with private repositories. Malicious code can persiste across workflow runs
+only use self-hosed runner with private repositories. Malicious code can persist across workflow runs
 ###### <span style="color:#98971a">Steps</span>
 
 A <span style="color:#98971a">Step</span> is a <strong style="color: #d79921">task comprising one or more shell commands</strong> or actions (predefined scripts that perform a certain task).
@@ -401,20 +399,20 @@ The are four special conditions functions:
 The `continue-on-error` directive allows to ignore erros and failure. If the value is set to `true`, the job will continue it's execution even if the step fails. it overrides the default behavior. 
 ###### <span style="color: #d79921">Matrix strategies</span>
 
-Run multiple Job configuratins in parallel; add or remove individual cominations; control whether a single failling Job should cancel all other Matrix Jobsd via conrinue-on-error.
+Run multiple Job configurations in parallel; add or remove individual combinations; control whether a single failing Job should cancel all other Matrix Jobs via continue-on-error.
 
-```yaml
-jobs:
-  build:
-    strategy: 
-      matrix: 
-        operating-system: [ubuntu-latest, windows-latest]        
-    runs-on: ${{ matrix.operating-system }}    
-```
+>[!example] Matrix strategy
+>```yaml
+>jobs:
+>  build:
+>    strategy:
+>      matrix:
+>        operating-system: [ubuntu-latest, windows-latest]
+>    runs-on: ${{ matrix.operating-system }}
+>```
+>`runs-on: ${{ matrix.operating-system }}` --> run the job multiples times, once per value, in the operation system array. The Jobs will be run in parallel by default.
 
 it can be any value that could be changing and for which Job to run for different values. 
-
-`runs-on: ${{ matrix.operating-system }}` --> run the job multiples times, once per value, in the operation system array. The Jobs will be run in parallel by default.
 
 node version example
 
@@ -653,10 +651,6 @@ using an image
 run: docker run ghst.io/account/image:main # run step
 ```
 `uses: account/image@main` --> in uses step
-
-
-
-
 ##### <strong style="color: #689d6a">Custom Actions</strong>
 
 to simplify workflow steps
