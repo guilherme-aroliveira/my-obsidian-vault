@@ -303,6 +303,17 @@ To store sensitive information <span style="color: #d65d0e">secrets</span> must 
 >      MONGODB_USERNAME: ${{ secrets.MONGODB_USERNAME }}
 >```
 >Workflows can have up to 100 secrets, and secrets are limited to 64 kilobytes in size.
+
+<span style="color: #d65d0e">Repository Environments</span> is a feature attached to repositories that allows workflows jobs to reference these environments --> provides different configurations per environment.
+
+>[!example] Repository environment
+>```yaml
+>jobs:
+>  environment: testing
+>  env:
+>    MONGORB_PASSWORD: ${{ secrets.MONGODB_PASSWORD }}
+>```
+>The same secret name can have different values according to the repository environment, which allows to have a more agnostic configuration. 
 ##### <strong style="color: #689d6a">Controlling workflow</strong>
 
 <span style="color: #d65d0e">Artifacts</span> can be used to pass data between jobs in a workflow. They can only be uploaded by a workflow, which is done through the `upload-artifact` action. Artifacts can only be downloaded by the workflow where they were created using the `download-artifact` action.
@@ -399,7 +410,7 @@ The are four special conditions functions:
 The `continue-on-error` directive allows to ignore erros and failure. If the value is set to `true`, the job will continue it's execution even if the step fails. it overrides the default behavior. 
 ###### <span style="color: #d79921">Matrix strategies</span>
 
-Run multiple Job configurations in parallel; add or remove individual combinations; control whether a single failing Job should cancel all other Matrix Jobs via continue-on-error.
+GitHub Actions allows to run multiple Job configurations in parallel, for example run a job on different runners. It's done by adding the `strategy` and `matrix` keyword at the job level.
 
 >[!example] Matrix strategy
 >```yaml
@@ -410,65 +421,69 @@ Run multiple Job configurations in parallel; add or remove individual combinatio
 >        operating-system: [ubuntu-latest, windows-latest]
 >    runs-on: ${{ matrix.operating-system }}
 >```
->`runs-on: ${{ matrix.operating-system }}` --> run the job multiples times, once per value, in the operation system array. The Jobs will be run in parallel by default.
+>These example shows how to run the job multiples times, once per value, in the operation system array. The Jobs will be run in parallel by default.
 
-it can be any value that could be changing and for which Job to run for different values. 
+Any keys can be added under `matrix` and it can have any value that could be changing and for which Job to run for different values. 
 
-node version example
+>[!example] Example - node version
+>```yaml
+>jobs:
+>  build:
+>    strategy:
+>      matrix:
+>        node-version: [12, 13, 14]
+>        operating-system: [ubuntu-latest, window-latest]
+>    runs-on: ${{ matrix.operating-system }}
+>    steps:
+>      - name: Install NodeJS
+>        uses: actions/setup-node@v3
+>        with: 
+> 	     node-version: ${{ matrix.node-version }}
+>```
+>Run the build job multiple times once per value in the `operating-system` array. And each node version will be used in each operating system. The jobs are run in parallel by default.
 
-```yaml
-jobs:
-  build:
-    continue-on-error: true
-    strategy: 
-      matrix: 
-        node-version: [12, 14, 16]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Install NodeJS
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node-version }}
-```
-
-`continue-on-error: ` on job level tells GitHub Actions to continue executing jobs that are related to this matrix, even if some jobs for some combinations failed.
+The `continue-on-error` on job level tells GitHub Actions to continue executing jobs that are related to the matrix, even if some jobs for some combinations failed.
 
 The `include` key allows to add a list with dashes of the key values that should be included without adding a bunch of new combinations.
 
-```yaml
-strategy: 
-  matrix: 
-    node-version: [12, 14, 16]
-    include:
-      - node-version: 18
-        operating-system: ubuntu-latest
-```
+>[!example] Example - include key
+>```yaml
+>strategy:
+>  matrix:
+>    node-version: [12, 14, 16]
+>    include:
+>      - node-version: 18
+>        operating-system: ubuntu-latest
+>```
 
 The `exclude key` will exclude some combinations.
 
-```yaml
-strategy: 
-  matrix: 
-    node-version: [12, 14, 16]
-    exclude:
-      - node-version: 18
-        operating-system: windows-latest
-```
+>[!example] Example - exclude key
+>```yaml
+>strategy:
+>  matrix:
+>    node-version: [12, 14, 16]
+>    exclude:
+>      - node-version: 18
+>        operating-system: windows-latest
+>```
 ###### <span style="color: #d79921">Reusable Workflows </span>
 
-```yaml
-name: Reusable Deploy
-on: workflow_call 
-jobs: 
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-     - name: Output information
-       run: echo "Deploying & uploading ..."
-```
+GitHub Actions supports reusable workflows feature, which is defined by the  `workflow_call` key. This key allows a certain workflow to be called from other workflows.
 
-`on: workflow_call` --> allows a certain workflow to be called from other workflows.
-Workflow can be reused via the `workflow_call` event; reuse any logic (as many Jobs & Steps as needed)
+>[!example] Example
+>```yaml
+>name: Reusable Deploy
+>on: workflow_call
+>jobs:
+>  deploy:
+>    runs-on: ubuntu-latest
+>    steps:
+>      - name: Output information
+>        run: echo "Deploying & uploading ..."
+>```
+
+
 
 ```yaml
 deploy:
