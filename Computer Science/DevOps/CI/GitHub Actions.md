@@ -483,108 +483,107 @@ GitHub Actions supports reusable workflows feature, which is defined by the  `wo
 >        run: echo "Deploying & uploading ..."
 >```
 
+To reference an entire workflow the keyword `uses` must be used, and the full path to the workflow file must be provided.
 
+>[!example] Example - uses keyword
+>```yaml
+>deploy:
+>  needs: build
+>  uses: ./.github/workflows/reusable.yaml
+>```
 
-```yaml
-deploy:
-  needs: build
-  uses: ./.github/workflows/reusable.yaml
-```
+The `inputs` keyword allow to add data to a reusable workflow.
 
-`uses` --> references an entire workflow by providing a full path to the workflow file seen relative from the route project folder. 
-
-to vie the reusable workflows all the data it might need and to also pass data back to the workflow that uses the reusable workflow.
-
-Adding data (input)
-
-```yaml
-on: 
-  workflow_call :
-    inputs: 
-      artifact-name:
-        description: The name of the deployable artifact files
-        required: true
-        default: dist
-        type: string
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Get Code
-        uses: actions/download-artifact@v3
-        with:
-          name: ${{ inputs.arfifact-name }}
-```
+>[!example] Example - inputs
+>```yaml
+>on:
+>  workflow_call:
+>    artifact-name:
+>      description: The name of the artifacts
+>      required: true
+>      type: string
+>      
+>jobs:
+>  deploy: 
+>    runs-on: ubuntu-latest
+>    steps:
+>      - name:   Get Code
+>        uses: actions/download-artifact@v3
+>        with:
+>          name: ${{ inputs.arfifact-name }}
+>```
 
 `${{ inputs.arfifact-name }}` --> to use an input
 
-```yaml
-deploy:
-  uses: ./.github/workflows/reusable.yaml
-  with:
-    arifact-name: dist-files
-```
+>[!example] Example - using an input
+>```yaml
+>deploy:
+>  uses: ./.github/workflows/reusable.yaml
+>  with:
+>    artifact-name: dist-files
+>```
 
-secrets
+Just as inputs can be used in reusable workflow to be called after by another workflow, secrets can also be used, and it uses the `secrets` keyword to declared the necessary secrets.
 
-```yaml
-on: 
-  workflow_call :
-    secrets:
-      some-secret:
-        required: true
-```
+>[!example] Using secrets
+>```yaml
+>on:
+>  workflow_call:
+>    secrets:
+>      some-secret:
+>        required: true
+>```
+>Using the secrets:
+>```yaml
+>deploy:
+>  uses: ./.github/workflows/reusable.yaml
+>  secrets:
+>    some-secret: ${{ secrets.some-secret }}
+>```
 
-```yaml
-deploy:
-  uses: ./.github/workflows/reusable.yaml
-  secrets: 
-    some-secret: ${{ secrets.some-secret }}
-```
+Outputs are added by adding the `output`s key under the `workflow_call` event name.
 
-Outputs
+>[!example] Example - outputs
+>```yaml
+>name: Reusable Workflow
+>on:
+>  workflow_call:
+>    outputs:
+>      result:
+>        description: The result of the deployment operation
+>        value: ${{ jobs.deploy.outputs.outcome }}
+>
+>jobs:
+>  deploy:
+>    outputs: 
+>      outcome:  ${{ steps.set-result.outputs.step-result}}
+>    runs-on:  ubuntu-latest
+>    steps:
+>      - name: Set result ouput
+>        id: set-result
+>        run: echo "step-result=success" >> $GITHUB_OUTPUT
+>```
+>The `value` is typically taken from the steps in one of the jobs
 
-```yaml
-name: Reusable Workflow
-on:
-  workflow_call:
-    outputs:
-      result:
-        description: The result of the deployment operation
-        value: ${{ jobs.deploy.outputs.outcome }}
-jobs:
-  deploy:
-	outputs:
-	  outcome:  ${{ steps.set-result.outputs.step-result}}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Set result ouput
-        id: set-result
-        run: echo "step-result=success" >> $GITHUB_OUTPUT
-```
-
-The `value` is typically taken from the steps in one of  the Jobs.
-
-```yaml
-deploy:
-  uses: ./.github/workflows/reusable.yaml
-  with:
-    ...
-print-deploy-result: 
-  needs: deploy
-  runs-on: ubuntu-latest
-  steps:
-    - name: print deploy output
-      run: echo "${{ needs.deploy.outputs.result }}"
-report:
-  ... 
-```
-
+>[!example] Example - using outputs
+>```yaml
+>deploy:
+>  uses: ./.github/workflows/reusable.yaml
+>  with:
+>    artifact-name: dist-files
+>print-deploy-result:
+>  needs: deploy
+>  runs-on: ubuntu-latest
+>  steps:
+>    - name: print deploy output
+>      run: echo "${{ needs.deploy.outputs.result }}"
+>```
 ##### <strong style="color: #689d6a">Docker Containers</strong>
 
 And the advantage of using Containers instead of "Just the Runner" machine as we did it thus far, is that with a Container, since you defined the entire environment you have full control over the environment over the installed software and the setup steps that were performed for setting up that environment.
 
- GitHub Actions supports Docker Containers and you can simply run Docker Containers on top of those Runners provided by GitHub and by GitHub Actions.
+GitHub Actions supports Docker Containers and you can simply run Docker Containers on top of those Runners provided by GitHub and by GitHub Actions.
+
 Your containerized job is then simply hosted by the Runner so it's running on that Runner machine but in an isolated environment. The environment defined by you in the Container definition and the steps, and that's the important part the steps of the job are then executed inside the Container.
 
 ```yaml
