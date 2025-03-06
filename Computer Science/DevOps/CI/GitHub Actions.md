@@ -580,43 +580,48 @@ Outputs are added by adding the `output`s key under the `workflow_call` event na
 >```
 ##### <strong style="color: #689d6a">Docker Containers</strong>
 
-And the advantage of using Containers instead of "Just the Runner" machine as we did it thus far, is that with a Container, since you defined the entire environment you have full control over the environment over the installed software and the setup steps that were performed for setting up that environment.
+GitHub Actions supports docker containers and they can be used by running on top of a runner provided by GitHub --> the containerized job is hosted by the runner. 
 
-GitHub Actions supports Docker Containers and you can simply run Docker Containers on top of those Runners provided by GitHub and by GitHub Actions.
+The advantage of of using containers instead of just using runners, is that a container allows to have full control over the environment, over the installed software, and over the steps that are performed for setting up the environment.
 
-Your containerized job is then simply hosted by the Runner so it's running on that Runner machine but in an isolated environment. The environment defined by you in the Container definition and the steps, and that's the important part the steps of the job are then executed inside the Container.
+>[!example] Example - containers
+>```yaml
+>jobs:
+>  test:
+>    runs-on: ubuntu-latest
+>    container: node:16
+>    env:
+>      aws-region: ${{ secrets.AWS_REGION }}
+>```
+>---
+>```yaml
+>container: 
+>  image: node:16 # alternative
+>```
+>This alternative way is useful when its needed to pass further information to the container, like environment variable values that might be needed by the container image.
 
-```yaml
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    container: 
-	  image: node:16
-```
+>[!note]
+>The image names must be the ones available on Docker Hub.
 
-The names of the images must be the ones available on Docker Hub.
+The service containers is feature that allows to run extra services side-by-side with Jobs and their steps. <strong style="color: white">Example:</strong> run a database in a container, while the Job is running.
 
-service containers --> They allow you to run extra services side-by-side with your Jobs and their Steps. So that they can be used by your Jobs and the Steps. Runs inside a containers. 
-Job steps can communicate with service containers (and the service exposed by them)
+>[!example] Service containers
+>```yaml
+>jobs:
+>  test:
+>    runs-on: ubuntu-latest
+>    container:
+>      image: node:16
+>    services:
+>      mongodb:  # label, could be anything
+>        image: mongo
+>        env:
+>         ... 
+>```
+>More than one service container can be added for a job. But services belong to a job, so to one specific job.
 
-```yaml
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    container: 
-	  image: node:16
-	services:
-	  mongodb: # label, could be anything
-	    image: mongo
-	    env: 
-	      ...
-```
-
-And that's important, services, plural, not service because you can add more than one service container for a job.
-
-Services belong to a job, so to one specific job. If different jobs need different services, you do set them up with different services settings for those different jobs.
-
-services always run in containers, but they can be used using just the runner.
+>[!info]
+>Although services always run in containers, they can be used by using just the runner.
 
 push event --> ideal for building images
 
