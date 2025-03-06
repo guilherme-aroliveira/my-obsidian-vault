@@ -85,6 +85,20 @@ on: workflow_dispatch # manually trigger
 
 Most of the <span style="color:#98971a">Events</span> are repository related <span style="color: #3588E9">--></span> push, fork, watch, pull_request, issues, discussion, create, issue_comment. 
 
+The push event is ideal for building images, it can be used to tag images wit ha branch name and the sha associated with the commit that triggered the push.
+
+>[!example] Example - push
+>```yaml
+>on: 
+>  push:
+>    branches: [ main ]
+>    tags: [ 'v*.*.*']
+>```
+>the tags can be used for testing and other dynamic scenarios
+
+>[!info]
+>Push events with tags like releases are best used to create images that can be referenced in places where the images is fixed.
+
 Is possible to execute a workflow at a specific time using a trigger, which is called <span style="color: #d65d0e">Schedule event</span> <span style="color: #3588E9">--></span> configured through the `schedule` keyword which uses a cron syntax. 
 
 The <span style="color: #d65d0e">cron syntax</span> uses five fields, separated by spaces to describe a schedule. Reading from left to right , these fields represent minutes, hours, the day of the month, month, and the day of the week. 
@@ -140,6 +154,50 @@ Jobs can also optionally define required services for the workflow.
 
 >[!info]
 ><span style="color:#98971a">Services</span> are defined as Docker containers, any public Docker image can be used to create the service.
+
+GitHub Actions supports docker containers and they can be used by running on top of a runner provided by GitHub --> the containerized job is hosted by the runner. 
+
+The advantage of of using containers instead of just using runners, is that a container allows to have full control over the environment, over the installed software, and over the steps that are performed for setting up the environment.
+
+>[!example] Example - containers
+>```yaml
+>jobs:
+>  test:
+>    runs-on: ubuntu-latest
+>    container: node:16
+>    env:
+>      aws-region: ${{ secrets.AWS_REGION }}
+>```
+>---
+>```yaml
+>container: 
+>  image: node:16 # alternative
+>```
+>This alternative way is useful when its needed to pass further information to the container, like environment variable values that might be needed by the container image.
+
+
+>[!note]
+>The image names must be the ones available on Docker Hub.
+
+The service containers is feature that allows to run extra services side-by-side with Jobs and their steps. <strong style="color: white">Example:</strong> run a database in a container, while the Job is running.
+
+>[!example] Service containers
+>```yaml
+>jobs:
+>  test:
+>    runs-on: ubuntu-latest
+>    container:
+>      image: node:16
+>    services:
+>      mongodb:  # label, could be anything
+>        image: mongo
+>        env:
+>         ... 
+>```
+>More than one service container can be added for a job. But services belong to a job, so to one specific job.
+
+>[!info]
+>Although services always run in containers, they can be used by using just the runner.
 ###### <span style="color:#98971a">Runner</span>
 
 Every job defines a so-called <span style="color:#98971a">Runner</span>, which is the <strong style="color: #d79921">execution environment</strong> <span style="color: #3588E9">--></span> the <strong style="color: #b16286">machine and operating system</strong> that will be used for executing the steps. 
@@ -578,98 +636,87 @@ Outputs are added by adding the `output`s key under the `workflow_call` event na
 >    - name: print deploy output
 >      run: echo "${{ needs.deploy.outputs.result }}"
 >```
-##### <strong style="color: #689d6a">Docker Containers</strong>
+###### <span style="color: #d79921">GitHub Packages</span>
 
-GitHub Actions supports docker containers and they can be used by running on top of a runner provided by GitHub --> the containerized job is hosted by the runner. 
+GitHub package is a service for hosting packages inside GitHub. It supports images for Docker and open container initiate.
 
-The advantage of of using containers instead of just using runners, is that a container allows to have full control over the environment, over the installed software, and over the steps that are performed for setting up the environment.
+The package service provides a native container registry --> allows to tightly integrate GitHub Actions to build and publish images using code repository events like commits and releases.
 
->[!example] Example - containers
+GitHub packages also provides built int controls for permissions and visibility of any packages that are publish. For packages, permissions and visibility are inherited from the repository where the package is hosted. I
+
+It's free for public repository and data transfer is free inside actions. For private packages, each account receives a certain amount of storage and data transfer.
+
+Container image permissions can be customized (granularity) to accounts and organizations. Authentication is required to create and access software packages. 
+
+To use github actions to publish images into the the package service:
+1. checkout the code
+2. log into the repository
+3. gather metadata used for tagging the image
+4. build and publish the image
+
+The `docker/login-action` action is used to authenticate to the target registry, even if the the workflow is on running on GitHub, it needs to authenticate to the container registry.
+
+>[!example] log into the repo
 >```yaml
->jobs:
->  test:
->    runs-on: ubuntu-latest
->    container: node:16
->    env:
->      aws-region: ${{ secrets.AWS_REGION }}
+>- uses: docker/login-action
+>   with: 
+>     registry: gcr.io
+> 	username: ${{ github.actor }}
+>     password: ${{ secrets.GITHUB_TOKEN }}
 >```
->---
+>By default the token is scoped with permission to write to the package service for the repository where the workflow is running.
+
+>[!example] gather metadata
 >```yaml
->container: 
->  image: node:16 # alternative
+>- uses: docker/metadat-action
+>   id: meta
+>   with: 
+>     images: |
+> 	  registry_1/image_name
+>       registry_2/image_name
 >```
->This alternative way is useful when its needed to pass further information to the container, like environment variable values that might be needed by the container image.
+>The tag is key for referencing a particular version of the image during the publish step. 
+>Labels provide additional information about the image, like the author or the repository that was used to build it.
 
->[!note]
->The image names must be the ones available on Docker Hub.
+>[!nfo]
+>Multiple images can be provided if we are pushing to multiple registries
 
-The service containers is feature that allows to run extra services side-by-side with Jobs and their steps. <strong style="color: white">Example:</strong> run a database in a container, while the Job is running.
+The output from the steps provides the labels and tags for the next steps, build and push. 
 
->[!example] Service containers
+>[!example] build and push
 >```yaml
->jobs:
->  test:
->    runs-on: ubuntu-latest
->    container:
->      image: node:16
->    services:
->      mongodb:  # label, could be anything
->        image: mongo
->        env:
->         ... 
+>- uses: docker/build-push-action
+>   with: 
+>     context: .
+>     tags: ${{ steps.meta.outputs.tags }}
+>     labels: ${{ steps.meta.outputs.labels }}
 >```
->More than one service container can be added for a job. But services belong to a job, so to one specific job.
+>The `context` define the working directory where the Dockerfile is in.
 
->[!info]
->Although services always run in containers, they can be used by using just the runner.
+To use the image the name of the image, the tag, and the github account or organization where the images is hosted must be reference in the `uses` step. 
 
-push event --> ideal for building images
+>[!example] use docker image
+>```yaml
+>uses: account/image@main
+>run: docker run gcr.io/account/image:main
+>```
 
-```yaml
-on:
-  push:
-    branches: [main]
-    tags:['v*.*.*']
-```
-push event will be use to tag images with a brnach name adn the sha associated with the commit that triggered the psh. 
-These tags can be used for testing and other dynamic scenarios
+The packages service has registries for JavaScript, Ruby , .NET and Java packages. The steps to publish packages are generally the same for each of these languages.
 
-Push events with tags like release are best used to create images that can be referenced in places where the image is fixed.
-
-```yaml
-- uses: docker/login-action
-  with: 
-    registry: gcrh.io
-    username: ${{ github.actor }}
-    password: ${{ secrets.GITHUB_TOKEN }}
-```
-to authenticate to the docker registry
-
-```yaml
-- uses: docker/metadat-action
-  id: meta
-  with: 
-    images: |
-      registry_1/image_name
-      registry_2/image_name
-```
-helps to extract metadata from the code that can be used to create tags an labels
-Multiples images can be provided if we are pushing to multiple registries
-
-```yaml
-- uses: docker/build-push-action
-  with:
-    context: . 
-    tags: ${{ steps.meta.outputs.tags }}
-    labels: ${{ steps.meta.outputs.labels }}
-```
-build and publish the image to the target registry
-
-using an image
-```yaml
-run: docker run ghst.io/account/image:main # run step
-```
-`uses: account/image@main` --> in uses step
+To publish software packages:
+1. configuration for the package registry
+	1. specific code for each language --> references the repository and other metadata: version number, author's name and a description or license.
+	2. each launague uses its own specific file name and format. Example: package.json for JavaScript.
+	3. release events are best for publishing packages
+	4. package configurations usually contain references fo specifc code versions
+	5. each package mus use a new version number
+2. authenticate with the registry
+3. build the package
+	1. Each language will use its own native tooling to build and publish a package. For example, JavaScript projects can use npm ci followed by npm publish. Most of the workflows available in GitHub Actions will have build and publish steps with actions and scripts already filled out with these commands.
+	2. use the configuration files to set up GitHub Packages as a registry
+	3. permissions and visibility for software packages follow the repository
+	4. accessing software packages requires authentication as a GitHub user
+4. publish the package to the registry
 ##### <strong style="color: #689d6a">Custom Actions</strong>
 
 to simplify workflow steps
@@ -1001,10 +1048,4 @@ environemnt secrets are useful for configurations that use the same variable but
 
 workflows that are protected by manual approvals can only access environemnt secrets after te deployment is approved
 
-GitHub packages also provides built int controls for permissions and visibiliy of any packages that are publish.For packages, permissions and visibilitu are inherited fomr the repo where the package ois hosted.
-
-container image permissins can be customized (granularity) to accounts and organizations.
-
-Authentication is required to create and access softwagre pacgages. in owrkflows, the GITHUB_TOKEN must be used to autehntica to the package management tools.
-
-For private packages, each account receives a certain amount of storage and data transfer.
+in owrkflows, the GITHUB_TOKEN must be used to autehntica to the package management tools.
