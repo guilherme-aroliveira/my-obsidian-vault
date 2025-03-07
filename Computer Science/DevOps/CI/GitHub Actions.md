@@ -638,11 +638,11 @@ Outputs are added by adding the `output`s key under the `workflow_call` event na
 >```
 ###### <span style="color: #d79921">GitHub Packages</span>
 
-GitHub package is a service for hosting packages inside GitHub. It supports images for Docker and open container initiate.
+<span style="color: #d65d0e">GitHub package</span> is a <strong style="color: #b16286">service for hosting packages inside GitHub</strong>. It supports images for Docker and open container initiate.
 
-The package service provides a native container registry --> allows to tightly integrate GitHub Actions to build and publish images using code repository events like commits and releases.
+The package service provides a native container registry <span style="color: #3588E9">--></span> allows to tightly integrate GitHub Actions to build and publish images using code repository events like commits and releases.
 
-GitHub packages also provides built int controls for permissions and visibility of any packages that are publish. For packages, permissions and visibility are inherited from the repository where the package is hosted. I
+GitHub packages also provides built int controls for permissions and visibility of any packages that are publish. For packages, permissions and visibility are inherited from the repository where the package is hosted.
 
 It's free for public repository and data transfer is free inside actions. For private packages, each account receives a certain amount of storage and data transfer.
 
@@ -668,7 +668,7 @@ The `docker/login-action` action is used to authenticate to the target registry,
 
 >[!example] gather metadata
 >```yaml
->- uses: docker/metadat-action
+>- uses: docker/metadata-action
 >   id: meta
 >   with: 
 >     images: |
@@ -719,138 +719,141 @@ To publish software packages:
 4. publish the package to the registry
 ##### <strong style="color: #689d6a">Custom Actions</strong>
 
-to simplify workflow steps
-- build and use a single custom actiosn instrad or writing multiple Step definitions
-- multiples Steps can be grouped into a single custom Action
+Instead of using a community action, it's possible to use a custom action that may be created to solve a specific problem in a workflow. <span style="color: #d65d0e">Custom Actions</span> can contain any logic needed to solve a specific Workflow problem.
 
-existing public Actions might not solve a specific problem in a workflow
+Instead of writing multiple Step definition, a custom Action can be built to simplify the workflow steps <span style="color: #3588E9">--></span> can be grouped into a single custom Action.
 
-Custom Actions can contain any logic needed to solve a specific Workflow problem.
+Actions can be added to existing repositories and be use in it. But can also be created in standalone public repository.
 
-types of custom actions:
-- JavaScrit Actions --> actions where the its logic is written in JavaScript
+<strong style="color: white">Types of custom actions:</strong>
+- <span style="color: #98971a">JavaScript Actions</span> <span style="color: #3588E9">--></span> actions where the its logic is written in JavaScript
 	- execute a JavaSript file 
 	- bundled with dependencies 
 	- runs directly on the runner system
 	- all supported runners
 	- use JavaScript (NodeJS) and any other package 
-- Docker Actions --> containeeized acrtion, which create a Dockerfile with the required configuration.
+- <span style="color: #98971a">Docker Actions</span> <span style="color: #3588E9">--></span> containerized action, which create a Dockerfile with the required configuration.
 	- self-contained
 	- perform any task(s) with any language
 	- pulled or build on each workflow run
 	- requires a linux-based runner
-- Composite Actions --> combine multiple Workflow Steps in one single Action
+- <span style="color: #98971a">Composite Actions</span> <span style="color: #3588E9">--></span> combine multiple Workflow Steps in one single Action
 	- Combine `run` commands and `uses` actions
 	- allows for reusing shared Steps
+###### <span style="color:#98971a">Composite Actions</span>
 
-Composite Actions
+There are two way to create custom actions: in the same repository or in standalone public repository.
 
-actions can be added to projects tha I already havem --> only available in that prpject. Is must have a action.yaml file
+Actions in the current project, can only be used by it, and actions created as standalone repositories are available to different workflows in different repositories. In general the follow the same directory structure. 
 
-Example: 
+>[!example] actions - directory structure
+>```text
+>├── .github
+>	 ├── actions
+>	     ├── cached-depos
+>	         ├── action.yaml
+>```
+>action.yaml <span style="color: #3588E9">--></span> file that contains the configuration and the definition of that action.
 
-.github --> actions --> contains the actions only usable by the current project  / cached-deps; workflows 
+>[!example] Example - custom action
+>```yaml
+>name: 'Get & Cache Dependencies'
+>description: 'Get the dependencies (via npm) and cache them.'
+>runs:
+>  using: 'composite'
+>  steps:
+>    - name: Cache dependencies
+>      id: cache
+>      uses: action/cache@v3
+>      with: 
+>        path: node_modules
+>    - name: Install dependencies
+>      if: steps.cache.outputs.cache-hit != 'true'
+> 	 run: npm ci
+> 	 shell: bash
+>```
+>The `shell` key defines what shell will be used, and it must be used if the `run` key is defined.
 
-action.yaml --> file that contains the configuration and the definition of that action.
-```yaml
-name: 'Get & Cache Dependencies'
-description: 'Get the depdencies (via npm) and cache them.'
-runs: 
- using: 'composite'
- steps:
-  - name: Cache dependencies
-    id: cache
-    uses: action/cache@v3
-    with:
-     path: node_modules
-  - name: Install depdencies
-    if: 
-    run: npm ci
-    shell: bash
-```
+<strong style="color: white">To use the action in another project:</strong>
 
-To create actions that are available to different workflows in different repos, they must be created as standalone repos.
+>[!example] workflow.yaml
+>```yaml
+>deploy:
+>  runs-on: ubuntu-latest
+>  steps:
+>    - name: Load cache
+>      uses: <repo_name>/action
+>```
 
-to use custom actions on another project
-deploy.yaml
+<strong style="color: white">To use the action in the same project:</strong>
 
-```yaml
-lint:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-     - name: Load cache
-       uses: <repo_name>/action
-```
+>[!example] workflow.yaml
+>```yaml
+>deploy:
+>  runs-on: ubuntu-latest
+>  steps:
+>    - name: Load cache
+>      uses: ./.github/actions/cached-deps
+>```
 
-using custom action on the same project
-```yaml
-lint:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-     - name: Load cache
-       uses: ./.github/actions/cached-deps
-```
+Inputs and outputs can also be added to a custom actions, which can be referenced by a workflow. 
 
-Adding inputs
+>[!example] add inputs
+>```yaml
+>name: 'Get & Cache Dependencies'
+>description: 'Get the depdencies (via npm) and cache them.'
+>inputs:
+>  caching: # can be any name
+>    description: 'Whether to cache dependencies' # must be added
+>    required: false
+>    default: 'true'
+>runs:
+>  using: 'composite'
+>  steps:
+>    - name: Cache dependencies
+>      ... 
+>```
 
-```yaml
-name: 'Get & Cache Dependencies'
-description: 'Get the depdencies (via npm) and cache them.'
-inputs: 
-  caching: # can be any name
-    description: 'Whether to cache dependencies' # must be added
-    required: false
-    default: 'true'
-runs: 
- using: 'composite'
- steps:
-  - name: Cache dependencies
-    if: inputs caching == 'true'
-    ...
-```
+>[!example] use inputs
+>```yaml
+>deploy:
+>  runs-on: ubuntu-latest
+>  steps:
+>    - name: Load cache
+>      uses: ./.github/actions/cached-deps
+> 	 with:
+> 	   caching: 'true'
+>```
 
-```yaml
-lint:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-     - name: Load cache
-       uses: ./.github/actions/cached-deps
-       with:
-         caching: 'false'
-```
+>[!example] add outputs
+>```yaml
+>name: 'Get & Cache Dependencies'
+>description: 'Get the depdencies (via npm) and cache them.'
+>outputs:
+>  used-cache: # can be any name
+>    description: 'Whether the cache was used' # must be added
+>    value: ${{ steps.install}}
+>runs:
+>  using: 'composite'
+>  steps:
+>    - name: Install dependencies
+>      id: install
+>      if: steps.cache.outputs.cache-hit != 'true'
+> 	 run: echo "cache=${{ inputs.caching }}" >> $GITHUB_OUTPUT
+>```
 
-outputs
-
-```yaml
-name: 'Get & Cache Dependencies'
-description: 'Get the depdencies (via npm) and cache them.'
-outputs: 
-  used-cache: # can be any name
-    description: 'Whether the cache was used' # must be added
-    value: ${{ steps.install}}
-runs: 
- using: 'composite'
- steps:
-  - name: Install dependencies
-    id: install
-    if: steps.cache.outputs.cache-hit != 'true'
-    run: echo "cache=${{ inputs.caching }}" >> $GITHUB_OUTPUT
-```
-
-```yaml
-lint:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-     - name: Load cache
-       uses: ./.github/actions/cached-deps
-       id: cache-deps
-    - name: Output information
-      run: echo "Cache used? ${{ steps.cache-deps.outputs.used-cache }}"
-```
+>[!example] use outputs
+>```yaml
+>deploy:
+>  runs-on: ubuntu-latest
+>  steps:
+>    - name: Load cache
+>      uses: ./.github/actions/cached-deps
+> 	 id: cache-deps
+>    - name: Output information
+>      run: echo "Cache used? ${{ steps.cache-deps.outputs.used-cache }}"
+>```
+###### <span style="color:#98971a">Javascript Actions</span>
 
 Javascript custom actions
 requirements :
@@ -901,10 +904,6 @@ async function main() {
 // call the function
 main();
 ```
-
-
-
-
 
 the file for the `main` field must be created, but it can be any name. It will execute the `index.js` file whenever the custom action is used in a workflow step.
 
@@ -971,9 +970,7 @@ await ocktokit.rest.issues.createComment({
 	body: 'Thanks for the issue!'
 });
 ```
-
-
-Custom Docker actions
+###### <span style="color:#98971a">Docker Actions</span>
 
 It uses a `.py` file with all the logic behind the action that will be executed, a dockerfile that creates the environment where the code will run, and a requirements file specifying the packages that should be installed into the environment.
 
@@ -1005,7 +1002,7 @@ runs:
   using: 'docker'
   image: 'Dockerfile'
 ```
-##### <strong style="color: #689d6a"> Security</strong>
+##### <strong style="color: #689d6a">Security</strong>
 
 concerns
 - Script Injection
