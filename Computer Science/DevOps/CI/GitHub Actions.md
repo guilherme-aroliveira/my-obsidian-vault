@@ -972,36 +972,36 @@ await ocktokit.rest.issues.createComment({
 ```
 ###### <span style="color:#98971a">Docker Actions</span>
 
-It uses a `.py` file with all the logic behind the action that will be executed, a dockerfile that creates the environment where the code will run, and a requirements file specifying the packages that should be installed into the environment.
+The composite docker actions uses `.py` file with all the logic behind the action that will be executed, a Dockerfile that creates the environment where the code will run, and a requirements file specifying the packages that should be installed into the environment.
 
-```dockerfile
-FROM python:3
+>[!example] Dockerfile
+>```Dockerfile
+>FROM python:3
+>
+>COPY requirements.txt /requirements.txt
+>
+>RUN pip install -r requirements.txt
+>
+>COPY deployment.py /deployment.py
+>
+>CMD ["python", "/deployment.py"]
+>```
 
-COPY requirements.txt /requirements.txt
-
-RUN pip install -r requirements.txt
-
-COPY deployment.py /deployment.py
-
-CMD ["python", "/deployment.py"]
-```
-
-action.yaml
-
-```yaml
-name: 'Deploy to AWS S3'
-description: 'Deploy a static website via AWS S3'
-inputs:
-  bucket:
-    description: 'The S3 bucket name'
-    required: true
-outputs:
-  website-url:
-    description: 'The URL of the deployed website'
-runs:
-  using: 'docker'
-  image: 'Dockerfile'
-```
+>[!example] action.yaml
+>```yaml
+>name: 'Deploy to AWS S3'
+>description: 'Deploy a static website via AWS S3'
+>inputs:
+>  bucket: 
+>    description: 'The S3 bucket name'
+>    required: true
+>outputs:
+>  website-url:
+>    description: 'The URL of the deployed website'
+>runs:
+>  using: 'docker'
+>  image: 'Dockerfile'
+>```
 ##### <strong style="color: #689d6a">Security</strong>
 
 concerns
