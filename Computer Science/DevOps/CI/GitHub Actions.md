@@ -855,85 +855,84 @@ Inputs and outputs can also be added to a custom actions, which can be reference
 >```
 ###### <span style="color:#98971a">Javascript Actions</span>
 
-Javascript custom actions
-requirements :
+The JavaScript custom actions have the following requirements:
 - repository for the code
 - use `.gitinore` file for Node projects
 - node runtime installed
 - run `npm init`
-- run `npm install --globak @vercel/ncc` --> installs a global package, it helps compile the action into a single file along with all of its depoendencies
+- run `npm install --globak @vercel/ncc` <span style="color: #3588E9">--></span> installs a global package, it helps compile the action into a single file along with all of its dependencies
 - install dependencies: `@actions/core` and `@actions/github`
 - add an action metadata file and a README file
 
-The metada file is the inteface that a Gighutb action's workflow will use to connect tto the javascript action. it describes the name of the action, along with the runtime, and any inputs and outputs. The pasth to the index file mus be specified. 
+The metadata file is the interface that a GitHub action's workflow will use to connect to the javascript action. It describes the name of the action, along with the runtime, and any inputs and outputs. The path to the index file must be specified. 
 
-```yaml
-name: 'Deploy to AWS S3'
-description: 'Deploy a static website voa AWS S3'
-inputs:
- ...
-outputs:
- ...
-runs: 
- using: 'node16'
- main: 'dist/index.js'
-```
+>[!example] metadata file
+>```yaml
+>name: 'Deploy to AWS S3'
+>description: 'Deploy a static website voa AWS S3'
+>inputs:
+>  ... 
+>outputs:
+>  ... 
+>runs:
+>  using: 'node16'
+>  main: 'dist/index.js'
+>```
 
-the package.json must be updaded byt addinf a valid test, ad na buidl script to make it easier to compile the action.
+The `package.json` must be updated by adding a valid test, and a build script to make it easier to compile the action.
 
-```json
-"sctipts": {
-	"test": "node dist/index.js",
-	"build": "ncc build index.js"
-},
-npm run test
-npm run build
-```
+>[!example] package.json
+>```yaml
+>"scripts": { 
+> 	 "test": "node dist/index.js",
+> 	 "build": "ncc build index.js"
+>},
+>npm run test
+>npm run build
+>```
 
-example
-```javascript
-// require the libraries for actions
-const core = require('@actions/core')
-const github = require('@actions/github')
+>[!example] Example
+>```javascript
+>// require the libraries for actions
+>const core = require('@actions/core')
+>const github = require('@actions/github')
+>
+>// use an async function to the main tasks
+>async function main() { 
+>	console.log('Hello')
+>}
+>
+>// call the function
+>main();
+>```
 
-// use an async function ro the main tasks
-async function main() {
-	console.log('Hello')
-}
+The file for the `main` field must be created, but it can be any name. It will execute the `index.js` file whenever the custom action is used in a workflow step.
 
-// call the function
-main();
-```
-
-the file for the `main` field must be created, but it can be any name. It will execute the `index.js` file whenever the custom action is used in a workflow step.
-
-```js
-const core = require('@actions/core')
-//const github = require('@actions/github')
-const exec = require('@actions/exec')
-
-function run() {
-	// 1) Get some input values
-	const bucket = core.getInput('bucket', { required: true });
-	const bucketRegion = core.getInput('bucket-region', { required: true });
-	const distFolder = core.getInput('dist-folder', { required: true });
-
-	// 2) Upload files
-	const s3Uri = `s3://${bucket}`
-	exec.exec(`aws s3 sync ${distFolder} ${s3Uri} --region ${bucketRegion}`)
-
-	const websiteUrl = `http://${bucket}.s3-website-${bucketRegion}.amazonaws.com`
-	core.setOutput(`website-url`, websiteUrl); //::set-output
-
-	//core.notice('Hello from my custom JavaScript Action')
-}
-
-run();
-```
-
-`npm init -y` --> to use `npm` command
-install dependencies to use the javascript actions
-`npm install @actions/core @actions/github @actions/exec`
+>[!example] js file
+>```javascript
+>const core = require('@actions/core')
+>//const github = require('@actions/github')
+>const exec = require('@actions/exec')
+>
+>function run() {
+>	// 1) Get some input values
+>	const bucket = core.getInput('bucket', { required: true });
+>	const bucketRegion = core.getInput('bucket-region', { required: true });
+>	const distFolder = core.getInput('dist-folder', { required: true });
+>	
+>	// 2) Upload files
+>	const s3Uri = `s3://${bucket}`
+>	exec.exec(`aws s3 sync ${distFolder} ${s3Uri} --region ${bucketRegion}`)
+>	const websiteUrl = `http://${bucket}.s3-website-${bucketRegion}.amazonaws.com`
+>	core.setOutput(`website-url`, websiteUrl); //::set-output
+>	
+>	//core.notice('Hello from my custom JavaScript Action')
+>}
+>run();
+>```
+>`npm init -y` --> to use `npm` command
+>
+>Install dependencies to use a javascript actions --> `npm install @actions/core @actions/github @actions/exec`
 
 `github.getOctokit()` --> tool provided by Github that makes easier to send requests to the Github Rest API
 
