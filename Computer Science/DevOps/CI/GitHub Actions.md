@@ -876,8 +876,10 @@ The metadata file is the interface that a GitHub action's workflow will use to c
 >  ... 
 >runs:
 >  using: 'node16'
->  main: 'dist/index.js'
+>  main: 'dist/index.js' # location of the compiled file
 >```
+
+The README file is required if the action is shared in the GitHub marketplace. It should show how to use the action.
 
 The `package.json` must be updated by adding a valid test, and a build script to make it easier to compile the action.
 
@@ -930,45 +932,78 @@ The file for the `main` field must be created, but it can be any name. It will e
 >}
 >run();
 >```
->`npm init -y` --> to use `npm` command
+>`npm init -y` <span style="color: #3588E9">--></span> to use `npm` command
 >
->Install dependencies to use a javascript actions --> `npm install @actions/core @actions/github @actions/exec`
+>Install dependencies to use a javascript actions <span style="color: #3588E9">--></span> `npm install @actions/core @actions/github @actions/exec`
 
-`github.getOctokit()` --> tool provided by Github that makes easier to send requests to the Github Rest API
+GitHub actions Toolkit <span style="color: #3588E9">--></span> a collection of javascript packages that help developers to create javascript actions. the most essentials are core and github.
 
-Github actions Toolkit --> a collection of javascript packages that help developers to create javascript actions. the most essentials are core and github.
-`@actions/core` --> provides functionality for working with GitHub actions front-end and internals of the GitHub actions framework
-- read inputs, set outputs
-- create annotations --> useful for bringing atention to details in workflow logs
+`@actions/core` <span style="color: #3588E9">--></span> provides functionality for working with GitHub actions front-end and internals of the GitHub actions framework
+- used to read inputs, set outputs
+- create annotations <span style="color: #3588E9">--></span> useful for bringing attention to details in workflow logs
 - set exit code
+- `core.getInput` <span style="color: #3588E9">--></span> get input values
+- `core.setOuput` <span style="color: #3588E9">--></span> set output values
+- `core.info()` <span style="color: #3588E9">--></span> used for logging, print in the workflow log
+- `core.info()`, `core.warning()`, `core.error()` <span style="color: #3588E9">--></span> for annotations, appear on the log but have color styling and are also added to the summary page of a workflow run
+- `core.setFailed()` <span style="color: #3588E9">--></span> set the status of the step to a non-zero exit code, the values are captured in the workflow log and on the summary of the workflow log.
 
-core.info() --> used for logging
-core.notice(), core.warning(), core.error() for annotations  --> appear on the log but have color styling and are also added to the summary page of a workflow run
-annotations --> useful for indicating when an action had to handle an exception, 
-or encountered some sort of problem. 
+>[!note]
+>annotations are useful for indicating when an action had to handle an exception, or encountered some sort of problem. 
 
-core.setFailed() more useful if the condidtion is critial enough to cause a workflow to fail. set the status of the step to a non-zero exit code. 
+>[!example] Example - annotations
+>```javascript
+>const core = require('@actions/core')
+>const github = require('@actions/github')
+>
+>async function main() {
+>	// get the inputs
+>	const GITHUB_TOKEN = core.getInput('GITHUB_TOKEN');
+>	const input_1 = core.getInput('input_1');
+>	
+>	core.info("INFO: input_1 = " + input_1);
+>	core.notice("This is a notice");
+>	core.warning("This is a warning");
+>	core.error("This is a error");
+>}
+>main();
+>```
 
-call to the info function are printed in the workflow log.
+`@actions/github` <span style="color: #3588E9">--></span> exposes the workflow-action context as JSON, provides an authenticated octokit client that allows javascript actions to directly access the GitHub API
+- `github.getOctokit()`
 
-`@actions/github` --> exposes the workflow-action context as JSON
-provides an authenticated octokit client (GitHub client) --> allows javascript action s to directly access the GitHub API
+workflow-action context <span style="color: #3588E9">--></span> json object that contains all the properties related to a GitHub event
+- `const { context } = require('@actions/github')`
+- `context.payload` <span style="color: #3588E9">--></span> context object
 
- workflow-action context --> json object that contains all the properties related to a GitHub event. `cont { context } = require('@actions/github')`
- `context.payload` --> context object
- context values can be used as parameter for octokit API calls.
-example
-```yaml
-const { context } = require('@actions/github')
-const { pull_request } = context.payload
+The GitHub Package can be used to crate an authenticated Octokit client. It makes easier to create an instance of the client. 
 
-await ocktokit.rest.issues.createComment({
-	owner: repo.repo.owner,
-	repo: repo.repo.repo,
-	issues_number: context.payload.number,
-	body: 'Thanks for the issue!'
-});
-```
+>[!example] Example - ocktokit
+>```javascript
+>const GITHUB_TOKEN = core.getInput('GITHUB_TOKEN');
+>const octokit = github.getOctokit(GITHUB_TOKEN);
+>octokit.rest.pulls.create(......)
+>octokit.rest.issues.createComment(......)
+>octokit.rest.actions.getArtifact(......)
+>```
+>This permission combined with the access to the GitHub API through the Octokit client allows JavaScript actions to access just about any part of a repository. 
+
+>[!info]
+>Context values can be used as parameter for octokit API calls.
+
+>[!example] Context and Octokit
+>```javascript
+>const { context } = require('@actions/github')
+>const { pull_request } = context.payload
+>
+>await ocktokit.rest.issues.createComment({ # repo object
+>	owner: repo.repo.owner,
+>	repo: repo.repo.repo,
+>	issues_number: context.payload.number,
+>	body: 'Thanks for the issue!'
+>});
+>```
+>Example of commenting on a pull request
 ###### <span style="color:#98971a">Docker Actions</span>
 
 The composite docker actions uses `.py` file with all the logic behind the action that will be executed, a Dockerfile that creates the environment where the code will run, and a requirements file specifying the packages that should be installed into the environment.
@@ -1001,47 +1036,73 @@ The composite docker actions uses `.py` file with all the logic behind the actio
 >  using: 'docker'
 >  image: 'Dockerfile'
 >```
-##### <strong style="color: #689d6a">Security</strong>
+##### <strong style="color: #689d6a">Security Practices</strong>
 
-concerns
-- Script Injection
-	- a value, set outside a Workflow, is used in a workflow
-	- example: issue title used in workflow shell command
-	- workflow / command behavior could be changed
-- Malicious Third-Party Actions
-	- Actions can perform any logic, including potentially malicious logic
-	- Example: a third-party Action that reads and exports secrets
-	- Only use trusted Actions and inspect code of unknown/untrusted authors
-- Permission Issues
-	- Consider avoiding overly permissive permissions
-	- Example: only allow checking out code ("read only")
-	- GitHub Actions supports fine-grained permissions control
+GitHub Actions allows to set permissions levels related to workflow executions, which is defined by the `GITHUB_TOKEN`. This token grants each runner privileges to interact with the repository (temporary).
 
-GitHub Actions makes controlling Permissions for jobs quite easy and straightforward. Because you can add the special permissions key to a job, to control the permissions for various kinds of actions or areas a Workflow could be acting on. permissions are managed on job level, you can also add them here, on Workflow level, so that they apply to all jobs,
+By default, the token’s permissions are either “permissive” (read/write for most of the scopes) or “restricted” (no permission by default in most scopes). The `GITHUB_TOKEN` should always be granted the minimum required permissions to execute a workflow/job.
 
-if you don't set permissions at all, then by default this Workflow with all its jobs is able to do anything. It basically has full permissions or almost full permissions.
+>[!example] Workflow permissions
+>```yaml
+>jobs:
+>  terraform:
+>    permissions: 
+>      id-token: write
+>      contents: read
+>```
+>Setting the right permissions can avoid script injection attacks.
 
-```yaml
-jobs:
-assign-label:
-  permissions: 
-    issues: write-all
-```
+>[!note]
+>If permissions aren't defined , then by default the workflow with all its jobs is able to do anything, it basically has full permissions or almost full permissions. Permissions are managed on Job level or on workflow level, which will apply to all jobs.
 
-If you would be vulnerable to script injection, those scripts would not be able to do things that are not allowed by Permissions.
+Another strategy that can avoid malicious third-party actions is only use trusted actions and inspect code of unknown/untrusted authors. Is always a good choice to create custom actions and workflow with custom bash scripts.
 
- token automatically generated by GitHub, which is available in the jobs of this workflow, and which is only valid until our jobs are done. So the token will be deleted by GitHub once our job's executed. t's a very short lift token that's only valid as long as our jobs are running here.
+When using an action made by some else (third party) is a good practice to run the action using a commit hash, rather than a tag from the repo. This avoids that an altered action to hijack some information.
 
-an then be attached to requests being sent to GitHub's API to authenticate the request and perform certain actions.
+>[!example] Action - commit hash
+>```yaml
+>-  name: Log in to the container registry
+>    uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+>```
 
---> only use your own actions 
+Don't use plain-text secrets, instead use the <span style="color: #d65d0e">GitHub Secrets</span> feature that allows to store your keys in a safe way and reference them in the workflow with `${{}}` brackets.
 
-Github Actions allows to build human interactions  with  envronment protection rules that include manual apprvoals. 
-environments --> descirves a target for a deployment
-to protect environment, rules can be defined to identify which branches can deployt to a given invoronment --> deployment branches 
+>[!example] Secrets
+>```yaml
+>jobs:
+>  uses: repo_owner/repo/.github/workflows/workflow.yaml@main
+>  secrets:
+>    ASSUME_ROLE: ${{ secrets.ASSUME_ROLE }}    
+>```
 
-environemnt secrets are useful for configurations that use the same variable but have different values.
+Another good practice when working with secrets is define the secrets as an <span style="color: #d65d0e">environment secret</span>. GitHub Actions allows to build human interactions  with  environment protection rules that include manual approvals. 
 
-workflows that are protected by manual approvals can only access environemnt secrets after te deployment is approved
+To protect environment, rules can be defined to identify which branches can deploy to a given environment <span style="color: #3588E9">--></span> deployment branches. Environment secrets are useful for configurations that use the same variable but have different values.
 
-in owrkflows, the GITHUB_TOKEN must be used to autehntica to the package management tools.
+>[!example] Environment secrets
+>```yaml
+>plan:
+>  uses: repo_owner/repo/.github/workflows/workflow.yaml@main
+>  with:
+>    environment: dev
+>  secrets:
+>    ASSUME_ROLE: ${{ secrets.ASSUME_ROLE }}
+>```
+
+>[!note]
+>Workflows that are protected by manual approvals can only access environment secrets after the deployment is approved
+
+When using environment variables is bet to use them at the Step level rather at the Job level, this limits the scope of the variables and potential attacks.
+
+>[!example] environment variables
+>```yaml
+>- name: Run terraform init
+>   id: init
+>   env:
+>     aws_bucket_name: ${{ secrets.AWS_BUCKET_NAME }}
+>   run: |
+>     terraform init -backend=true \
+> 	  -backend-config="bucket=${aws_bucket_name}" \
+>```
+
+Instead of using credential to to connect to cloud resources, it's a best practice use <span style="color: #d65d0e">OpenID Connect</span>, which is is a technology allowing to connect a workflow to cloud resources without needing to copy a long-lived secret into GitHub.
