@@ -104,24 +104,29 @@ The command `terraform providers mirror ` allows to copy provider plugins needed
 ```shell
 terraform providers mirror /root/terraform/new_local_file
 ```
-
 ###### <span style="color: #98971a">Multiple Providers</span>
 
 Due to the plug-in based architecture of Terraform providers, it is easy to install and utilize <span style="color: #d65d0e">multiple providers</span> within the same Terraform configuration.
 
-```hcl
-terraform {
-	required_providers {
-	    aws = {
-	      source = "hashicorp/aws"
-	    }
-	    tls = {
-		    source  = "hashicorp/tls"
-		    version = "3.1.0" 
-		}
-	}
-}
-```
+>[!example] multiple providers
+>```hcl
+>terraform {
+>  required_providers {
+>    aws = {
+>      source = "hashicorp/aws"
+>    }
+>    http = {
+>      source = "hashicorp/http"
+>      version = "2.1.0"
+>    }
+>    tls = { 
+>      source  = "hashicorp/tls"
+>      version = "3.1.0"
+>    }
+>  }
+>}
+>```
+>Terraform by default will install the latest version of any given provider that has been referenced in the configuration. 
 
 Run a `terraform init -upgrade` to validate you pull down the provider versions specified in the configuration and validate with a `terraform version` or a `terraform providers` command.
 
@@ -131,54 +136,58 @@ terraform init -upgrade
 
 You can modify the version line of the AWS provider to be as specific or general as desired. Update the `version` line within your `terraform.tf` file to try these different versioning techniques.
 
-```shell
-version = "~> 3.0"
-version = ">= 3.0.0, < 3.1.0"
-version = ">= 3.0.0, <= 3.1.0"
-version = "~> 2.0"
-version = "~> 3.0"
-```
+>[!example] Example - version
+>```shell
+>version = "~> 3.0"
+>version = ">= 3.0.0, < 3.1.0"
+>version = ">= 3.0.0, <= 3.1.0"
+>version = "~> 2.0"
+>version = "~> 3.0"
+>```
 ###### <span style="color: #98971a">Shared credentials</span>
 
-```hcl
-provider "aws" {
-	region = "us-east-1"
-	access_key = "my-access-key"
-	secret_key = "my-secret-key"
-}
-```
+>[!example] credentials 
+>```hcl
+>providers "aws" {
+>	region = "us-east-1"
+>	access_key = "my-access-key"
+>	secret_key = "my-secret-key"
+>}
+>```
 
 >[!note]
->inside the provider block --> not recommended, it har code the credentiasl on th state file that can be versioned
+>inside the provider block <span style="color: #3588E9">--></span> not recommended, it has code the credentials on thw state file that can be versioned.
 
 The AWS credentials or configuration file can be used to specify the credentials. The default location is `$HOME/.aws/credentials` on Linux and macOS.
 
 Optionally a different location can be specified in the Terraform configuration by providing the shared_credentials_file argument or using the `AWS_SHARED_CREDENTIALS_FILE` environment variable. This method also supports a profile configuration and matching `AWS_PROFILE` environment variable.
 
-```hcl
-provider "aws" {
-	region                  = "us-east-1"
-	shared_credentials_file = "[/users/tf_user/.aws/creds]"
-	profile                 = "customprofile"
-}
-```
+>[!example] Example - shared credentials
+>```hcl
+>provider "aws" { 
+>	region = "us-east-1" 
+>	shared_credentials_file = "/users/tf_user/.aws/creds"
+>	profile  = "customprofile"
+>}
+>```
 
 >[!note]
 >The functionality of a provider plugin may vary drastically from one version to another. Order from configuration may not work as expected when using a version different than the one it was written in.
 
-`terraform.lock` file --> hashicorp hashes out the provider version so that Terraform can do a comparison during the `terrafrom init` command. This file tracks the versions of providers and modules and it <strong style="color: #d79921">should be commit</strong> to git.
+`terraform.lock` file <span style="color: #3588E9">--></span> hashicorp hashes out the provider version so that Terraform can do a comparison during the `terrafrom init` command. This file tracks the versions of providers and modules and it <strong style="color: #d79921">should be commit</strong> to git.
 ###### <span style="color: #98971a">Environment variables</span>
 
 The aws credentials can be provided via the `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`, environment variables, representing the AWS Access Key and AWS Secret Key, respectively.
 
-```shell
-export AWS_ACCESS_KEY_ID="anaccesskey"
-export AWS_SECRET_ACCESS_KEY="asecretkey"
-export AWS_DEFAULT_REGION="us-east-1"
-```
+>[!example] Example - environment variables
+>```shell
+>export AWS_ACCESS_KEY_ID="anaccesskey"
+>export AWS_SECRET_ACCESS_KEY="asecretkey"
+>export AWS_DEFAULT_REGION="us-east-1"
+>```
 ##### <span style="color: #689d6a">Terraform Concepts</span>
 
-Terraform uses <span style="color: #d65d0e">resources block</span> to <strong style="color: #d79921">manage infrastructure</strong>, such as virtual networks, comute instances, or higher-level components such as DNS records. 
+Terraform uses <span style="color: #d65d0e">resources block</span> to <strong style="color: #d79921">manage infrastructure</strong>, such as virtual networks, compute instances, or higher-level components such as DNS records. 
 
 <span style="color: #d65d0e">Resource blocks</span> <strong style="color: #b16286">represent one or more infrastructure objects in the terraform configuration</strong>. A resource can be a file on a local host, a computer instance, a database server in the cloud or on a physical server on premise that Terraform manages.
 
@@ -223,17 +232,14 @@ Even from resources that Terraform does not manage, it can read attributes such 
 
 The <strong style="color: #d79921">use of comment</strong> is a way to make the code easier to understand for others who might want to contribute.
 
-```hcl
-# begins a single-line comment, ending at the end of the line.
-```
-
-```hcl
-// also begins a single-line comment, as an alternative to #.
-```
-
-```hcl
-/* and */ are start and end delimiters for a comment that might span over multiple lines.
-```
+>[!example] Comments
+>```hcl
+># begins a single-line comment, ending at the end of the line.
+>
+>// also begins a single-line comment, as an alternative to #.
+>
+>/* and */ are start and end delimiters for a comment that might span over multiple lines.
+>```
 
 Just as in any general purpose programming language such as Bash, scripting or Python, is possible to make use of <span style="color: #d65d0e">input variables</span> in Terraform to assign variables.
 ###### <span style="color: #98971a">Input variables</span>
@@ -272,6 +278,16 @@ To call a variable on a resource or module: `var.<variable_name>`
 
 >[!note]
 >A best practice is to create a `variables.tf` file to use input variables
+
+A variable can also be referenced by using interpolation, this allows to concatenate the value of variable to a string, for example.
+
+>[!example] Example - interpolation
+>```hcl
+>tags = {
+>  Name = "sub-variable-${var.variables_sub_az}"
+>}
+>```
+>It creates the `Name` key in the `tags` block dynamically.
 
 To transform an input from optional to required, is by removing the `default` value from the input block.
 
@@ -430,7 +446,7 @@ Along with input variables, Terraform also supports output variables. These vari
 >[!info]
 >Output values are like functions returning values.
 
->outputs are a way to export data from individual modules. The root module can use outputs to print values ta the terminal after running terraform values.
+>outputs are a way to export data from individual modules. The root module can use outputs to print values to the terminal after running terraform values.
 
 >[!note]
 >The mandatory argument for value is the reference expression. A description can also be added, which is an optional argument to describe what this output variable will be used for.
@@ -449,15 +465,34 @@ The `-json` flag generates JSON formatted output, so that it can be easily parse
 
 To print the value of a specific output variable:
 
-```shell
-terraform output <variable_name>
-```
+>[!example] Example - output
+>```shell
+>terraform output <output_name>
+>terraform output public_ip
+>```
 
 The output can be redirected to file any time using shell redirection
 
 ```shell
 terraform output -json > outputs.json
 ```
+
+Is also possible to wrap the output `public_ip` query to ping the record, for example.
+
+```shell
+ping $(terraform output -raw public_ip)
+```
+
+For security concerns the value of an output can be suppressed during the execution of the command on the terminal.    
+
+>[!example] Example - suppress output
+>```hcl
+>output "ec2_instance_arn" {
+>  value = aws_instance.web_server.arn
+>  sensitive = true
+>}
+>```
+>Even if the values are marked as sensitive in the Terraform input and output, it still needs to add the value to the state file.
 ###### <span style="color: #98971a">Data Source</span>
 
 Terraform uses data sources to fetch information from cloud provider APIs, such as disk image IDs, or information about the rest of your infrastructure through the outputs of other Terraform configurations.
@@ -471,58 +506,112 @@ Data Source provides the dynamic information about entities that are no manged b
 
 Data block within Terraform HCL are comprised of the following components:
 - Data Block - "resource" is a top-level keyword like "for" and "while" in other programming languages.
-- Data Type - The next value is the type of the resource. Resources types are always prefixed woth their provider.
-- Dta Local Name - The next value o=is the name of the resource. The resource type and name together from the resource identifier, or ID, which mus tbe uniquer for a give nconfiguration, even if multiple files are used.
+- Data Type - The next value is the type of the resource. Resources types are always prefixed with their provider.
+- Data Local Name - The next value o=is the name of the resource. The resource type and name together from the resource identifier, or ID, which must be uniquer for a given configuration, even if multiple files are used.
 - Data Arguments - Most of the arguments within the body of a resource block are specifies to the selected resource type.
 
 <strong style="color: white">Example:</strong> A data block request that Terraform read from a given data source ("`aws_ami`") and export the result under the given local name ("example"). The name is used to refer to this resource from elsewhere in the same Terraform module.
 
 >[!example]
 >```hcl
-># Retrieve the Availability Zone
+># Retrieve the list of AZs in the current AWS region
 >data "aws_availability_zones" "current" {}
+>data "aws_region" "current" {}
 >
->resource "aws_instance" "ec2_instance" {
->  ami = lookup (var.AMIS, var.AWS_REGION)
->  availability_zone = data.aws_availability_zones.current.names[2]
+>resource "aws_vpc" "vpc" {
+>  cidr_block = var.vpc_cidr
+>  
+>  tags = {
+>    Name = var.vpc_name
+>    Region = data.aws_region.current.name
+>  }
 >}
 >```
 > Use `data` to get the all the availability zones
 > 
 >```hcl
->data "aws_s3_bucket" "s3_bucket" {
->  bucket = "my-data-lookup-bucket-btk"
+>data "aws_subnet" "private_subnet" {
+>  vpc_id = aws_vpc.vpc.id
+>  cidr_block = "...."
+>  availability_zone = data.aws_availability_zones.available.name
 >}
 >```
->Retrieves a specific S3 bucket from AWS
 ###### <span style="color: #98971a">Local</span>
 
 <span style="color: #d65d0e">Local block</span> (often referred to as locals) are <strong style="color: #b16286">defined values in Terraform that are used to reduce repetitive references</strong> to expressions or values. Locals are defined in `locals block` (plural) and include named local variables with their defined values.
 
-Local values are placeholders that can reused throughout the configuration.
+Local values are placeholders that can reused throughout the configuration. The expressions in local values are not limited to literals constants, they can also reference other values.
 
-```hcl
-locals {
-	# Block body
-	local_variable_name = <EXPRESSION OR VALUE>
-	server = "ec2-${var.environment}-api-${var.variables_sub_az}"
-	common-tags = {
-		Environment = "dev"
-		ManagedBy = "terraform"
-	}
-}
+>[!note]
+>Use local values only in moderation, in situations where a single values or result is used in many places and that value is likely to be changed in future. 
 
-tags = {
-	Name = local.server_name
-}
-```
+>[!example] Example 1 - locals block
+>```hcl
+>locals {
+>  team = "api_mgmt_dev"
+>  application = "corp_api"
+>  server_name = "ec2-${var.environment}-api"
+>}
+>```
+>---
+>```hcl
+>resource "aws_instance" "web_server" {
+>  ami = data.aws_ami.ubuntu.id
+>  instance_type = "t2.micro"
+>  
+>  tags = {
+>    Name = local.server_name
+>    Owner = local.tem
+>    App = local.application
+>  }
+>}
+>```
+
+>[!example] Example 2
+>```hcl
+>locals {
+>  common_tags {
+>    Name = local.server_name
+>    Owner = local.team
+>    App = local.application
+>  }
+>}
+>```
 
 The `console` command retrieves values from the `locals.tf` file
 
-```shell
-terrarom console
-> local.common-tags
-```
+>[!example] locals - console
+>```shell
+>terrarom console
+>> local.common-tags
+>```
+
+>[!info]
+>Common tags are defined so it can be used to assign to all resources. In organizations they may be required for all instances throughout AWS. 
+
+>[!example] Example 3 - merging tags
+>```hcl
+>locals {
+>  tags = {
+>    Organization = "project-spring"
+>    ManagagedBy = "Terraform"
+>  }
+>}
+>```
+>--- 
+>```hcl
+>resource "aws_subnet" "private_subnet" {
+>  vpc_id = aws_vpc.main_vpc.id
+>  
+>  tags = merge(
+>    local.tags,
+>    {
+>      Name = "Private Subnet"
+>      Environment = var.environment
+>    }
+>  )
+>}
+>```
 ###### <span style="color: #98971a">Modules</span>
 
 A <span style="color: #d65d0e">module</span> is a set of Terraform configuration files in a single directory. Even the simplest configuration consisting of a single directory with one `.tf`. It's used <strong style="color: #b16286">used to combine resources that are frequently used together into a reusable container</strong>.
@@ -635,7 +724,7 @@ Booleans can be used in a terraform ternary operation to create an if-selse stat
 >}
 >```
 
-count --> parameter used to loop over the resources. Can be used to create multiple copies of resources in TF
+count <span style="color: #3588E9">--></span> parameter used to loop over the resources. Can be used to create multiple copies of resources in terraform.
 
 >[!example] Example - count
 >```hcl
@@ -645,7 +734,7 @@ count --> parameter used to loop over the resources. Can be used to create multi
 >}
 >```
 
-for --> parameter used to iterate over lists and maps. For loop is used to generate a single Value. Syntax of `for` loop: `for ITEM in LIST : OUTPUT`
+for <span style="color: #3588E9">--></span> parameter used to iterate over lists and maps. For loop is used to generate a single Value. Syntax of `for` loop: `for ITEM in LIST : OUTPUT`
 syntax map: `for KEY, VALUE in MAP : OUTPUT`
 
 >[!example] Example - for
@@ -676,7 +765,7 @@ syntax map: `for KEY, VALUE in MAP : OUTPUT`
 >}
 >```
 
-for_each --> parameter used to create multiple copies of resource or inline blocks. Syntax: `for_each = COLLECTION`
+for_each <span style="color: #3588E9">--></span> parameter used to create multiple copies of resource or inline blocks. Syntax: `for_each = COLLECTION`
 
 >[!example] Example - for_each
 >```hcl
@@ -691,29 +780,31 @@ for_each --> parameter used to create multiple copies of resource or inline bloc
 >  name = each.value
 >}
 >```
-###### <strong>Terraform Provisioners</strong>
+###### <span style = "color: #d79921">Terraform Provisioners</span>
 
 <span style="color: #d65d0e">Provisioners</span> can be used to model specific actions on the local machine or on a remote machine in order to prepare servers or other infrastructure objects for service.
 
 The `local-exec` provisioner invokes a local executable after a resource is created. 
 
-```hcl
-provisioner "local-exec" {
-  command = "chmod 600 ${local_file.private_key_pem.filename}"
-}
-```
+>[!example] Example - local-exec
+>```hcl
+>provisioner "local-exec" {
+>  command = "chmod 600 ${local_file.private_key_pem.filename}"
+>}
+>```
 
 The `remote-exec` provisioner runs remote commands on the instance provisioned with Terraform.
 
-```hcl
-  provisioner "remote-exec" {
-    inline = [
-      "sudo rm -rf /tmp",
-      "sudo git clone https://github.com/hashicorp/demo-terraform-101 /tmp",
-      "sudo sh /tmp/assets/setup-web.sh",
-    ]
-  }
-```
+>[!example] Example - remote-exec
+>```hcl
+>provisioner "remote-exec" {
+>  inline = [
+>    "sudo rm -rf /tmp",
+>    "sudo git clone https://github.com/hashicorp/demo-101 /tmp",
+>    "sudo sh /tmp/assets/setup-web.sh",
+>  ]
+>}
+>```
 
 >[!info]
 >Provisioners are used to execute scripts on a local or remote machines as part of resource creation or destructive.
@@ -751,8 +842,7 @@ To manage existing resources there weren't created by Terraform use the `import`
 ```shell
 terraform import aws_instance.aws_linux <resource_id>
 ```
-
-###### <strong>Terraform Workflow</strong>
+###### <span style = "color: #d79921">Terraform Workflow</span>
 
 The `terraform init` command initialize the working directory/project, it also downloads and installs necessary plugins to execute the configuration.
 
@@ -783,7 +873,7 @@ terraform validate
 
 Terraform validate <strong style="color: #d79921">doesn't check</strong> with the backend providers to validate if the provided input is actually valid.
 
-The `terraform plan` command compare the state file, which contain the current configuration to prior state and it's going to note all the diferences.
+The `terraform plan` command compare the state file, which contain the current configuration to prior state and it's going to note all the differences.
 
 ```shell
 terraform plan
@@ -823,9 +913,26 @@ The `-destroy` simulates a destroy action.
 ```shell
 terraform plan -destroy
 ```
-##### <strong>Terraform Workspaces</strong>
+###### <span style = "color: #d79921">Debugging</span>
 
-Workspaces is a Terraform feature that allows to organize infrastructure by environments and variables in a single directory.
+Terraform allows to enable logging in order to do some troubleshooting. This can be done by setting `TF_LOG` environment variable to any value. The log levels are trace, debug, info, warn or error.  
+
+```shell
+export TF_LOG=TRACE
+# trace is the most verbose level
+```
+
+The environment variable `TF_LOG_PATH` allows to debug to a log file
+
+```shell
+export TF_LOG_PATH="terraform_log.txt"
+
+# The configuration must be updated
+terraform init -upgrade
+```
+##### <span style="color: #689d6a">Terraform Workspaces</span>
+
+<span style="color: #d65d0e">Workspaces</span> is a Terraform feature that allows to organize infrastructure by environments and variables in a single directory.
 
 >[!info]
 >Terraform is based on a stateful architecture and therefore stores state about the managed infrastructure and configuration. This state is used by Terraform to map real world resources to the configuration, keep track of metadata, and to improve performance for large infrastructures.
@@ -855,9 +962,9 @@ To move between terraform workspaces:
 terraform workspace select default
 ```
 
-> Workspaces isolate their state, if `terraform plan` is executed, Terraform will not see any existing state for this configuration.
-
-##### <strong>Terraform state</strong>
+>[!note]
+>Workspaces isolate their state, if `terraform plan` is executed, Terraform will not see any existing state for this configuration.
+##### <span style="color: #689d6a">Terraform state</span>
 
 Terraform stores and operates on the state of the managed infrastructure. Terraform uses this <span style="color: #d65d0e">state</span> on each execution to make plan and make changes. This state must be stored and maintained on each execution so future operations can be performed correctly.  
 
@@ -868,6 +975,7 @@ The location and method of operation of Terraform's state is determined by the T
 
 The local state must always be up to date before a person or process runs Terraform. If the state is out of sync, the wrong operation might occur, causing unexpected results.
 
+>[!info]
 >Terraform basically compares the configuration with the state file and the existing infrastructure to create, place and make changes to the infrastructure, in order to ensure that the managed resources match the desired state.
 
 Cases when state manipulation can be done:
@@ -912,7 +1020,7 @@ To stop stop managing a resource without destroying it:
 terraform state rm <resource_name>
 ```
 
-If supported, the state backend will "lock" to prevent concurrent modifications which cloud cause corruption. Locking on state allows to make sure to protect the state from being written by multiple users at the same time --> race conditions
+If supported, the state backend will "lock" to prevent concurrent modifications which cloud cause corruption. Locking on state allows to make sure to protect the state from being written by multiple users at the same time <span style="color: #3588E9">--></span> race conditions
 
 Using the `apply` command with a locking mechanism:
 
@@ -923,8 +1031,7 @@ terraform apply -lock-timeout=60s
 
 The `terraform refresh` command reads the current settings from all managed remote objects found in Terraform state and updates the Terraform state to match configuration drift.
 - it's useful to determine what action to take during the next apply. It won't modify any infrastructure resource, but it will modify the state file
-
-> It's done automatically as part of the `plan` and `apply` process.
+- It's done automatically as part of the `plan` and `apply` process.
 
 Refreshing state is the first step of the `terraform plan` process: read the current state of any already existing remote objects to make sure that the Terraform state is up-to-date.
 
@@ -936,18 +1043,20 @@ terraform plan -refresh-only
 
 >[!note]
 >The `terraform refresh` command is deprecated, and it 's because the provider may be misled into thinking that all of the managed objects have been deleted.
+###### <span style="color: #d79921">Backends</span>
 
-Backends define how operations are executed and where the Terraform `.tfstate` is stored. Each Terraform configuration has an associated backend with different set of configurations, that deals with authentication in a little different way. 
+Backends define how operations are executed and where the Terraform `.tfstate` is stored. Each terraform configuration has an associated backend with different set of configurations, that deals with authentication in a little different way. 
 
-Terraform backends are actually configured inside the Terraform configuration block. In case of the default backend it's configuration doesn't need to be explicit.
+Terraform backends are actually configured inside the Terraform configuration block. In case of the default backend,the configuration doesn't need to be explicit.
 
-```hcl
-terraform {
-  backend "local" {
-    path = "terraform.tfstate"
-  }
-}
-```
+>[!example] default backend
+>```hcl
+>terraform {
+>  backend "local" {
+>    path = "terraform.tfstate"
+>  }
+>}
+>```
 
 >[!note]
 >Terraform only can accept a single backend for any given working directory.
@@ -976,43 +1085,43 @@ The are only two enhanced backends: local and remote. The remote backend stores 
 
 When using full remote operations, operations like terraform plan and terraform apply can be executed in Terraform Cloud's run environment, with log output streaming to the local terminal.
 
-```hcl
-terraform {
-	backend "remote" {
-		hostname = "app.terraform.io"
-		organization = "Terraform Cloud"
-		workspaces {
-			name = "my-aws-app"
-		}
-	}
-}
-```
+>[!example] remote backend
+>```hcl
+>terraform {
+>  backend "remote" {
+>    hostname = "app.terraform.io"
+>    organization = "Terraform Cloud"
+>    
+>    workspaces {
+>      name = "my=aws-app"
+>    }
+>  }
+>}
+>```
+>The remote backend also works with Terraform Enterprise.
 
-> The remote backend also works with Terraform Enterprise.
-
-Terraform provides a longing method to authenticate using the remote enhanced backend. 
+Terraform provides a longing method to authenticate using the remote enhanced backend. It generates an API token to be able to authenticate into the Terraform Cloud remote backend.
 
 ```shell
 terraform login
 ```
 
->it generates an API token to be able to authenticate into the Terraform Cloud remote backend.
-
 The `s3` backend supports encryption, which reduces worries about storing sensitive data in state files.
 
 To use a remote backend:
 
-```hcl
-terraform {
-	backend "s3" {
-		bucket = "bucket_name"
-		key = "dev/backend.tfsate"
-		dynamodb = "table_name"
-		region = "aws_region"
-		encrypt = true
-	}
-}
-```
+>[!example] S3 backend
+>```hcl
+>terraform {
+>  backend "s3" {
+>    bucket = "bucket_name"
+>    key = "dev/backend.tfsate"
+>    dynamodb = "table_name"
+>    region = "aws_region"
+>    encrypt = true
+>  }
+>}
+>```
 
 To migrate the state from backends:
 
@@ -1041,77 +1150,21 @@ terraform init -backend-config=state_config/dev_local.hcl
 
 Using an S3 backend:
 
-```hcl
-bucket = "my-terraform-state-ghm"
-key = "dev/aws_infra"
-region = "us-east-1"
-```
-
-```shell
-terraform init -backend-config=state_config/dev-s3-state.hcl
-```
+>[!example] Example - S3 backend
+>```hcl
+>bucket = "my-terraform-state-ghm"
+>key = "dev/aws_infra"
+>region = "us-east-1"
+>```
+>---
+>```shell
+>terraform init -backend-config=state_config/dev-s3-state.hcl
+>```
 
 >[!info]
 >If backend settings are provided in multiple locations, the top level settings are merged such that the command line options will override the settings in the main configuration.
-
-##### <strong>Debugging</strong>
-
-Terraform allows to enable logging in order to do some troubleshooting. This can be done by setting `TF_LOG` environment variable to any value. The log levels are trace, debug, info, warn or error.  
-
-```shell
-export TF_LOG=TRACE
-# trace is the most verbose level
-```
-
-The environment variable `TF_LOG_PATH` allows to debug to a log file
-
-```shell
-export TF_LOG_PATH="terraform_log.txt"
-
-# The configuration must be updated
-terraform init -upgrade
-```
-###### Modifying Configuration
-
-<strong>Local Values</strong>
-
-A local value assigns a name to an expressions, so it can be used multiples times within a configurations without repeating. The expressions in local values are note limited to literals constants, they can also reference other values.
-
-Use local values only in moderation, in situations where a single values or result is used in many places and that value is likely to be changed in future. 
-
-```hcl
-locals {
-	team = "api_mgmt_dev"
-	application = "corp_api"
-	server_name = "ec2-${var.environment}-api-${var.variables_sub_az}"
-}
-
-locals {
-	service_name = local.team
-	app_team = "Cloud Team"
-	createdby = "terraform"
-}
-
-locals {
-	common_tags {
-		Name = local.server_name
-		Owner = local.team
-		App = local.application
-		Service = loca.service_name
-		AppTeam = local.app_team
-		CreatedBy = local.createdby
-	}
-}
-```
-
-```hcl
-tags = local.common_tags
-```
-
->[!info]
->Common tags are defined so it can be used to assign to all resources. In organizations they may be required for all instances throughout AWS. 
-
-<strong>Input Variables</strong>
+##### <span style="color: #689d6a">Modifying Configuration</span>
+###### <strong>Input Variables</strong>
 
 ```hcl
 variable "variables_sub_cidr" {
@@ -1142,29 +1195,7 @@ variables_sub_cidr = "10.0.204.0/24"
 ```shell
 terraform plan -var variables_sub_az="us-east-1e"
 ```
-
-<strong>Terraform output</strong>
-
-`terraform output <output_name>`
-`terraform output public_ip`
-
-The last part of this one we can actually wrap this output query to ping this record if we want to.
-
-`ping $(terraform output -raw public_ip)`
-
-suppress the output
-
-```shell
-output "ec2_instance_arn" {
-	value = aws_instance.web_server.arn
-	sensitive = true
-}
-```
-
->[!note]
->Even if the values are marked as sensitive in the Terraform input and output, it still needs to add the value to the state file. 
-
-<strong>Secure Secrets</strong>
+###### <strong>Secure Secrets</strong>
 
 remove the default value and use an environment variable to set it.
 add the environment variable in workspace variables on terraform cloud 
@@ -1202,8 +1233,7 @@ output "phone_number" {
 
 >[!note]
 >Never use in the vault provider block the token on a real-world production scenario.
-
-<strong>Built-in Function</strong>
+###### <strong>Built-in Function</strong>
 
 Terraform language has many built-in functions that can be used in expressions to transform and combine values. Syntax: `func_name(arg1, arg2, ...)`
 
@@ -1270,8 +1300,7 @@ tolist(["a", "b", "c"])
 ```shell
 cidrsubnet(var.vpc_cidr, 8, each.value + 100)
 ```
-
-<strong>Dynamic Blocks</strong>
+###### <strong>Dynamic Blocks</strong>
 
 Are used for nested configurations that are repeatables. Terraform dynamic block allows to dynamically construct repeatable mesteds blcoks using specicl blcok type, which is suupported inside resource, data, provider, and povisioner blocks.
 
@@ -1359,8 +1388,7 @@ resource "aws_security_group" "main" {
 
 >[!note]
 >Overuse of dynamic block can make configuration hard to read and maintain, so it is recommended to use them only when its needed to hide details in order to build a clean user interface for a re-usable module.
-
-<strong> Terraform Graph</strong>
+###### <strong>Terraform Graph</strong>
 
 The `terraform graph` command is used to generate a visual representation of either a configuration or an execution plan. The output is in the DOT format, which highlights the Terraform resource graph.  
 
@@ -1369,8 +1397,7 @@ The graph is useful for visualizing infrastructure and its dependencies, and it 
 ```shell
 terraform grpah | dot - Tsvsg > graph.svg
 ```
-
-<strong>Resource Lifecycles</strong>
+###### <strong>Resource Lifecycles</strong>
 
 The `lifecycle` block is used in situations where the default lifecycle order that Terraform uses needs to be changed. The `lifecycle` block provide control over dependency erros.
 
@@ -1387,8 +1414,8 @@ resource "aws_security_group" "main" {
 	}
 }
 ```
-#### Non-Cloud Providers
-#### Terraform Cloud
+##### <span style="color: #689d6a">Non-Cloud Providers</span>
+##### <span style="color: #689d6a">Terraform Cloud</span>
 
 The workstation is where the actual code lives.
 
