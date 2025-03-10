@@ -71,13 +71,13 @@ Terraform initializes the project and identifies the providers to be used for th
 >[!info]
 >It's a good practice to define  a specific version for the provider, because Terraform isn't versioned on the same schedule as the Terraform providers.
 
-Run a `terraform init`  to install the providers specified in the configuration:
+Run a `terraform init` to install the providers specified in the configuration:
 
 ```shell
-terraform init
+terraform init 
 ```
 
-To know which providers are installed in the working directory and those required by the configuration, issue a `terraform version` and `terraform providers` command.
+To know which providers are installed in the working directory and those required by the configuration, issue a `terraform version` and `terraform providers` command.
 
 ```shell
 terraform version
@@ -104,6 +104,25 @@ The command `terraform providers mirror ` allows to copy provider plugins needed
 ```shell
 terraform providers mirror /root/terraform/new_local_file
 ```
+
+>[!example] Example - tls provider
+>```hcl
+>terraform {
+>  required_providers {
+>    tls = {
+>      source = "hashicorp/tls"
+>      version = "3.1.0"
+>    }
+>  }
+>}
+>```
+>---
+>```hcl
+>resource "tls_private_key" "generated" {
+>  algorithm = "RSA"
+>}
+>```
+>The `tls_private_key` resource generates a private key.
 ###### <span style="color: #98971a">Multiple Providers</span>
 
 Due to the plug-in based architecture of Terraform providers, it is easy to install and utilize <span style="color: #d65d0e">multiple providers</span> within the same Terraform configuration.
@@ -857,6 +876,19 @@ The `init` is also going to connect to the backend.
 >[!note] 
 >plugins are downloaded into a hidden directory called `.terraform` in the working directory
 
+To load the backend configuration from a configuration file:
+
+```shell
+terraform --backend-config=aws.conf
+```
+
+To modify the version of the provider to be used: 
+
+```shell
+# Downloads the newest provider version
+terraform init -upgrade
+```
+
 To restore the current configuration to the same remote state:
 
 ```shel
@@ -945,7 +977,7 @@ The persistent data stored in the state belongs to a Terraform workspace. Initia
  The `workspace` command allows to check which workspace you is being used by Terraform.
 
 ```shell
-terraform workspace
+terraform workspace show
 ```
 
 The `-help option` shows a list of the option within the `worksapce` command
@@ -954,6 +986,12 @@ To create a new workspace:
 
 ```shell
 terraform workspace new development
+```
+
+To list all the workspaces:
+
+```shell
+terraform workspace list
 ```
 
 To move between terraform workspaces:
@@ -1440,8 +1478,6 @@ terraform {
 Terraform workspace is a managed unit of infrastructure. Workspaces are the workhouse of Terraform Cloud and build on the Terraform CLI workspace construct. Each uses the same Terraform code do deploy infrastructure and each keeps separate data for each workspace. 
 
 In Terraform Cloud the workspace stores state data, has it's own set variables values and environment variables, and allows for remote operations and logging. Terraform Cloud workspaces also provide access controls, version control integration, API access and policy management.
-
-
 ###### Terraform commands
 
 terraform get --> download and update modules
