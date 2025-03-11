@@ -412,8 +412,18 @@ Variable - <strong style="color: white">order of precedence:</strong>
 To change the value of a variable on the terminal:
 
 ```shell
-terraform apply -var="web_subnet=10.0.20.0/24"
+terraform apply -var variables_sub_az="us-east-1e"
 ```
+
+A `.tfvars` file is another way to set the value of the variables in Terraform. It's a special file that Terraform can use to retrieve specific values of variables without requiring the operator to modify the variables file or set environment variables.
+
+>[!example] Example - .tfvars 
+>```hcl
+># Public Subnet Values
+>variables_sub_auto_ip = true
+>variables_sub_az = "us-eas-1d"
+>variables_sub_cidr = "10.0.204.0/24"
+>```
 
 A `.tfvars` file can be specified using the `-var-file` option at the command line.
 
@@ -423,7 +433,7 @@ terraform plan -var-file="prod.tfvars"
 
 The basic variable types that can be used in Terraform, are string number, boolean. Terraform also supports additional types (complex types) such as list, map, set, object and tuple, which the most common are list and map.
 
-Variables can also be specified with environment variables on the terminal
+Variables can also be specified with environment variables on the terminal. An environment variable follow the syntax `TF_VAR_<NAME>`, and they will always override the default value of the input variable.
 
 ```shell
 export TF_VAR_subnet_zone="us-east-1a"
@@ -440,6 +450,9 @@ To interpolate variables in strings:
 ```hcl
 "Name" = "Production ${var.main_vpc.name}"
 ```
+
+>[!note]
+>Any value provided on the CLI will override everything, it will override the default, the `.tfvars` file, and including an environment variable.
 ###### <span style="color: #98971a">Output</span>
 
 Along with input variables, Terraform also supports output variables. These variables can be used to store the value of an expression.
@@ -723,7 +736,7 @@ terraform console
 ```
 ###### <span style="color: #98971a">Conditions and Loops</span>
 
-Booleans can be used in a terraform ternary operation to create an if-selse statement - `CONDITION ? TRUE_VAL : FALSE_VAL`
+Boolean values can be used in a terraform ternary operation to create an if-else statement - `CONDITION ? TRUE_VAL : FALSE_VAL`
 
 >[!example] Example - condition
 >```hcl
@@ -1131,7 +1144,7 @@ When using full remote operations, operations like terraform plan and terraform 
 >    organization = "Terraform Cloud"
 >    
 >    workspaces {
->      name = "my=aws-app"
+>      name = "my-aws-app"
 >    }
 >  }
 >}
@@ -1196,43 +1209,33 @@ Using an S3 backend:
 >```
 >---
 >```shell
->terraform init -backend-config=state_config/dev-s3-state.hcl
+>terraform init --backend-config=aws.conf
 >```
 
 >[!info]
 >If backend settings are provided in multiple locations, the top level settings are merged such that the command line options will override the settings in the main configuration.
-##### <span style="color: #689d6a">Modifying Configuration</span>
-###### <strong>Input Variables</strong>
 
-```hcl
-variable "variables_sub_cidr" {
-	description = "CIDR Block for the Variables Subnet"
-	type = string
-	default = "10.0.202.0/24"
-}
-```
+Another standard backend for Terraform is the HTTP Backend, which allow to store state using a simple REST client. The first step is to create HTTP server that will be used in the backend configuration.
 
-Set an environment variable to override the default value. to se a value for a particular Terraform variable, create a environment variable called `TF_VAR_<NAME>`
+In the HTTP backend, the State will be fetched via GET, updated via POST, and purged via DELETE.
 
-```shell
-export TF_VAR_variables_sub_cidr=10.0.203.0/24
-```
-
-TF vars file is another way to set the value of the variables in Terraform. It's a special file that Terraform can use to retrieve specific values of variables without requiring the operator to modify the variables file or set environment variables.
-
-```hcl 
-# Public Subnet Values
-variables_sub_auto_ip = true
-variables_sub_az = "us-eas-1d"
-variables_sub_cidr = "10.0.204.0/24"
-```
+>[!example] Example - HTTP Backend
+>```hcl
+>terraform {
+>  backend "http" {
+>    address = "http://localhost:5000/terraform_state/my_state"
+>    lock_address = "http://localhost:5000/terraform_lock/my_state"
+>    
+>    lock_method = "PUT"
+>    unlock_address = "http://localhost:5000/terraform_lock/my_state"
+>    unlock_method = "DELETE"
+>  }
+>}
+>```
 
 >[!note]
->Any value provided on the CLI will override everything, it will override the default, the TF vars file, and including an environment variable.
-
-```shell
-terraform plan -var variables_sub_az="us-east-1e"
-```
+>Terraform only can accept a single backend for any given working directory.
+##### <span style="color: #689d6a">Modifying Configuration</span>
 ###### <strong>Secure Secrets</strong>
 
 remove the default value and use an environment variable to set it.
@@ -1266,6 +1269,16 @@ data "vault_generic_secret" "phone_number" {
 
 output "phone_number" {
 	valut = data.vault_generic_secret.data["phone_number"]
+	sensitive = true
+}
+
+resource "aws_instance" "app" {
+	password = data.vault_generic_secret.data["phone_number"]
+}
+
+variable "phone_number" {
+	type = string
+	sensitive = true
 }
 ```
 
@@ -1478,6 +1491,10 @@ terraform {
 Terraform workspace is a managed unit of infrastructure. Workspaces are the workhouse of Terraform Cloud and build on the Terraform CLI workspace construct. Each uses the same Terraform code do deploy infrastructure and each keeps separate data for each workspace. 
 
 In Terraform Cloud the workspace stores state data, has it's own set variables values and environment variables, and allows for remote operations and logging. Terraform Cloud workspaces also provide access controls, version control integration, API access and policy management.
+
+Terraform cloud allows to specify credentiasl to aws environemnts throgh environment variables.
+
+It stores the state file, and keeps a version history of the state file as it grows and changes over time.
 ###### Terraform commands
 
 terraform get --> download and update modules
@@ -1506,8 +1523,6 @@ A Lifecycle rule allows to a resource to be created fisrt before the older one i
 We can also combine the comparison operators like this to make use of a specific version within a range. pessimistic constraint operators --> defined by making use of the tilde greater than symbol --> ~> 1.2 This operator allows TerraForm to download the specific version or any available incremental version based on the value we provided.
  
 we can also make use of command line flags. We can pass an as many variables as we want with this method by making use of the dashboard flag multiple times. terraform apply -var "filename=/root/pets.txt" -var "content=We love Pets!"
-
-We can also make use of environment variables with TF_VAR followed by the name of a declared variable. Ex: export TF_VAR_filename="/root/pets.txt"
 
 when we're dealing with a lot of variables, we can load values by making use of variable definition files. These variable definition files can be named anything but should always end in either .tfvars or .tfvars.json. The variable definition file if called .tfvars or .tfvars.json or by any other name ending with *.auto.tfvars or *.auto.tfvars.json will be automatically loaded by TerraForm.
 
