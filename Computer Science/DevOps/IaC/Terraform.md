@@ -327,7 +327,7 @@ The Input Variable can also have a custom validation rules defined, which are de
 >It will validate the value of a variable based on certain condition or criteria.
 
 - <span style="color: #d65d0e">Primitive Types</span> <span style="color: #3588E9">--></span> terraform supports three primitive types: string, number, bool.
-- <span style="color: #d65d0e">Complex Types</span> <span style="color: #3588E9">--></span> complex types allow to group multiples values together sinto a single variable. Collection types, Structural types.
+- <span style="color: #d65d0e">Complex Types</span> <span style="color: #3588E9">--></span> complex types allow to group multiples values together into a single variable. Collection types, Structural types.
 	- <span style="color: #d65d0e">Collection Types</span> <span style="color: #3588E9">--></span> a collection of multiple values grouped together as a single value
 		- `list(...)` <span style="color: #3588E9">--></span> a sequence of values identified by an index starting with zero. <strong style="color: white">Example:</strong>`["us-west-1a", "us-weat-1c"]`
 		- `map(...)` <span style="color: #3588E9">--></span> a collection of values identified by named labels, maps are used to store key/value pairs. <strong style="color: white">Example:</strong>`[us-east-1 = "ami-"]`
@@ -338,9 +338,21 @@ The Input Variable can also have a custom validation rules defined, which are de
 
 >[!example] Example - List
 >```hcl
->variable "us-east-1-asz" {
->  type = list(string)
->  default = [ "us-east-1a", "us-east-1b" ]
+>variable "us-east-1-aszs" {
+>  type = list(string) # a list will index the strings
+>  default = [ 
+> 	 "us-east-1a", 
+> 	 "us-east-1b",
+> 	 "us-east-1c" 
+>  ]
+>}
+>```
+>---
+>```hcl
+>resource "aws_subnet" "list_subnet" {
+>  vpc_id = aws_vpc.vpc.id
+>  cidr_block = "10.0.200.0/24"
+>  availability_zone = var.us-east-1-azs[0]
 >}
 >```
 
@@ -360,6 +372,14 @@ The Input Variable can also have a custom validation rules defined, which are de
 >    prod = "10.0.150.0/24"
 >    dev = "10.0.250.0/24"
 >  ]
+>}
+>```
+>---
+>```hcl
+>resource "aws_subnet" "list_subnet" {
+>  vpc_id = aws_vpc.vpc.id
+>  cidr_block = var.ip["prod"]
+>  availability_zone = var.us-east-1-azs[0]
 >}
 >```
 
