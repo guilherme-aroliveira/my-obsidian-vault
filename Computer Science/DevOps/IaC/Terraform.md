@@ -34,6 +34,12 @@ Terraform is written in <span style="color: #d65d0e">HCL (Hashicorp Configuratio
 >A block in Terraform contains information about the infrastructure platform and a set of resource within that platform that is going to be created.
 
 Terraform Code Configuration block types: Settings, Providers, Resource, Data, Input Variables, Local Variables, Output Values, Module.
+
+A useful feature when working with the Terraform CLI is the terraform autocomplete, which allows auto-completion of any terraform command. To install it just type the command in the terminal.
+
+```shell
+terraform -install-autocomplete
+```
 ##### <span style="color: #689d6a">Terraform Based Architecture</span>
 
 Terraform relies on plugins called "<span style="color: #d65d0e">providers</span>" to interact with remote systems and expand functionality.
@@ -92,6 +98,23 @@ provider "aws" {
 ```
 
 The AWS Terraform provider offers a flexible means of providing credentials for authentication. The supported methods are: Static credentials, Environment variables, Shared credentials.
+
+Terraform also allow to deploy the same configuration to multiple cloud regions using the alias key configured in the provider block.
+
+>[!example] Example - multi cloud
+>```hcl
+>provider "aws" {
+>  alias = east
+>  region = "us-east-1"
+>}
+>```
+>---
+>```hcl
+>resource "aws_vpc" "vpc" {
+>  provider = aws.east
+>  cidr_block = var.vpc_cidr
+>}
+>```
 
 To see a list of all providers used in the configuration directory:
 
@@ -366,6 +389,12 @@ The Input Variable can also have a custom validation rules defined, which are de
 
 >[!example] Example - Map
 >```hcl
+>variable "environment" {
+>  description = "Environment for deployment"
+>  type = string
+>  default = "dev"
+>}
+>
 >variable "ip" {
 >  type = map(string)
 >  default = [ 
@@ -378,7 +407,7 @@ The Input Variable can also have a custom validation rules defined, which are de
 >```hcl
 >resource "aws_subnet" "list_subnet" {
 >  vpc_id = aws_vpc.vpc.id
->  cidr_block = var.ip["prod"]
+>  cidr_block = var.ip[var.environment]
 >  availability_zone = var.us-east-1-azs[0]
 >}
 >```
@@ -664,6 +693,97 @@ The `console` command retrieves values from the `locals.tf` file
 >  )
 >}
 >```
+###### <span style="color: #98971a">Dynamic Blocks</span>
+
+Terraform dynamic blocks are used for nested configurations that are repeatable. It allows to dynamically construct repeatable repeatable nested blocks, rather than copy and paste the same resource over and over gain.
+
+>[!example] Example - Security Group
+>```hcl
+>resource "aws_security_group" "main" {
+>  name = "core-sg"
+>  vpc_id = aws_vpc.vpc_.id
+>
+>  dynamic "ingress" {
+>    for_each = local.ingress_rules
+>    
+>    content {
+>      description = ingress.value.description
+>      from_port = ingress.value.from_port
+>      to_port = ingress.value.to_port
+>      protocol = "tcp"
+>    	 cidr_blocks = ["0.0.0.0/0"]
+>    }
+>  }	
+>}
+>```
+
+>[!example] Example - Variables
+>```hcl
+>variable "web_ingress" {
+>  type = map(object({
+>    description = string
+>    port = number
+>    protocol = string
+>    cidr_blocks = list(string)
+>  }))
+>  default = {
+>    "80" = {
+>      description = "Port 80"
+>      port = 80
+>      protocol = "tcp"
+>      cidr_blocks = ["0.0.0.0/0"]
+>    }
+>    "443" = {
+>      description = "Port 443"
+>      port = 443
+>      protocol = "tcp"
+>      cidr_blocks = ["0.0.0.0/0"]
+>    }
+>  }
+>}
+>```
+>---
+>```hcl
+>resource "aws_security_group" "main" {
+>  name = "core-sg"
+>  vpc_id = aws_vpc.vpc.id
+>  
+>  dynamic "ingress" {
+>    for_each = var.web_ingress
+>    content = {
+>      description = ingress.value.description
+>      from_port = ingress.value.port
+>      to_port = ingress.value.port
+>      protocol = ingress.value.protocol
+>      cidr_blocks = ingress.value.cidr_blocks
+>    }
+>  }
+>}
+>```
+
+>[!note]
+>Overuse of dynamic block can make configuration hard to read and maintain, so it is recommended to use them only when its needed to hide details in order to build a clean user interface for a re-usable module.
+###### <span style="color: #98971a">Lifecycle Block</span>
+
+The `lifecycle` block is used in situations where the default lifecycle order that Terraform uses needs to be changed. The `lifecycle` block provide control over dependency errors.
+
+The lifecycle directives are used to influence and ultimately control the order in which Terraform creates and destroys resources.
+
+>[!example] Example
+>```hcl
+>resource "aws_security_group" "main" {
+>  name = "core-sg-global"
+>  vpc_id = aws_vpc.vpc_.id
+>  
+>  lyfecycle {
+>    create_before_destroy = true
+>    # prevent_destroy = true
+>  }
+>}
+>```
+###### <span style="color: #98971a">Built-in Functions</span>
+
+
 ###### <span style="color: #98971a">Modules</span>
 
 A <span style="color: #d65d0e">module</span> is a set of Terraform configuration files in a single directory. Even the simplest configuration consisting of a single directory with one `.tf`. It's used <strong style="color: #b16286">used to combine resources that are frequently used together into a reusable container</strong>.
@@ -819,17 +939,65 @@ syntax map: `for KEY, VALUE in MAP : OUTPUT`
 
 for_each <span style="color: #3588E9">--></span> parameter used to create multiple copies of resource or inline blocks. Syntax: `for_each = COLLECTION`
 
->[!example] Example - for_each
+>[!example] Example 1 - list
 >```hcl
 >variable "user_names" {
 >  description = ""
 >  type = list(string)
 >  default = ["mark", "trinity", "john"]
 >}
->
+>```
+>---
+>```hcl
 >resource "aws_iam_user" "user_example" {
 >  for_each = toset(var.user_names)
 >  name = each.value
+>}
+>```
+
+>[!example] Example 2 - map of string
+>```hcl
+>variable "ip" {
+>  type = map(string)
+>  default = {
+>    prod = "10.0.150.0/24" 
+>    dev = "10.0.250.0/24"
+>  }
+>}
+>```
+>---
+>```hcl
+>resource "aws_subnet" "list_subnet" {
+>  for_each = var.ip
+>  vpc_id = aws_vpc.vpc.id
+>  cidr_block = each.value
+>  availability_zone = var.us-east-1-azs[0]
+>}
+>```
+
+>[!example] Example 3 - map of maps
+>```hcl
+>variable "env" {
+>  type - map(any)
+>    default = {
+>      prod = {
+>		ip = "10.0.150.0/24"
+>		az = "us-east-1a"
+>	 }
+>	  dev = {
+>		ip = "10.0.250.0/24"
+>		az = "us-east-1e"
+>	 }
+>    }
+>}
+>```
+>---
+>```hcl
+>resource "aws_subnet" "list_subnets" {
+>  for_each = var.env
+>  vpc_id = aws_vpc.vpc.id
+>  cidr_block = each.value.ip
+>  availability_zone = each.value.az
 >}
 >```
 ###### <span style = "color: #d79921">Terraform Provisioners</span>
@@ -1371,94 +1539,6 @@ tolist(["a", "b", "c"])
 ```shell
 cidrsubnet(var.vpc_cidr, 8, each.value + 100)
 ```
-###### <strong>Dynamic Blocks</strong>
-
-Are used for nested configurations that are repeatables. Terraform dynamic block allows to dynamically construct repeatable mesteds blcoks using specicl blcok type, which is suupported inside resource, data, provider, and povisioner blocks.
-
-using locals
-
-```hcl
-locals {
-	ingress_rules [{
-		port = 443
-		description = "Port 443"
-	},
-	{
-		port = 80
-		description = "Port 80"
-	}]
-}
-```
-
-```hcl
-resource "aws_security_group" "main" {
-	name = "core-sg"
-	vpc_id = aws_vpc.vpc_.id
-
-	dynamic "ingress" {
-		for_each = local.ingress_rules
-		content {
-			description = ingress.value.description
-			from_port = ingress.value.from_port
-			to_port = ingress.value.to_port
-			protocol = "tcp"
-			cidr_blocks = ["0.0.0.0/0"]
-		}
-	}
-}
-
-```
-
-using variables
-
-```hcl
-variable "web_ingress" {
-	type = map(object(
-	{
-		description = string
-		port = number
-		protocol = string
-		cidr_blocks = list(string)
-	}
-	))
-	default = {
-		"80" = {
-			description = "Port 80"
-			port = 80
-			protocol = "tcp"
-			cidr_blocks = ["0.0.0.0/0"]
-		}
-		"443" = {
-			description = "Port 443"
-			port = 443
-			protocol = "tcp"
-			cidr_blocks = ["0.0.0.0/0"]
-		}
-	}
-}
-```
-
-```hcl
-resource "aws_security_group" "main" {
-	name = "core-sg"
-	vpc_id = aws_vpc.vpc_.id
-
-	dynamic "ingress" {
-		for_each = local.web_ingress
-		content {
-			description = ingress.value.description
-			from_port = ingress.value.port
-			to_port = ingress.value.port
-			protocol = ingress.value.protocol
-			cidr_blocks = ingress.value.cidr_blocks
-		}
-	}
-}
-
-```
-
->[!note]
->Overuse of dynamic block can make configuration hard to read and maintain, so it is recommended to use them only when its needed to hide details in order to build a clean user interface for a re-usable module.
 ###### <strong>Terraform Graph</strong>
 
 The `terraform graph` command is used to generate a visual representation of either a configuration or an execution plan. The output is in the DOT format, which highlights the Terraform resource graph.  
@@ -1468,24 +1548,9 @@ The graph is useful for visualizing infrastructure and its dependencies, and it 
 ```shell
 terraform grpah | dot - Tsvsg > graph.svg
 ```
-###### <strong>Resource Lifecycles</strong>
-
-The `lifecycle` block is used in situations where the default lifecycle order that Terraform uses needs to be changed. The `lifecycle` block provide control over dependency erros.
-
-The lifecycle directives are used to influence and ultimately control the order in which Terraform creates and destroys resources.
-
-```hcl
-resource "aws_security_group" "main" {
-	name = "core-sg-global"
-	vpc_id = aws_vpc.vpc_.id
-
-	lyfecycle {
-		create_before_destroy = true
-		# prevent_destroy = true
-	}
-}
-```
 ##### <span style="color: #689d6a">Non-Cloud Providers</span>
+
+
 ##### <span style="color: #689d6a">Terraform Cloud</span>
 
 The workstation is where the actual code lives.
@@ -1515,6 +1580,9 @@ In Terraform Cloud the workspace stores state data, has it's own set variables v
 Terraform cloud allows to specify credentiasl to aws environemnts throgh environment variables.
 
 It stores the state file, and keeps a version history of the state file as it grows and changes over time.
+
+workspaces
+
 ###### Terraform commands
 
 terraform get --> download and update modules
