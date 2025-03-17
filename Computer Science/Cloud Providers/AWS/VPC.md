@@ -71,3 +71,13 @@ tobela de rotemanento definem as regras das rotas --> deve-se configurada uma ro
 
 Para obter alta disponibilidade no nat gateway ele devera rodar em mais de uma subnet.
 nat gaeway precisa de um ip elastico (Ip estático)
+
+Elastic beandstalck is AWS platform as a swrvice solution. It's a platform where it can launch an app without having to maintain the underlying infrastructure. 
+The user is still reponsible for the EC2 instance, but AWS will provide updates that the user can supply --> the update can be applied manually or automatically
+
+Elastic beanstalk can hanlde application scaling, underlying it uses a lod balancer and an autoscaling grup to achieve it.
+scaling evenrt can be scaheduled or enable autoscaling based on a metric. It'ß similar to Heroku.
+The support plataform are: PHP, Java, .Net, NodeJS, Python, Ruby, Go an Docker
+
+When an Elastic Beanstalsk environment is deployed it creates a CNAME (hostname that) that it can be used as endpoint.
+Once Elastic Beanstalsk  is running, the application can be deployed on it by using the EB Command line utility
