@@ -783,7 +783,97 @@ The lifecycle directives are used to influence and ultimately control the order 
 >```
 ###### <span style="color: #98971a">Built-in Functions</span>
 
+Terraform language has many built-in functions that can be used in expressions to transform and combine values. Some functions accept a singular arguments, others multiple arguments and some accept just a specifc data type.
 
+```hcl
+func_name(arg1, arg2, ...)
+```
+
+The `base64encode(string)` function returns a base64-encoded representation of the given string. And the `base64decode(string)` function returns a base64-encoded string, decodes it and returns the original string.
+
+The `chomp(string)` function removes trailing newline from the given string.
+
+The `chunklist(list, size)` function returns the list items chunked by size.
+
+>[!example] Example - chunklist()
+>```hcl
+>chunklist(aws_subnet.foo.*.id, 1)
+>```
+>It will outputs a list of `id1`, `id2`, `id3`
+
+The `timestamp()` function returns a UTC timestamp string in RFC 3339 format.
+
+The `max` function that takes on or more numbers and return the greatest number from the set.
+
+```hcl
+max(12, 54, 3)
+```
+
+The `min` function that takes on or more numbers and return the smallest number form the set.
+
+```shell
+min(12, 54, 3)
+```
+
+The `floor` function returns the closet whole number that is less than or equal to the given value, which may be a fraction.
+
+```shell
+floor(5)
+```
+
+The `join(sepatator, list)` function produces a string by concatenating together all elements of a given list of strings with  the given delimiter.
+
+```shell
+join(",", ["foo", "bar", "baz"] )
+```
+
+The `tolist` function converts its argument to a list of value.
+
+```shell
+tolist(["a", "b", "c"])
+```
+
+The `toset`function converts its argument from a list to a set.
+
+The `cidrsubnet(prefix, newbits, netnum` function calculates a subnet address within a given IP network address prefix.
+
+```shell
+cidrsubnet(var.vpc_cidr, 8, each.value + 100)
+```
+
+The `file(path)` function reads the contents of file at the given path and returns as a string.
+
+```hcl
+file("${path.module}/hello.txt")
+```
+
+The `tamplate()` function can pass information from other resources around, such as information form a variable.
+
+>[!example] Example - templatefile()
+>```hcl
+>user_data = templatefile("${path.module}/templates/web.tpl", {
+>  "region" = var.aws_region
+>  "bucketname" = aws_s3_bucket.example.name
+>})
+>```
+
+The `length()` function return the length of a list. 
+
+```hcl
+count = length(var.filename)
+```
+
+`coalesce(strin1, strin2, ...)` --> 
+`coalescelist(list1, list2, ...)` -->
+`compact(list)` --> 
+`concat(list1, list2)` --> 
+`contains(list, element)` --> 
+`element(list, index)` --> 
+- Example: `subnet_id = element(var.PUBLIC_SUBNETS, 0)`
+`lookup(map, key, [default])` --> 
+- Example: `ami = lookup(var.AMIS, var.AWS_REGION)`
+`trimspace(string)` --> 
+`uuid()` --> 
 ###### <span style="color: #98971a">Modules</span>
 
 A <span style="color: #d65d0e">module</span> is a set of Terraform configuration files in a single directory. Even the simplest configuration consisting of a single directory with one `.tf`. It's used <strong style="color: #b16286">used to combine resources that are frequently used together into a reusable container</strong>.
@@ -1163,6 +1253,15 @@ export TF_LOG_PATH="terraform_log.txt"
 # The configuration must be updated
 terraform init -upgrade
 ```
+###### <span style = "color: #d79921">Terraform Graph</span>
+
+The `terraform graph` command is used to generate a visual representation of either a configuration or an execution plan. The output is in the DOT format, which highlights the Terraform resource graph.  
+
+The graph is useful for visualizing infrastructure and its dependencies, and it can be pass  it through a graph visualization software such as graphviz.
+
+```shell
+terraform grpah | dot - Tsvsg > graph.svg
+```
 ##### <span style="color: #689d6a">Terraform Workspaces</span>
 
 <span style="color: #d65d0e">Workspaces</span> is a Terraform feature that allows to organize infrastructure by environments and variables in a single directory.
@@ -1423,134 +1522,45 @@ In the HTTP backend, the State will be fetched via GET, updated via POST, and pu
 
 >[!note]
 >Terraform only can accept a single backend for any given working directory.
-##### <span style="color: #689d6a">Modifying Configuration</span>
-###### <strong>Secure Secrets</strong>
-
-remove the default value and use an environment variable to set it.
-add the environment variable in workspace variables on terraform cloud 
-
-using terraform vault
-
-```shell
-vault version
-
-# start vault
-vaul server -dev
-
-export VAULT_ADDR="http://127.0.0.1:8200"
-
-vault login <root_token>
-
-# add the value to the vault
-vault kv put secret/app phone_number=867-5309
-```
-
-```hcl
-provider "vault" {
-	address = "http://127.0.0.1:8200"
-	token = <root_token>
-}
-
-data "vault_generic_secret" "phone_number" {
-	path = "secret/app"
-}
-
-output "phone_number" {
-	valut = data.vault_generic_secret.data["phone_number"]
-	sensitive = true
-}
-
-resource "aws_instance" "app" {
-	password = data.vault_generic_secret.data["phone_number"]
-}
-
-variable "phone_number" {
-	type = string
-	sensitive = true
-}
-```
-
->[!note]
->Never use in the vault provider block the token on a real-world production scenario.
-###### <strong>Built-in Function</strong>
-
-Terraform language has many built-in functions that can be used in expressions to transform and combine values. Syntax: `func_name(arg1, arg2, ...)`
-
-Some functions aaacepta asinglular arguments, others multiple arguments and some accept just a specifc data type.
-
-Example: `file("level-up.key")` --> used to read public key
-
-`base64encode(string)` --> returns a base64-encoded representation of the given string.
-`base64decode(string)` --> returns a base64-encoded string, decodes it and returns the original string.
-`chomp(string)` --> removes trailing newline fro teh given string
-`chunklist(list, size)` --> return the list items chunked by size
-- Example: `chunklist(aws_subnet.foo.*.id, 1)` --> will outputs a list of `id1`, `id2`, `id3`. 
-- `(chunklist(var_list_of_strings, 2)` 
-`coalesce(strin1, strin2, ...)` --> 
-`coalescelist(list1, list2, ...)` -->
-`compact(list)` --> 
-`concat(list1, list2)` --> 
-`contains(list, element)` --> 
-`element(list, index)` --> 
-- Example: `subnet_id = element(var.PUBLIC_SUBNETS, 0)`
-`file(path)` --> 
-`length(list)` --> 
-`lookup(map, key, [default])` --> 
-- Example: `ami = lookup(var.AMIS, var.AWS_REGION)`
-`timestamp()` --> returns a UTC timestamp string in RFC 3339 format.
-`trimspace(string)` --> 
-`uuid()` --> 
-
-`max` --> function that takes on or more numbers and return the greatest number from the set.
-
-```shell
-max(12, 54, 3)
-```
-
-`min` -->  function that takes on or more numbers and return the smallest number form the set.
-
-```shell
-min(12, 54, 3)
-```
-
-`floor` --> returns the closet whole number that is less than or equal to the given value, which may be a fraction.
-
-```shell
-floor(5)
-```
-
-`join(sepatator, list)` --> produces a string by concatenating together all elements of a given list of strings with  the given delimiter.
-
-```shell
-join(",", ["foo", "bar", "baz"] )
-```
-
-`upper`
-`lower`
-
-`tolist` --> converts its argument to a list of value.
-
-```shell
-tolist(["a", "b", "c"])
-```
-
-`cidrsubnet(prefix, newbits, netnum` --> calculates a subnet address within a given IP network address prefix.
-
-```shell
-cidrsubnet(var.vpc_cidr, 8, each.value + 100)
-```
-###### <strong>Terraform Graph</strong>
-
-The `terraform graph` command is used to generate a visual representation of either a configuration or an execution plan. The output is in the DOT format, which highlights the Terraform resource graph.  
-
-The graph is useful for visualizing infrastructure and its dependencies, and it can be pass  it through a graph visualization software such as graphviz.
-
-```shell
-terraform grpah | dot - Tsvsg > graph.svg
-```
 ##### <span style="color: #689d6a">Non-Cloud Providers</span>
 
+The are non-cloud providers that are useful to achieve some tasks that can't be done with a cloud provider. Example: Random Generator and SSH Public/Private Key Generator.
 
+The Random Generator allows to generate a random password that can be used in a database for example.
+
+>[!example] Example - random password
+>```hcl
+>resource "random_password" "paswword" {
+>  keepers = {
+>    datetime = timestamp()
+>  }
+>  length = 16
+>  special = true
+>}
+>
+>output "password" {
+>  value = random_password.password.result
+>  sensitive = true
+>}
+>```
+>The "keepers" parameter will generete a new password in each apply.
+
+The SSH Public/Private Key Generator allows to create a random set of public and private keys.
+
+>[!example] Example - private key
+>```hcl
+>resource "tls_private_key" "tls" {
+>  algorithm = "RSA"
+>}
+>
+>resource "local_file" "tls_private" {
+>  filename = "id_rsa.pem"
+>  content = tls_private_key.tls.private_key.pem
+>  provisioner "local-exec" {
+>    command = "chmod 600 id_rsa.pem"
+>  }
+>}
+>```
 ##### <span style="color: #689d6a">Terraform Cloud</span>
 
 The workstation is where the actual code lives.
@@ -1582,12 +1592,6 @@ Terraform cloud allows to specify credentiasl to aws environemnts throgh environ
 It stores the state file, and keeps a version history of the state file as it grows and changes over time.
 
 workspaces
-
-###### Terraform commands
-
-terraform get --> download and update modules
-
-terraform remote --> configure remote state storage
 ###### Terraform concepts
 
 Another common practice is to have one single configuration file that contains all the resource blocks required to provision the infrastructure. A single configuration file can have as many number of configuration blocks that you need. A common naming convention used for such a configuration file is to call it the main.tf.
@@ -1597,14 +1601,10 @@ The data source block consists of specific arguments for a data source. Data sou
 
 Meta arguments can be used within any resource block to change the behaviour of resources. That depends on for defining explicit dependency between resources and the lifecycle rules, which define how the resources should be created, updated and destroyed within TerraForm.
 
- One of the easiest ways to create multiple instances of the local file is to make use of the count meta argument. Ex: count = 3, We can make use of count index in the expression to make iterations --> filename = var.filename[count.index] # best way to do it
- 
-This built in function called length return the length of the list --> `count = length(var.filename)`
+One of the easiest ways to create multiple instances of the local file is to make use of the count meta argument. Ex: count = 3, We can make use of count index in the expression to make iterations --> filename = var.filename[count.index] # best way to do it
 
 for_each --> only works with a map or a set
 for_each = toset(var.filename)
-
-toset --> convert the variable from a list to a set.
 
 A Lifecycle rule allows to a resource to be created fisrt before the older one is deleted. Some options for the lifecycle: create_before_destroy, prevent_destroy --> useful to prevent your resources from getting accidentally deleted
 
