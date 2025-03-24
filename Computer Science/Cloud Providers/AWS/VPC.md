@@ -80,4 +80,25 @@ scaling evenrt can be scaheduled or enable autoscaling based on a metric. It'ß 
 The support plataform are: PHP, Java, .Net, NodeJS, Python, Ruby, Go an Docker
 
 When an Elastic Beanstalsk environment is deployed it creates a CNAME (hostname that) that it can be used as endpoint.
-Once Elastic Beanstalsk  is running, the application can be deployed on it by using the EB Command line utility
+Once Elastic Beanstalk  is running, the application can be deployed on it by using the EB Command line utility
+
+>[!example] Example - AWS Beanstalk
+>```hcl 
+>resource "aws_elastic_beanstalk_application" "app" {
+>  name = "app"
+>  description = "prod"
+>}
+> 
+>resource "aws_elastic_beanstalk_environment" "app_prod" {
+>  name = "app-prod"
+>  application = aws_elastic_beanstalk_application.app.name
+>  solution_stack_name = ""
+>  
+>  setting {
+>    namespace = "aws:ec2:vpc"
+>    name = "VPCId"
+>    value = var.vpc_id
+>  }
+>}
+>```
+

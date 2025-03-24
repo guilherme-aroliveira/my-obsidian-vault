@@ -761,6 +761,36 @@ Terraform dynamic blocks are used for nested configurations that are repeatable.
 >}
 >```
 
+>[!example] Example - resource
+>```hcl
+>variable "conditions"  {
+>  description = "ALB rule conditions"
+>  type = list(object({
+>    field = string
+>    values = list(string)
+>  }))
+>  default = [
+>    {
+>      field = "host-header"
+>      values = ["mydomain.com", "www.mydomain.com"]
+>    }
+>  ]
+>}
+>```
+>---
+>```hcl
+>resource "aws_lb_listener_rule" "alb_rule" {
+>  dynamic condition {
+>    for_each = var.conditions
+>    content {
+>      dynamic host_header {
+>        for_each = condition.value.field = "host-header" ? [1] : []
+>      }
+>    }
+>  }
+>}
+>```
+
 >[!note]
 >Overuse of dynamic block can make configuration hard to read and maintain, so it is recommended to use them only when its needed to hide details in order to build a clean user interface for a re-usable module.
 ###### <span style="color: #98971a">Lifecycle Block</span>
@@ -783,7 +813,7 @@ The lifecycle directives are used to influence and ultimately control the order 
 >```
 ###### <span style="color: #98971a">Built-in Functions</span>
 
-Terraform language has many built-in functions that can be used in expressions to transform and combine values. Some functions accept a singular arguments, others multiple arguments and some accept just a specifc data type.
+Terraform language has many built-in functions that can be used in expressions to transform and combine values. Some functions accept a singular arguments, others multiple arguments and some accept just a specific data type.
 
 ```hcl
 func_name(arg1, arg2, ...)
@@ -863,17 +893,92 @@ The `length()` function return the length of a list.
 count = length(var.filename)
 ```
 
-`coalesce(strin1, strin2, ...)` --> 
-`coalescelist(list1, list2, ...)` -->
-`compact(list)` --> 
-`concat(list1, list2)` --> 
-`contains(list, element)` --> 
-`element(list, index)` --> 
-- Example: `subnet_id = element(var.PUBLIC_SUBNETS, 0)`
-`lookup(map, key, [default])` --> 
-- Example: `ami = lookup(var.AMIS, var.AWS_REGION)`
-`trimspace(string)` --> 
-`uuid()` --> 
+The `coalesce(string)` function returns the first non-empty value, and  `coalescelist(list)` function returns the first-non-empty list. 
+
+```hcl
+coalesce("","","hello") # returns hello
+```
+
+The `element(list, index)` function returns a single element from a list at the given index.
+
+```hcl
+element(module.vpc.public_subnets, count.index)
+```
+
+The functions `format()` and `formatlis()` formats a string/list according to a the given format.
+
+```hcl
+format("server-%03d", count.index + 1) # returns server-001
+```
+
+The `index(list,item)` function finds the index of a given element in a list
+
+```hcl
+index(aws_instance.foo.*.tags.Env, "prod")
+```
+
+The `join(delin, list)` function joins a list together with a delimiter.
+
+```hcl
+join(",", var.AMIS) # returns "ami-123,ami-456"
+```
+
+The `list(item1,...)` create a new list
+
+```hcl
+join(":", list("a","b","c")) # returns a:b:c
+```
+
+The `lookup(map, key, [default])` performs a lookup on a map, using "key". Returns values representing "key" in the map.
+
+```hcl
+lookup(map("k","v"), "k", "not found") # returns "v"
+```
+
+The `map()` function returns a new map using a key/value
+
+```hcl
+map("k","v","k2","v2") # returns {"k" = "v", "k2" = "v2" }
+```
+
+The `merge()` function merges maps.
+
+```hcl
+merge(map("k", "v"), map("k2", "v2")) 
+# returns {"k" = "v", "k2" = "v2" }
+```
+
+The `replace()` function performs a search and replace
+
+```hcl
+replace("aaaa","a","b") # returns bbbb
+```
+
+The `split()` function splits a string into a list
+
+```hcl
+split(",","a,b,c,d") # returns ["a", "b", "c", "d"]
+```
+
+The `substr()` function extract substring from string
+
+```hcl
+substr("abcde", -3, 3) # returns cde
+```
+
+The `timestamp()` function returns RFC 3339 timestamp
+
+```hcl
+"Server started at ${timestamp()}"
+```
+
+The `uuid` function returns a UUID string in RFC 4122 v4 format
+
+The `values()` function return values of a map
+
+```hcl
+values(map("k", "v", "k2", "v2"))
+```
 ###### <span style="color: #98971a">Modules</span>
 
 A <span style="color: #d65d0e">module</span> is a set of Terraform configuration files in a single directory. Even the simplest configuration consisting of a single directory with one `.tf`. It's used <strong style="color: #b16286">used to combine resources that are frequently used together into a reusable container</strong>.
@@ -968,7 +1073,7 @@ terraform console
 
 Boolean values can be used in a terraform ternary operation to create an if-else statement - `CONDITION ? TRUE_VAL : FALSE_VAL`
 
->[!example] Example - condition
+>[!example] Example 1 - condition
 >```hcl
 >resource "aws_eip" "web_eip" {
 >  count = var.create_eip == true ? 1 : 0
@@ -983,6 +1088,20 @@ Boolean values can be used in a terraform ternary operation to create an if-else
 >  tags = {
 >    Environment = var.environment
 >  }
+>}
+>```
+
+>[!example] Example 2 - condition
+>```hcl
+>resource "aws_instance" "example" {
+>  ami = "${data.aws_ami.ubuntu.id}"
+>  instance_type = "t2.micro"
+>  
+>  # the VPC subnet
+>  subnet_id = "${var.Env == "prod" ? module.vpc_prod.public_subnets[0] : module.vpc_dev.public_subnets[0]}"
+>  
+>  # the security group
+>  vpc_secuirty_group_ids = ["${var.Env == "prod" ? aws_security_group.allow-ssh-prod.id : aws_security_group.allow-ssh-dev.id}"]
 >}
 >```
 
@@ -1088,6 +1207,26 @@ for_each <span style="color: #3588E9">--></span> parameter used to create multip
 >  vpc_id = aws_vpc.vpc.id
 >  cidr_block = each.value.ip
 >  availability_zone = each.value.az
+>}
+>```
+
+The `for_each` key can also be used to loop over modules, which can be useful when the configuration must create two environments in the same account.
+
+>[!example] Example 4 - modules
+>```hcl
+>locals {
+>  my_parameters = {
+>    environment = "dev"
+>    version = "1.0"
+>    mykey = "myvalue"
+>  }
+>}
+>
+>module "parameters" {
+>  for_each = local.my_parameters
+>  source = "./ssm-paramater"
+>  name = each.key
+>  value = each.value
 >}
 >```
 ###### <span style = "color: #d79921">Terraform Provisioners</span>
