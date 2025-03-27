@@ -693,6 +693,41 @@ The `console` command retrieves values from the `locals.tf` file
 >  )
 >}
 >```
+
+>[!example] Example 4
+>```hcl
+>locals {
+>  my_parameters = [
+>    {
+>      "prefix" = "/myprefix"
+>      "parameters" = [
+>        {
+>          "name" = "myparameter"
+>          "value" = "myvalue"
+>        },
+>        {
+>          "name" = "environment"
+>          "value" = "dev"
+>        }
+>      ]
+>    },
+>    {
+>      "prefix" = "myapp"
+>      "parameters" = [
+>        "name" = "environment"
+>        "value" = "prod"
+>      ]
+>    }
+>  ]
+>}
+>```
+>---
+>```hcl
+>module "parameters" {
+>  source = "./ssm-parameters"
+>  parameters = "local.my_parameters"
+>}
+>```
 ###### <span style="color: #98971a">Dynamic Blocks</span>
 
 Terraform dynamic blocks are used for nested configurations that are repeatable. It allows to dynamically construct repeatable repeatable nested blocks, rather than copy and paste the same resource over and over gain.
@@ -1069,6 +1104,28 @@ To view the outputs returned by any module and their values, the `console` comma
 ```shell
 terraform console
 ```
+
+The are cases that a module needs to be refactored, like change the name of a resource, or even change the name of (sub)modules.
+
+>[!example] Example
+>```hcl
+>resource "aws_instance" "web-new" {
+>  ami = data.aws_ami.ubuntu.id
+>  instance_type = "t3.micro"
+>
+>  tags = {
+>    Name = "web instance"
+>  }
+>  
+>  moved {
+>    from = aws_instance.web
+>    to = module.instances.aws_instance.web-new
+>  }
+>}
+>```
+>The state will be moved to the new resource. Once it's moved, Terraform will just ignore the `moved` block.
+
+The `moved` block should be kept to ensure backwards compatibility, until all resources and modules are updated. 
 ###### <span style="color: #98971a">Conditions and Loops</span>
 
 Boolean values can be used in a terraform ternary operation to create an if-else statement - `CONDITION ? TRUE_VAL : FALSE_VAL`
