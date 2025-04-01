@@ -92,3 +92,9 @@ access the application using the load balancer IP address
 
 aws sts get-caller-identity
 
+aws code pipeline is a fully managed continuous delivery services. it automates the build/test/deploy pipeline.
+- typical build tools (npm, maven, gradle, ...) can be used to build/test applications
+- docker can also be used (docker build & push for example) 
+- can also integrate it with jenkins
+CodePipeline integrates with CodeBuild and CodeDeploy
+

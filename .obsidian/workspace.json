@@ -323,10 +323,10 @@
   },
   "active": "d69cdc3c5ae438ba",
   "lastOpenFiles": [
-    "Computer Science/DevOps/Tools/Helm.md",
-    "Computer Science/DevOps/IaC/Terraform.md",
     "Computer Science/DevOps/IaC/Ansible.md",
+    "Computer Science/DevOps/IaC/Terraform.md",
     "Computer Science/Cloud Providers/AWS/EKS.md",
+    "Computer Science/DevOps/Tools/Helm.md",
     "Computer Science/Cloud Providers/AWS/VPC.md",
     "Computer Science/Cloud Providers/Azure/Microsoft Azure.md",
     "Computer Science/DevOps/CI/Jenkins.md",

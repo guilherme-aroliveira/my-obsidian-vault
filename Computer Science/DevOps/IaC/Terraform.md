@@ -1783,11 +1783,19 @@ Terraform workspace is a managed unit of infrastructure. Workspaces are the work
 
 In Terraform Cloud the workspace stores state data, has it's own set variables values and environment variables, and allows for remote operations and logging. Terraform Cloud workspaces also provide access controls, version control integration, API access and policy management.
 
-Terraform cloud allows to specify credentiasl to aws environemnts throgh environment variables.
+Terraform cloud allows to specify credentials to aws environments through environment variables.
 
 It stores the state file, and keeps a version history of the state file as it grows and changes over time.
 
 workspaces
+
+terraform cloud can integrate with the most popular VCS systems, including GitHub, GitLab, Bitbucket and Azure DevOps. 
+Settings --> Add a VCS provider
+
+private module registry allows to store and verson terraform modules whic hare re-usable snippets of terraform code.  It's an index of private modules that aren't shared with publicity.
+Publish button --> connect to GitHub --> Publish module
+
+the terraform private modules follow a naming convention: `terraform-<PROVIDER>-name` 
 ###### Terraform concepts
 
 Another common practice is to have one single configuration file that contains all the resource blocks required to provision the infrastructure. A single configuration file can have as many number of configuration blocks that you need. A common naming convention used for such a configuration file is to call it the main.tf.
@@ -1802,7 +1810,7 @@ One of the easiest ways to create multiple instances of the local file is to mak
 for_each --> only works with a map or a set
 for_each = toset(var.filename)
 
-A Lifecycle rule allows to a resource to be created fisrt before the older one is deleted. Some options for the lifecycle: create_before_destroy, prevent_destroy --> useful to prevent your resources from getting accidentally deleted
+A Life cycle rule allows to a resource to be created first before the older one is deleted. Some options for the lifecycle: create_before_destroy, prevent_destroy --> useful to prevent your resources from getting accidentally deleted
 
 We can also combine the comparison operators like this to make use of a specific version within a range. pessimistic constraint operators --> defined by making use of the tilde greater than symbol --> ~> 1.2 This operator allows TerraForm to download the specific version or any available incremental version based on the value we provided.
  
@@ -1816,18 +1824,33 @@ variable definition precedence: -var or -var-file --> *.auto.tfvars --> terrafor
 
 standardized AMIs : using file uploads, using remote exec, automation tools like ansible, chef which is integrated within terraform. puppet gent can be run using remote-exec.
 
-userdata - best wat is to use a template system
+user data - best way is to use a template system
 
-interpolaton in terraform may contain conditions (if-else)
+interpolation in terraform may contain conditions (if-else)
 syntax --> `CONDITION ? TRUE : FALSE`
 Example
 `count = "${var.env == "prod" ? 2 : 1}"`
 
-bultiin functions can be used terraform resources.
-the syntac to call a funtion is `name(arg1, arg2, ...)` and wrapped with `${...}`
+builtin functions can be used terraform resources.
+the syntax to call a function is `name(arg1, arg2, ...)` and wrapped with `${...}`
 for example `${file("mykey.pub")}` would read the context of the public file.
 
 For loops are typically used when assigning a value to an argument
 Example: `[for s in var.list2: upper(s)]`
 `tags = {for k, v in merge({ Name = "Myvolume" }, var.project.tags): k => lower(v)}`
 For_each loops are used to repeat nested blocks.
+
+CDKTF is a new way of provisioning suing Terraform --> use a programming language o write the provisioning code
+- supported languages are currently, Typescript, Python, Java, C# and Go
+- it works that just like writing an application code
+- cdktf translate (synthesize) the application code into terraform files that can be deployed by terraform
+
+CDKTF is based in the same technology as the AWS Cloud Development Kit (AWS CDK)
+
+Both AWS CDK and CDKTF will take the application code and translate it back into infrastructure configuration files the infrastructure (CloudFormation / HCL)
+
+to init the provider
+`cdktf get` --> it'll create the necessary golang library.
+`go mod tidy` --> download the go modules 
+
+to provision the infra: `cdktf deploy`
