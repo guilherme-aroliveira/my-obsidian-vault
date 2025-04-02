@@ -1789,6 +1789,13 @@ It stores the state file, and keeps a version history of the state file as it gr
 
 workspaces
 
+
+
+terraform cloud has bultin suppoort for encrypton and storage of variables used within the terraform configuration.
+terraform cloud support two types of variables: terraform variables and environment variables
+the configuration places a terraform cloud variable as a priority over any over variables that has been set
+variables can be reused across multiple workspaces within the terraform cloud environment --> terraform cloud variables sets
+
 terraform cloud can integrate with the most popular VCS systems, including GitHub, GitLab, Bitbucket and Azure DevOps. 
 Settings --> Add a VCS provider
 
@@ -1796,6 +1803,41 @@ private module registry allows to store and verson terraform modules whic hare r
 Publish button --> connect to GitHub --> Publish module
 
 the terraform private modules follow a naming convention: `terraform-<PROVIDER>-name` 
+
+Sentinel Policy
+
+Sentinel policy --> policy-as-code product from HashiCorp that automatically enforces logic based policy decisions across the entire HashiCorp Enterprise products.
+it stays between the plan and apply stages --> it allows to enforces policies before the infra gets provisioned. 
+
+Terraform Cloud --> plan --> Sentinel Policies --> apply
+
+individual Sentinel policies can be grouped together and their enforcement level can be specified using a Sentinel policy set, which is a collection of sentinel policies defined within the `sentinel.hcl` file.  Policy enforcement level are also defined inside the policy set.
+
+organization settings --> policy sets --> connect a new policy set
+
+A sentinel policy can be enforced on specifics workspaces. Multiple policies can be grouped within a single file and terraform cloud will apply them in the order that they appear in the file.
+
+>[!example] Example - Sentinel policy
+>```hcl
+>module "" {
+>
+>}
+>
+>module "" {
+>
+>}
+>
+>policy "enforce-mandatory-tags" {
+>  enforcement_level = "advisory"
+>}
+>
+>policy "restrict-ec2-instance-type" {
+>  enforcement_level = "hard-mandatory"
+>}
+>```
+>Sentinel modules were imported to make use of repeatable function within the policy.
+
+
 ###### Terraform concepts
 
 Another common practice is to have one single configuration file that contains all the resource blocks required to provision the infrastructure. A single configuration file can have as many number of configuration blocks that you need. A common naming convention used for such a configuration file is to call it the main.tf.
