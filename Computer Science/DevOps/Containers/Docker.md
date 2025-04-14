@@ -315,6 +315,7 @@ Docker uses network namespaces that creates a separate namespace for each contai
 	- <code style="color:#689d6a">docker image ls</code> <span style="color: #3588E9">--></span> new syntax
 - To <strong style="color: #b16286">delete an image</strong> <span style="color: #3588E9">--></span> <code style="color:#689d6a">docker rmi [id]</code>
 	- all dependent containers must be stopped or deleted
+	- `docker image rm` --> new syntax
 - To <strong style="color: #b16286">download</strong> the image <span style="color: #3588E9">--></span> <code style="color:#689d6a">docker pull nginx</code>
 	- it pulls the image and stores on the host, it doesn't run the container.
 - To <strong style="color: #b16286">upload</strong> an image <span style="color: #3588E9">--></span> <code style="color:#689d6a">docker push</code>
@@ -331,5 +332,5 @@ Whenever a new image is created or an existing image is updated, it's pushed to 
 
 Link is a command line option which can be used to link to container together
 
-docker run -d --name-vote -p 5000:80 --link redis:redis voting-app
+`docker run -d --name-vote -p 5000:80 --link redis:redis voting-app`
 it creates an entrypoiny on ETcd host file one the voting app container, adding and entry with the host name redis whot the internal IP of the redis container.

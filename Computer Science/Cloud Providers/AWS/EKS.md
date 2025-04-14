@@ -1,12 +1,29 @@
-AWS EKS --> Amazon Elastic Container Service for Kubernetes is a highly available, scalable and secure Kubernetes Service.
+AWS EKS --> Amazon Elastic Container Service for Kubernetes is a highly available, scalable and secure Kubernetes Service. In other words, it's the hosted service for kubernetes.
+
+tools for EKS: 
+- eksctl --> comman line tool that generate CloudFOrmation for the user. It's meant for cluster lifecyle. It allows to add Node Groups and upgrade clusters.
+- eksdemo --> allows to do more things inside of a cluster
+- aws iam authneticator for kubernets --> allows to authenticate the user to teh AWS APIs with mhy IAM credentials to call an EKS cluster.
+
+>[!note]
+>The EKS API server is behind a load balancer, which requires to have AWS credentials. To call the EKS of the Kubernetes API nbehing the Load Balancer, the user needs to autehnticate first as an IAM user. 
+
+<strong>EKS Networking</strong>
+
+It must have a flat network for pods specifically --> all of the pods in the cluster can talk to all of the other pods. It can't have anythig like NAT traversl or VLAN tagging or anything like that to be able to route and segment Pods.
+
+Obs: All of the segmentation and isolation needs to happen in a layer above networkin. All f the pods in the cluster should have IP addresses that cant connecy tp eah other.
+
+The EKS control plane it runs in Amazon service.
+
+
+
 
 Kubernetes can run on any public cloud providers (or even on-premises)
 
-AWS EKS providers managed Kubernetes master nodes
-the master nodes are multi-AZ to provide redundancy
-the master nodes will scale automatically when necessary
+AWS EKS providers managed Kubernetes master nodes the master nodes are multi-AZ to provide redundancy the master nodes will scale automatically when necessary
 
-O cluster de EKS (Kubernetes) necessita que pelo menos duas subnets sejram criadas em diferentes zonas de disponibilidades (availability zones) --> para obter alta disponibilidades.
+O cluster de EKS (Kubernetes) necessita que pelo menos duas subnets sejram criadas em diferentes zonas de disponibilidades (availability zones) --> para obter alta disponibilidades. EKS is a regional services
 
 with any managed service, master nodes can't be created. The master nodes do not host any application or workloads. it can't ssh or access them, because in managed Kubernetes services, the master node are maintained by the service provider. 
 

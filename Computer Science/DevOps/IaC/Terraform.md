@@ -1819,12 +1819,12 @@ A sentinel policy can be enforced on specifics workspaces. Multiple policies can
 
 >[!example] Example - Sentinel policy
 >```hcl
->module "" {
->
+>module "tfplan-functions" {
+>  source= "https://....."
 >}
 >
->module "" {
->
+>module "tfconfig-functions" {
+>  source = "https://....."
 >}
 >
 >policy "enforce-mandatory-tags" {
@@ -1837,7 +1837,10 @@ A sentinel policy can be enforced on specifics workspaces. Multiple policies can
 >```
 >Sentinel modules were imported to make use of repeatable function within the policy.
 
-
+Enforcement levels
+- Advisory: The policy is allowed to fail. However, a warning should be shown to the user or logged.
+- Soft Mandatory: The policy must pass unless an override is specified. The semantics of "override" are specific to each Sentinel-enabled application. The purpose of this level is to provide a level of privilege separation for a behavior. Additionally, the override provides non-reputation since at least the primary actor was explicitly overriding a failed policy.
+- Hard Mandatory: The policy must pass no matter what. The only way to override a hard mandatory policy is to explicitly remove the policy. Hard mandatory is the default enforcement level. Ir should be used in situations where an override is not possible.
 ###### Terraform concepts
 
 Another common practice is to have one single configuration file that contains all the resource blocks required to provision the infrastructure. A single configuration file can have as many number of configuration blocks that you need. A common naming convention used for such a configuration file is to call it the main.tf.
