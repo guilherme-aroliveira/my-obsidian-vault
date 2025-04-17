@@ -373,13 +373,18 @@ helm upgrade nginx-release bitnami/nginx
 ```
 
 >[!info]
->In the upgrade process the old pod gets destroyed, and a new one is created. Helm verifies the files and templates in the chart and then renders the manifest files in their final form.
+>In the upgrade process the old pod gets destroyed, and a new one is created. Helm verifies the files and templates in the chart and then renders the manifest files in their final form. Obs: always use atomic with the upgrade
+
+>[!note]
+>Every time when a deployment is upgraded, Helm will restore the previous state data (revision history) in a secret in Kubernetes. It creates a new secret for each revision that are stored in the encoded format.
 
 To see more details about a particular release:
 
 ```shell
 helm history nginx-release
 ```
+
+If a deployment is uninstalled, it will also delete all the previous revisions <span style="color: #3588E9">--></span> it's important to keep history of the deployments. Helm can restore (rollback) the application from any state if the release history is available.
 
 To return to a previous revision of a release:
 
@@ -436,9 +441,11 @@ To package the chart with the private key:
 
 >[!example]
 >```shell
->helm package --sign --key 'John Smith' --keyring ~/.gnupg/secring.gpg ./nginx-chart
+>helm package --sign --key 'John Smith' --keyring ~/.gnupg/secring.gpg -d /root/nginx-chart
 >```
 >The `--key` parameter expects to receive either the full name or the email address associate with the key.
+>`-d` <span style="color: #3588E9">--></span> to save the chart in another location
+>`-u` <span style="color: #3588E9">--></span> chart will download the latest version of the dependencies.
 
 To list key details:
 
@@ -478,27 +485,6 @@ To upload the chart:
 helm repo add cool-chart https://example.charts.srorage.com
 ```
 
-To sign a chart: 
-
->[!example] 
->```shell
->helm package my-chart/ -d /root/ # the package will be deployable on all environments without any dependency
->```
->`-d` <span style="color: #3588E9">--></span> to save the chart in another location
->`-u` <span style="color: #3588E9">--></span> chart will download the latest version of the dependencies.
->
-
-Every time when a deployment is upgraded, Helm will restore the previous state data (revision history) in a secret in Kubernetes. It creates a new secret for each revision that are stored in the encoded format.
-
-If a deployment is uninstalled, it will also delete all the previous revisions <span style="color: #3588E9">--></span> it's important to keep history of the deployments. Helm can restore (rollback) the application from any state if the release history is available.
-
-Obs: always use atomic with your upgrade
-
-To rollback to the most recent version:
-
-```shell
-helm rollback first-chart
-```
 
 - `helm repo remove <name>` --> deletes a helm repository
 - `helm show` --> show information of the chart
@@ -660,7 +646,7 @@ Else and else if statatements can also be added within cndional block in Hem cha
 >{{- end }}
 >```
 
-The most common use cases wehre conditioan is used is wheter to create objects of a certain kinds or not.
+The most common use cases where conditional is used is whether to create objects of a certain kind or not.
 
 >[!example]
 >```yaml
@@ -680,7 +666,7 @@ The most common use cases wehre conditioan is used is wheter to create objects o
 
 <strong>Scope</strong>
 
-if a scope is not sepcificaly set, the current scope in the file is set to the root scope by default. To access an specific object it must traverse all the way to the rot scope.
+If a scope is not specifically set, the current scope in the file is set to the root scope by default. To access an specific object it must traverse all the way to the root scope.
 
 >[!example] Example - Scope
 >```yaml
@@ -702,7 +688,7 @@ To avoid duplication of scope, just set a scope using the `with` block:
 >```
 >The `.` within this block implies the current scope.
 
-To acces anything in the root scope:
+To access anything in the root scope:
 
 ```yaml
 release: {{ $.Release.Name }} # $ --> represents the root scope
@@ -710,7 +696,7 @@ release: {{ $.Release.Name }} # $ --> represents the root scope
 
 <strong>Loops</strong>
 
-The `range` operators allows to create a for loop to iterate though the list in the values of a yaml fule for example.
+The `range` operators allows to create a for loop to iterate though the list in the values of a yaml full for example.
 
 >[!example]
 >```yaml

@@ -55,12 +55,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Computer Science/DevOps/Tools/Helm.md",
+                "file": "Computer Science/Cloud Providers/AWS/ECS.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Helm"
+              "title": "ECS"
             }
           },
           {
@@ -134,7 +134,7 @@
             }
           }
         ],
-        "currentTab": 8
+        "currentTab": 3
       }
     ],
     "direction": "vertical"
@@ -264,13 +264,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Computer Science/Cloud Providers/AWS/EKS.md",
+                "file": "Computer Science/Cloud Providers/AWS/ECS.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of EKS"
+              "title": "Outline of ECS"
             }
           },
           {
@@ -307,15 +307,16 @@
       "vscode-editor:Create Code File": false
     }
   },
-  "active": "5c3227ab85821a42",
+  "active": "5db656792026092b",
   "lastOpenFiles": [
+    "Computer Science/Cloud Providers/AWS/EKS.md",
+    "Computer Science/Cloud Providers/AWS/ECS.md",
     "Computer Science/DevOps/Tools/Helm.md",
     "Computer Science/DevOps/Containers/Orchestration/Kubernetes.md",
     "Computer Science/DevOps/IaC/Ansible.md",
     "Information Security/Cyber Security.md",
     "Computer Science/Software Engineering.md",
     "Computer Science/DevOps.md",
-    "Computer Science/Cloud Providers/AWS/EKS.md",
     "Computer Science/DevOps/IaC/Terraform.md",
     "Computer Science/Cloud Providers/Azure/Microsoft Azure.md",
     "Computer Science/DevOps/CI/Jenkins.md",
@@ -336,7 +337,6 @@
     "Computer Science/Programming/Cobol.md",
     "Computer Science/Tools/Git.md",
     "Information Security/Ethical Hacking.md",
-    "Computer Science/DevOps/Containers/Orchestration/Openshift.md",
     "Computer Science/DevOps/Containers/Orchestration",
     "Images/query-string.png",
     "Images/modelo_interacoes.png",
