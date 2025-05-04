@@ -1789,8 +1789,6 @@ It stores the state file, and keeps a version history of the state file as it gr
 
 workspaces
 
-
-
 terraform cloud has bultin suppoort for encrypton and storage of variables used within the terraform configuration.
 terraform cloud support two types of variables: terraform variables and environment variables
 the configuration places a terraform cloud variable as a priority over any over variables that has been set
@@ -1899,3 +1897,15 @@ to init the provider
 `go mod tidy` --> download the go modules 
 
 to provision the infra: `cdktf deploy`
+##### <span style="color: #689d6a">Terragrunt</span>
+
+Terragrunt is wrapper built in on top of Terraform.
+
+key features
+- Hierarchical Configuration: organize code using a direct structure.
+- Remote Management: handle the centralized ad secure storage of state files
+- Modular Variable Definitions: defines variables in a modular way
+- DRY Approach: avoid code duplication.
+
+Use cases:  complex infrasctrucutre projects. management deployetn acroos multipel environments --> simplifies the process of amintaining and scaling infra acroos different environments.
+

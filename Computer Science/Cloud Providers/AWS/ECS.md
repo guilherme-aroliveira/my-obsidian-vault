@@ -10,3 +10,6 @@ ECS services --> a service ensures that a certain number of tasks are running at
 
 The Load Balancer can be assigned to route external traffic to the service. 
 
+ECS cluster - port mappings:
+- expose the ports used by the application --> in ECS the outside will always be the same as the inside port.
+

@@ -339,7 +339,7 @@ a service is only required if the application has some kind of process or databa
 
 . Sevice biding manages configuration and credentuals for back-end services while protecting sensitive data. In addition, it makes Service credentiasl available automatically as a Secret.
 
-. Sevice biding consumes the external Service by biding the application to a deployment. Then, the appliation code uses the credentials from the biding and calls the corresponding Service.
+. Sevice biding consumes the external Service by biding the application to a deployment. Then, the application code uses the credentials from the biding and calls the corresponding Service.
 
 Cluster IPs are only accesible within the cluster. To make this externally accessible, we will create a proxy.
 

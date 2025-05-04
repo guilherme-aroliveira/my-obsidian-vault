@@ -10,20 +10,43 @@ tools for EKS:
 
 <strong>EKS Networking</strong>
 
-It must have a flat network for pods specifically --> all of the pods in the cluster can talk to all of the other pods. It can't have anythig like NAT traversl or VLAN tagging or anything like that to be able to route and segment Pods.
+It must have a flat network for pods specifically --> all of the pods in the cluster can talk to all of the other pods. It can't have anything like NAT traversal or VLAN tagging or anything like that to be able to route and segment Pods.
 
-Obs: All of the segmentation and isolation needs to happen in a layer above networkin. All f the pods in the cluster should have IP addresses that cant connecy tp eah other.
+Obs: All of the segmentation and isolation needs to happen in a layer above networking. All of the pods in the cluster should have IP addresses that can connect to each other.
 
-The EKS control plane it runs in Amazon service.
+To the Node communicate with the Cluster it must have an IP address, this is done by attaching and ENI. The node communicates with the X-ENI (Cross account eni) of the VPC to reach out the Kuberbertss API Service (api server).
+
+Node ENI ---> VPC X-ENI --->  COntrol Palni api server
+
+The EKS control plane runs in Amazon service.
+
+The node consumes IP addresses from the subnet with are a part of the VPC. Another ENI in the Node is attached to the Pod so it can route traffic in the VPC --> The Pod will have it own ip address.
+
+Instead of consuming Ip address from the VPC, use other approach that dont consuem ip adfress from the VPC, like Cilium or Calico --> Overlay Network. 
+
+Obs: usually dont create more than one cluster per vpc.
+
+note: the benefist of using overlay netwotk indepdendly: not consuming ip addresses form the VPC. downside: migth run into bottlenecks on how many Ip address can have on a node, and to manage another layer of ip addresses.
+The ENI on the Node can vahe more than one of Ip address, which depends of the node size.
+
+Obs: the ammoht of ENI attahced to the Node depends of the instance type.
+
+<strong>EKS Networking components</strong>
 
 
+
+
+Ways to <strong>autehnticate</strong> things within the cluster: 
+one way is trhow an OIDC (open id connect) --> identify how things are autenticate in EKS cluster.
+Auth ConfigMap --> lives in the cluster
+EKS Auth --> handles the permission on the control plane
 
 
 Kubernetes can run on any public cloud providers (or even on-premises)
 
 AWS EKS providers managed Kubernetes master nodes the master nodes are multi-AZ to provide redundancy the master nodes will scale automatically when necessary
 
-O cluster de EKS (Kubernetes) necessita que pelo menos duas subnets sejram criadas em diferentes zonas de disponibilidades (availability zones) --> para obter alta disponibilidades. EKS is a regional services
+O cluster de EKS (Kubernetes) necessita que pelo menos duas subnets sejam criadas em diferentes zonas de disponibilidades (availability zones) --> para obter alta disponibilidades. EKS is a regional services
 
 with any managed service, master nodes can't be created. The master nodes do not host any application or workloads. it can't ssh or access them, because in managed Kubernetes services, the master node are maintained by the service provider. 
 
