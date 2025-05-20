@@ -1770,7 +1770,7 @@ To use terraform cloud:
 >```
 >Terraform cloud authenticates the user through a token based authentication
 
-Enhanced backends can both store state and performs operations, there are only two enhanced backend: local and remote. The remote backends stores Terraform state and may be used to run operations in Terraform Cloud. Remote plan and applies use variables values from the associated Terraform Cloud workspace. 
+<span style="color: #d65d0e">Enhanced backends</span> can both store state and performs operations, there are only two enhanced backend: local and remote. <strong style="color: #b16286">The remote backends stores Terraform state and may be used to run operations in Terraform Cloud</strong>. Remote plan and applies use variables values from the associated Terraform Cloud workspace. 
 
 >[!example] Enhanced backend - remote
 >```hcl
