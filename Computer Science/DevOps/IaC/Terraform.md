@@ -1759,27 +1759,36 @@ The SSH Public/Private Key Generator allows to create a random set of public and
 >```
 ##### <span style="color: #689d6a">Terraform Cloud</span>
 
-The workstation is where the actual code lives.
+To use terraform cloud: 
+1. create an organization
+2. login from the workstation
+3. create the API token
 
-Create an organization --> Log into  the account from the workstation --> Create API token
+>[!example] Example - login
+>```shell
+>terraform login
+>```
+>Terraform cloud authenticates the user through a token based authentication
 
-The Terraform Cloud authenticates the user is through a token based authentication.
+Enhanced backends can both store state and performs operations, there are only two enhanced backend: local and remote. The remote backends stores Terraform state and may be used to run operations in Terraform Cloud. Remote plan and applies use variables values from the associated Terraform Cloud workspace. 
 
-Defining the remote backend
+>[!example] Enhanced backend - remote
+>```hcl
+>terraform {
+>  backend "remote" {
+>    hostname = "app.terraform.io"
+>    organization = "Enterprise-Cloud"
+>    workspaces {
+>      name = "my-aws-app"
+>    }
+>  }
+>}
+>```
 
-```hcl
-terraform {
-	backend "remote" {
-		hostname = "app.terrafomr.io"
-		organization = "Enterprise-Cloud"
-		workspaces {
-			name = "my-aws-app"
-		}
-	}
-}
-```
+>[!info]
+>If Terraform can not use the remote backend, it will error --> it can be an authentication error, for example.
 
-Terraform workspace is a managed unit of infrastructure. Workspaces are the workhouse of Terraform Cloud and build on the Terraform CLI workspace construct. Each uses the same Terraform code do deploy infrastructure and each keeps separate data for each workspace. 
+A <span style="color: #d65d0e">Terraform workspace</span> is a managed unit of infrastructure.  <strong style="color: #b16286">Workspaces are the workhouse of Terraform Cloud</strong> and build on the Terraform CLI workspace construct. Each uses the same Terraform code to deploy infrastructure and each keeps separate data for each workspace. Terraform Cloud simply adds more functionality.
 
 In Terraform Cloud the workspace stores state data, has it's own set variables values and environment variables, and allows for remote operations and logging. Terraform Cloud workspaces also provide access controls, version control integration, API access and policy management.
 
@@ -1909,3 +1918,4 @@ key features
 
 Use cases:  complex infrasctrucutre projects. management deployetn acroos multipel environments --> simplifies the process of amintaining and scaling infra acroos different environments.
 
+the installed version of terragrunt must aling with the versions of terraform or opentofu

@@ -25,6 +25,7 @@ The node consumes IP addresses from the subnet with are a part of the VPC. Anoth
 Instead of consuming Ip address from the VPC, use other approach that dont consuem ip adfress from the VPC, like Cilium or Calico --> Overlay Network. 
 
 Obs: usually dont create more than one cluster per vpc.
+one vpc per cluster
 
 note: the benefist of using overlay netwotk indepdendly: not consuming ip addresses form the VPC. downside: migth run into bottlenecks on how many Ip address can have on a node, and to manage another layer of ip addresses.
 The ENI on the Node can vahe more than one of Ip address, which depends of the node size.
@@ -33,13 +34,14 @@ Obs: the ammoht of ENI attahced to the Node depends of the instance type.
 
 <strong>EKS Networking components</strong>
 
-
-
+<strong>EKS Cluster Security</strong>
 
 Ways to <strong>autehnticate</strong> things within the cluster: 
 one way is trhow an OIDC (open id connect) --> identify how things are autenticate in EKS cluster.
 Auth ConfigMap --> lives in the cluster
 EKS Auth --> handles the permission on the control plane
+
+
 
 
 Kubernetes can run on any public cloud providers (or even on-premises)

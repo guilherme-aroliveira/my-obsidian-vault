@@ -289,6 +289,9 @@ Docker uses network namespaces that creates a separate namespace for each contai
 
 - To <strong style="color: #b16286">run/start</strong> a container from an image <span style="color: #3588E9">--></span> <code style="color:#689d6a">docker run nginx</code>   
 	- <code style="color:#689d6a">docker run redis:40</code> <span style="color: #3588E9">--></span> specifying a tag
+		- To <strong style="color: #b16286">list all</strong> running containers <span style="color: #3588E9">--></span> <code style="color:#689d6a">docker ps</code>
+			- <code style="color:#689d6a">-a</code> option <span style="color: #3588E9">--></span> to list all containers
+			- <code style="color:#689d6a">docker container ls</code> <span style="color: #3588E9">--></span> new syntax
 	- <code style="color:#689d6a">-d</code> option <span style="color: #3588E9">--></span> for detach mode, it runs the container in the background mode
 	- <code style="color:#689d6a">-i</code> option <span style="color: #3588E9">--></span> for interactive mode
 	- <code style="color:#689d6a">-t</code> option <span style="color: #3588E9">--></span> for pseudo terminal
@@ -300,9 +303,6 @@ Docker uses network namespaces that creates a separate namespace for each contai
 	- <code style="color:#689d6a">--link</code> <span style="color: #3588E9">--></span> option which can be used to link to containers together.
 		- it creates an entry into the etc/hosts file on the voting app container, adding an entry with the host name redis with the internal IP of the redis container.
 		- Ex: <code style="color:#689d6a">docker run -d --name=vote -p 500:80 --link redis:redis voting:app</code>
-- To <strong style="color: #b16286">list all</strong> running containers <span style="color: #3588E9">--></span> <code style="color:#689d6a">docker ps</code>
-	- <code style="color:#689d6a">-a</code> option <span style="color: #3588E9">--></span> to list all containers
-	- <code style="color:#689d6a">docker container ls</code> <span style="color: #3588E9">--></span> new syntax
 - To <strong style="color: #b16286">stop</strong> a container <span style="color: #3588E9">--></span> <code style="color:#689d6a">docker stop</code>
 	- must provide either the container ID or the container name. Ex: <code style="color:#689d6a">docker stop silly_sammet</code>
 - To <strong style="color: #b16286">remove</strong> a container permanently <span style="color: #3588E9">--></span> <code style="color:#689d6a">docker rm [id]</code>

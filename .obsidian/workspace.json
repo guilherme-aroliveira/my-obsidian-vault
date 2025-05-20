@@ -64,6 +64,20 @@
             }
           },
           {
+            "id": "5eb5605f8644a8ed",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Computer Science/DevOps/Containers/Docker.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Docker"
+            }
+          },
+          {
             "id": "7e1cfdfebd73969b",
             "type": "leaf",
             "state": {
@@ -148,7 +162,7 @@
             }
           }
         ],
-        "currentTab": 8
+        "currentTab": 3
       }
     ],
     "direction": "vertical"
@@ -278,13 +292,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Computer Science/Cloud Providers/AWS/EKS.md",
+                "file": "Computer Science/DevOps/IaC/Terraform.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of EKS"
+              "title": "Outline of Terraform"
             }
           },
           {
@@ -321,18 +335,19 @@
       "vscode-editor:Create Code File": false
     }
   },
-  "active": "5c3227ab85821a42",
+  "active": "d69cdc3c5ae438ba",
   "lastOpenFiles": [
-    "Computer Science/Programming/Ruby.md",
+    "Computer Science/DevOps/CI/Jenkins.md",
+    "Computer Science/DevOps/Containers/Docker.md",
+    "Computer Science/DevOps/IaC/Terraform.md",
     "Computer Science/Cloud Providers/AWS/EKS.md",
+    "Computer Science/Programming/Ruby.md",
     "Computer Science/DevOps/Tools/Helm.md",
     "Computer Science/DevOps/IaC/Ansible.md",
     "Computer Science/DevOps.md",
-    "Computer Science/DevOps/IaC/Terraform.md",
     "Computer Science/DevOps/Containers/Orchestration/Kubernetes.md",
     "Computer Science/Software Engineering.md",
     "Information Security/Cyber Security.md",
-    "Computer Science/DevOps/CI/Jenkins.md",
     "Computer Science/Cloud Providers/AWS/ECS.md",
     "Computer Science/Programming/Python.md",
     "Computer Science/Programming/PHP.md",
@@ -348,7 +363,6 @@
     "Computer Science/Databases/Postgree SQL.md",
     "Computer Science/Databases/MySQL.md",
     "Computer Science/Cloud Providers/Azure/Microsoft Azure.md",
-    "Computer Science/Cloud Providers/GCP/Google Cloud.md",
     "Computer Science/Cloud Providers/Azure",
     "Computer Science/DevOps/Tools",
     "Computer Science/DevOps/Containers/Orchestration",
