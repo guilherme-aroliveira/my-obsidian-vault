@@ -66,9 +66,9 @@ Helm keeps track of all the changes made the applications files and that allows 
 >Helm lets treat the Kubernetes apps as applications instead of just a collection of objects.
 ###### <span style="color: #689d6a">Helm Components</span>
 
-`helm cli` --> helm command line utility that stays at the local system, is used to perform Helm actions, such as installing a chart, upgrading, rollback, etc..  
+`helm cli` <span style="color: #3588E9">--></span> helm command line utility that stays at the local system, is used to perform Helm actions, such as installing a chart, upgrading, rollback, etc..  
 
-charts --> collection of files that contains all the instructions that Helm needs to know to be able to create the collections of objects that is needed in a Kubernetes cluster.
+charts <span style="color: #3588E9">--></span> collection of files that contains all the instructions that Helm needs to know to be able to create the collections of objects that is needed in a Kubernetes cluster.
 
 By using charts and adding the objects according to the specific instructions in the carts, Helm install applications into the cluster.
 
@@ -78,7 +78,7 @@ To keep track of what it did in our cluster, such as the releases that it instal
 
 `spec:`
 `replicas: {{ .Values.replicaCount }} --> templating`
-These values are part of another file called as `values.yaml` --> where configurable values are stored, the only file that will be modified to customize the deployent of th application (in case of using a chart from another source).
+These values are part of another file called as `values.yaml` <span style="color: #3588E9">--></span> where configurable values are stored, the only file that will be modified to customize the deployent of th application (in case of using a chart from another source).
 
 When a chart is applied to the cluster a release is created. Multiple release can be installed based on the same chart, which can be tracked separately can changed independently. 
 
@@ -234,13 +234,13 @@ The `_helper.tpl` file contains the functions that the template files use to gen
 >The `.` (dot) transfers the current scope to the template file.
 
 >[!note]
->When lines of code are move to templates, it must have the same indentation or the number of spaces before these lines --> the template statement add the lines there as is.
+>When lines of code are move to templates, it must have the same indentation or the number of spaces before these lines <span style="color: #3588E9">--></span> the template statement add the lines there as is.
 
-chart hooks --> extract actions such as backing up a database automatically before the upgrade.  
+chart hooks <span style="color: #3588E9">--></span> extract actions such as backing up a database automatically before the upgrade.  
 the pre-upgrade hook runs a predefined action, which could be anything.
-post upgrade hook --> runs after the install phase is successful and performs actions configured such as sending an email status
+post upgrade hook <span style="color: #3588E9">--></span> runs after the install phase is successful and performs actions configured such as sending an email status
 
-to differentiate the chart hooks from the normal templates file is by using annotations. Annotations are a way to add addioional metadat to an object which may be used by client of Kubernetes to sotre data about that object and performs some kind of actions.
+to differentiate the chart hooks from the normal templates file is by using annotations. Annotations are a way to add additional metadata to an object which may be used by client of Kubernetes to store data about that object and performs some kind of actions.
 
 >[!example]
 >```yaml
@@ -263,19 +263,19 @@ Multiple hooks can be configured for each step. For example, multiple pre-upgrad
 
 The same weight can be set for multiple hooks, which will be sorted by resource kind, and finally by name in ascending order.
 
-After a job is completed, tre resourtcd for the hook stays as a resource on the cluster,but they can be configured to be cleaned up by setting hook deletion policies
+After a job is completed, tee resource for the hook stays as a resource on the cluster,but they can be configured to be cleaned up by setting hook deletion policies
 
 ```yaml
 "helm.sh/hook-delete-policy": hook-succeded
 ```
 
---> The `hook-succeded` deletes the resource after the hook is succefully executed. If the hook fail to execute, the resources won't be deleted --> can be useful to debug.
+<span style="color: #3588E9">--></span> The `hook-succeded` deletes the resource after the hook is successfully executed. If the hook fail to execute, the resources won't be deleted <span style="color: #3588E9">--></span> can be useful to debug.
 
 `hook-failed` deletes the resource even if the hook-failed execution 
 
-`before-hook-creation` the default value if no hook-deleti policy is specified, it deletes the previous resource before a new hook is launched. 
+`before-hook-creation` the default value if no hook-delete policy is specified, it deletes the previous resource before a new hook is launched. 
 
-helm upgrade --> verify --> render --> upgrade 
+helm upgrade <span style="color: #3588E9">--></span> verify <span style="color: #3588E9">--></span> render <span style="color: #3588E9">--></span> upgrade 
 workflow
 ###### <span style="color: #689d6a">Helm CLI</span>
 
@@ -311,6 +311,10 @@ To list all existing releases:
 
 ```shell
 helm list
+```
+
+```shell
+helm list -A #  show deployments across the namespace
 ```
 
 To remove the app:
@@ -364,6 +368,12 @@ The `--version` option allows to pass a specific version of the helm chart:
 
 ```shell
 hekm install my-release bitnami/nginx --version 7.1.0 
+```
+
+To remove the application:
+
+```shell
+hekm uninstall my-release ./wordpress
 ```
 
 To upgrade a release:
@@ -485,24 +495,22 @@ To upload the chart:
 helm repo add cool-chart https://example.charts.srorage.com
 ```
 
+To delete the chart
 
-- `helm repo remove <name>` --> deletes a helm repository
+```shell
+helm repo remove cool-chart
+```
+
 - `helm show` --> show information of the chart
 	- helm show chart bitnami/kube-state-metrics --> chart name
 	- helm show values bitnami/kube-state-metrics > values.yaml --> redirect the output to a file
-- `helm lint <chart_name>` --> validate the helm chart
 - `helm delete challenge-metrics-server -n challenge` --> remove the chart
 - `helm install <name> <chart>` --> install a deployment
-	- `.` --> to install on the current directory
 	- `-n` --> to inform the namespace name
-	- `--dry-run` --> execute the four stages of the deployment workflow. It helps to validate the configuration before deploy to the cluster.
 	- `--wait` --> wait for the successful installation of the Pod
 	- `--timeout` --> override the default timeout
-- `helm lint` --> to validate a chart
 - `helm ls -n metrics` --> check the deployment of the chart
 - `helm templates` --> generates the yaml files for each kubernetes object
-- `helm list` --> show the number of deployments
-	- `--a-namespace` or `A` --> show deployments across the namespace
 - `helm status <deployment_name>` --> show the deployment details
 - `helm get` --> get more details about a kubernetes object
 	- `--revision` --> to show a specific revision
@@ -511,13 +519,11 @@ helm repo add cool-chart https://example.charts.srorage.com
 	- `--atomic` --> automatically rollback a previous version of a deployment
 - `helm uninstall` --> removes a deployment
 	- `--keep-history` --> to keep the previous release (maintain the secrets)
-- `helm rollback` --> restore a revision
-	- Ex: `helm rollback mymariadb 3 -n database`
 ###### <span style="color: #689d6a">Helm Functions</span>
 
 functions in Helm help transform data from one format to another
 
-`upper` --> converts the value to upper case in the generated manifest file
+`upper` <span style="color: #3588E9">--></span> converts the value to upper case in the generated manifest file
 
 >[!example]
 >```go
@@ -526,13 +532,13 @@ functions in Helm help transform data from one format to another
 >upper <span style="color: #3588E9">--></span> function name
 >Values.image.repository <span style="color: #3588E9">--></span> argument
 
-quote --> add quotes around the text in the generated manifest file
+`quote` <span style="color: #3588E9">--></span> add quotes around the text in the generated manifest file
 
 ```yaml
 {{ quote .Values.image.repository }}
 ```
 
-replace --> replaces a character with another
+`replace` <span style="color: #3588E9">--></span> replaces a character with another
 
 >[!example]
 >```shell
@@ -540,7 +546,7 @@ replace --> replaces a character with another
 >```
 >X is the string to look for and Y is the string to replace it with.
 
-shuffle --> shuffle the characters
+`shuffle` <span style="color: #3588E9">--></span> shuffle the characters
 
 ```yaml
 {{ shuffle .Values.image.repository }}
@@ -554,7 +560,7 @@ The `default` function can be used to specify a default value.
 >```
 >The value always have to be within a quote, anything that's not in quote is considered a variable.
 
-`{{ | }}` --> pipe function, used to chain the functions available in the go and it supply the first function output as the input to the next function. Pipeline allows to pipe multiple functions one after the other.
+`{{ | }}` <span style="color: #3588E9">--></span> pipe function, used to chain the functions available in the go and it supply the first function output as the input to the next function. Pipeline allows to pipe multiple functions one after the other.
 
 ```shell
 {{ .Values.image.repository | upper | quote }}

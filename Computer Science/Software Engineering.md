@@ -2458,7 +2458,7 @@ REST APIs allows to communicate through the internet allowing the user to take a
 
 The RE stands for Representational, the S stands for State, the T stand for Transfer.
 
-<span style="color: #d65d0e">REST APIs</span> provide a flexible, lightweight way to integrate applications, and have emerged as the most common method for connecting components in microservices architectures
+<span style="color: #d65d0e">REST APIs</span> provide a flexible, lightweight way to integrate applications, and have emerged as the most common method for connecting components in micro services architectures
 
 A specific type of web API that follows the principles of representational state transfer (REST). It is an architectural style for designing networked applications.
 

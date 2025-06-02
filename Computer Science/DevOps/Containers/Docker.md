@@ -156,7 +156,7 @@ To keep a long running container, its necessary to specify what the <span style=
 
 A Dockerfile is a text file that contains instructions needed to create an image, it can be created using any editor, from the console or terminal.
 
-Each Docker instruction on a Dockerfile creates a new layer in the image.
+Each docker instruction on a Dockerfile creates a new layer in the image.
 
 >[!example]
 >```dockerfile

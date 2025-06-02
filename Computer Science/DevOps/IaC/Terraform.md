@@ -1786,41 +1786,82 @@ To use terraform cloud:
 >```
 
 >[!info]
->If Terraform can not use the remote backend, it will error --> it can be an authentication error, for example.
+>If Terraform can not use the remote backend, it will error <span style="color: #3588E9">--></span> it can be an authentication error, for example.
+###### <span style="color: #98971a">Workspaces</span>
 
 A <span style="color: #d65d0e">Terraform workspace</span> is a managed unit of infrastructure.  <strong style="color: #b16286">Workspaces are the workhouse of Terraform Cloud</strong> and build on the Terraform CLI workspace construct. Each uses the same Terraform code to deploy infrastructure and each keeps separate data for each workspace. Terraform Cloud simply adds more functionality.
 
 In Terraform Cloud the workspace stores state data, has it's own set variables values and environment variables, and allows for remote operations and logging. Terraform Cloud workspaces also provide access controls, version control integration, API access and policy management.
 
+The naming convention for workspaces on Terraform Cloud is the team name, the cloud  infrastructure will be deployed in, the application or purpose of the infrastructure, and the environment (dev, staging, prod).
+
+>[!example]
+>Suggested workspace naming convention:
+>- devops-aws-myapp-dev
+>
+
+>[!note]
+>A workspace name has to be all lower cases letters, numbers and dashes.
+
+The state data in workspace can also be shared with other workspaces in the organization as a data source.
+
+Variables can be set at the workspace level:
+- Workspace <span style="color: #3588E9">--></span> Variables <span style="color: #3588E9">--></span> Workspace variables
+
+To provision the infrastructure to a specific environment, the workspace must be defined at the root level. To use the same Terraform code base, the backend partial configuration capabilities must be leveraged. 
+
+>[!example] Example - prod.hcl
+>```hcl
+>workspaces { name="devops-aws-myapp-prod"}
+>```
+>This part overrides the default workspace name
+
+>[!note]
+>Any infrastructure that is managed together as a unit should be placed into the same workspace.
+###### <span style="color: #98971a">Variables</span>
+
+Terraform Cloud supports two types of variables: terraform variables and environment variables. 
+
+When using variables up in TerraForm Cloud, it's best to set them to the same values that as before it was running them locally.
+
 Terraform cloud allows to specify credentials to aws environments through environment variables.
 
 It stores the state file, and keeps a version history of the state file as it grows and changes over time.
 
-workspaces
-
-terraform cloud has bultin suppoort for encrypton and storage of variables used within the terraform configuration.
-terraform cloud support two types of variables: terraform variables and environment variables
 the configuration places a terraform cloud variable as a priority over any over variables that has been set
+
+each workspace has the ability to set variables, which is specific to the configuration that that workspace represents.
+
 variables can be reused across multiple workspaces within the terraform cloud environment --> terraform cloud variables sets
+###### <span style="color: #98971a">Version Control</span>
 
-terraform cloud can integrate with the most popular VCS systems, including GitHub, GitLab, Bitbucket and Azure DevOps. 
-Settings --> Add a VCS provider
+Terraform Cloud can integrate with the most popular VCS systems, including GitHub, GitLab, Bitbucket and Azure DevOps. And it works actually with the on prem or SAS based versions of these products.
 
-private module registry allows to store and verson terraform modules whic hare re-usable snippets of terraform code.  It's an index of private modules that aren't shared with publicity.
-Publish button --> connect to GitHub --> Publish module
+To add a version control system:
+- Settings <span style="color: #3588E9">--></span> Add a VCS provider
 
-the terraform private modules follow a naming convention: `terraform-<PROVIDER>-name` 
+Terraform Cloud's Private Module Registry allows to store and version terraform modules which are re-usable snippets of terraform code.  It's an index of private modules that aren't shared with publicity.
 
-Sentinel Policy
+The terraform private modules follow a naming convention: 
+- `terraform-<PROVIDER>-name`
 
-Sentinel policy --> policy-as-code product from HashiCorp that automatically enforces logic based policy decisions across the entire HashiCorp Enterprise products.
-it stays between the plan and apply stages --> it allows to enforces policies before the infra gets provisioned. 
+To add a private module:
+- Publish button <span style="color: #3588E9">--></span> connect to GitHub <span style="color: #3588E9">--></span> Publish module
+###### <span style="color: #98971a">Sentinel Policy</span>
 
-Terraform Cloud --> plan --> Sentinel Policies --> apply
+Sentinel is the Policy-as-Code product from HashiCorp that automatically enforces logic based policy decisions across the entire HashiCorp Enterprise products. In other words, is a policy as code framework.
 
-individual Sentinel policies can be grouped together and their enforcement level can be specified using a Sentinel policy set, which is a collection of sentinel policies defined within the `sentinel.hcl` file.  Policy enforcement level are also defined inside the policy set.
+>[!note]
+>The Sentinel policies should be stored in version control system, like GitHub.
 
-organization settings --> policy sets --> connect a new policy set
+It stays between the plan and apply stages <span style="color: #3588E9">--></span> it allows to enforces policies before the infra gets provisioned. 
+
+Terraform Cloud <span style="color: #3588E9">--></span> plan <span style="color: #3588E9">--></span> Sentinel Policies <span style="color: #3588E9">--></span> apply
+
+>[!info]
+>The Sentinel Policy is injected between the plan and apply stages <span style="color: #3588E9">--></span> allows to enforce policies before infrastructure actually gets provisioned.
+
+Individual Sentinel policies can be grouped together and their enforcement level can be specified using a Sentinel policy set, which is a collection of sentinel policies defined within the `sentinel.hcl` file.  Policy enforcement level are also defined inside the policy set.
 
 A sentinel policy can be enforced on specifics workspaces. Multiple policies can be grouped within a single file and terraform cloud will apply them in the order that they appear in the file.
 
@@ -1844,10 +1885,13 @@ A sentinel policy can be enforced on specifics workspaces. Multiple policies can
 >```
 >Sentinel modules were imported to make use of repeatable function within the policy.
 
-Enforcement levels
-- Advisory: The policy is allowed to fail. However, a warning should be shown to the user or logged.
-- Soft Mandatory: The policy must pass unless an override is specified. The semantics of "override" are specific to each Sentinel-enabled application. The purpose of this level is to provide a level of privilege separation for a behavior. Additionally, the override provides non-reputation since at least the primary actor was explicitly overriding a failed policy.
-- Hard Mandatory: The policy must pass no matter what. The only way to override a hard mandatory policy is to explicitly remove the policy. Hard mandatory is the default enforcement level. Ir should be used in situations where an override is not possible.
+Sentinel has three enforcement levels:
+- <strong style="color: #b16286">Advisory:</strong> The policy is allowed to fail. However, a warning should be shown to the user or logged.
+- <strong style="color: #b16286">Soft Mandatory:</strong> The policy must pass unless an override is specified. The semantics of "override" are specific to each Sentinel-enabled application. The purpose of this level is to provide a level of privilege separation for a behavior. Additionally, the override provides non-reputation since at least the primary actor was explicitly overriding a failed policy.
+- <strong style="color: #b16286">Hard Mandatory:</strong> The policy must pass no matter what. The only way to override a hard mandatory policy is to explicitly remove the policy. Hard mandatory is the default enforcement level. Ir should be used in situations where an override is not possible.
+
+To add the policy set to Terraform Cloud organization:
+- organization settings <span style="color: #3588E9">--></span> policy sets <span style="color: #3588E9">--></span> connect a new policy set
 ###### Terraform concepts
 
 Another common practice is to have one single configuration file that contains all the resource blocks required to provision the infrastructure. A single configuration file can have as many number of configuration blocks that you need. A common naming convention used for such a configuration file is to call it the main.tf.
