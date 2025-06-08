@@ -1,5 +1,7 @@
 ## **Introduction**
 ---
+Cybersecurity is the ongoing effort to protect individuals, organizations and governments from digital attacks by protecting networked systems and data from unauthorized use or harm.
+
 <span style="color: #d65d0e">Cyber Security</span> allows to protect assets, usually digital assets. That can be private or personal information, to our website or application, to our entire company's data and business plan.
 
 <span style="color: #d65d0e">Black Hat hackers</span> <span style="color: #3588E9">--></span> in digital world, people just waiting to inflict damage to others.

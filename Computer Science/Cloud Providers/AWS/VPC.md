@@ -102,3 +102,4 @@ Once Elastic Beanstalk  is running, the application can be deployed on it by usi
 >}
 >```
 
+There's a soft limit of number of ENIs that a user can have per region. 

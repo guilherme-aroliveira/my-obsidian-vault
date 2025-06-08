@@ -468,14 +468,14 @@ To check if virtualization is supported on Linux:
 
 An <span style="color: #d65d0e">image</span> <strong style="color: #b16286">is a package or a template</strong>, just like a VM template that you might have worked with in the virtualization world. <strong style="color: #b16286">It is used to create one or more containers.</strong>
 
-<span style="color: #d65d0e">Containers</span> <strong style="color: #b16286">are running instances of images</strong> that are isolated and have their own environments and set of processes.
+<span style="color: #d65d0e">Containers</span> <strong style="color: #b16286">are running instances of images</strong> that are isolated and have their own environments and set of processes. It's a way of packaging all of the configuration and dependencies to run a program into a small bundle of code that can be run on any machine or operating system.
 
 >[!info]
 >The container image doesn't have the OS Kernel, it has a slim version of all OS utilities that's needed to run the container.
 
 A <span style="color: #d65d0e">container</span>, powered by the <span style="color: #d65d0e">containerization engine</span>, is a <strong style="color: #d79921">standard unit of software</strong> that encapsulates everything (applications code, runtime, system tools, system libraries) that programmers need to build, ship and run applications efficiently.
 
-A container is an isolated process that consist of the following itens, all bundled into one package:
+A container is an isolated process that consist of the following items, all bundled into one package:
 - the application code
 - thee required dependencies (e.g. libraries, utilities, configuration files)
 - the necessary runtime environment to run the application
