@@ -17,6 +17,8 @@ With provision concurrency, Lambda can be configured to keeps a certain number o
 
 Obs: A Lambda run can only run to 15 minutes maximum. And any function must adhere to a 10 GB RAM limit and a 10 GB storage limit.
 
+When a function runs, Lambda automatically allocates a proportional amount of CPU power based of the amount of memory configured. If the amount of memory is increased, it's also automatically increasing the amount of CPU.  
+
 <strong>Events Sources</strong>
 
 Lambda supports Push and Pull Model for invoking the function.
@@ -47,7 +49,63 @@ In case of errors or poor model invocation, for streams, Lambda will stop pullin
 
 <strong>Access Permissions</strong>
 
+invocation permissions --> only needed for a push event source type. The event sources must have permission to trigger a Lambda function. This is done through an IAM resource policy. 
+
+execution roles --> grants Lambda permissions to interact with other AWS service. Example: Lambda needs to place files into S3. It's done by placing two IAM policies in every execution role.
+- IAM policy --> defines what Lambda is allowed to do with the other service.
+- trust policy --> allows Lambda to assume the execution role and perform those actions on the other service.
+
+>[!example] Example - IAM policy
+>```json
+>{
+>  "Version": "2012-10-17"
+>  "Statement": [
+>    {
+>      "Sid": "ExampleSourceFunctionArn",
+>      "Effect": "Allow",
+>      "Action": "s3:PutObect",
+>      "Condition": {
+>        "ArnEquals": {
+>          "lambda:SourceFunctionArn": "arn:aws:lambda:us-east-1:account_ID:function:source_lambda"
+>        }
+>      }
+>    }
+>  ]
+>}
+>```
+
+>[!example] Example - trust policy
+>```json
+>{
+>  "Version": "2012-10-17"
+>  "Statement": [
+>    {
+>      "Effect": "Allow",
+>      "Principal": {
+>        "Service": "lambda.amazonaws.com"
+>      },
+>      "Action": "sts:AssumeRole"
+>    }
+>  ]
+>}
+>```
+
 <strong>Pricing model</strong>
+
+Monthly Free Tier:
+- 1 Million request and 400, 000 Gigabit seconds
+
+Parts of Lambda Cost:
+1. Number of Requests
+2. Gigabit Seconds (Amount of Time x Amount of Resources)
+
+A request begins each time Lambda starts executing the function in response to an event trigger. 
+
+For the amount if time, the clock start when the code begins executing and ends when it terminates. It includes and any initialization or shutdown phase in the Lambda function code. 
+
+The price for the amount of time will depend on the amount of memory allocated to the function. Any amount of memory from 128 megabytes to 10 gigabytes can be allocated. 
+
+The type of processor configured has an impact on pricing. Ephemeral storage and provisioned concurrency also add additional cost to the Lambda functions --> the cost is region-specific.
 
 <strong>Functions</strong>
 

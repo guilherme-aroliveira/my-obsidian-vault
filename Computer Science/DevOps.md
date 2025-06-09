@@ -11,7 +11,7 @@ DevOps has three dimensions: culture, methods and tools.
 
 Working in <span style="color: #d65d0e">small batches</span> is a <strong style="color: #d79921">concept</strong> from <span style="color: #d65d0e">Lean Manufacturing</span>. It's important in situations when fast feedback is required. Feature size support frequent releases, features should be completed in a script.
 
-<strong style="color: #d79921">Working DevOps</strong> is all about facilitating a cultura of teaming and collaboration, agile development as a shared discipline, automate relentless, push smaller releases faster.
+<strong style="color: #d79921">Working DevOps</strong> is all about facilitating a culture of teaming and collaboration, agile development as a shared discipline, automate relentless, push smaller releases faster.
 
 DevOps <strong style="color: #b16286">seeks to breaking big projects down</strong> to deliver a continual series of <strong style="color: #d79921">small changes</strong> that are more manageable DevOps reduces the risk of large projects.
 

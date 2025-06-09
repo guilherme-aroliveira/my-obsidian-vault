@@ -1894,8 +1894,6 @@ To add the policy set to Terraform Cloud organization:
 - organization settings <span style="color: #3588E9">--></span> policy sets <span style="color: #3588E9">--></span> connect a new policy set
 ###### Terraform concepts
 
-Another common practice is to have one single configuration file that contains all the resource blocks required to provision the infrastructure. A single configuration file can have as many number of configuration blocks that you need. A common naming convention used for such a configuration file is to call it the main.tf.
-
 TerraForm can read attributes of existing infrastructure components by configuring data sources. This can lead to be used for configuring other resources within TerraForm
 The data source block consists of specific arguments for a data source. Data sources are also called data resources.
 
