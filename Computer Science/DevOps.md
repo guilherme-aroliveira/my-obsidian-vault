@@ -324,7 +324,7 @@ Remote platforms (repository managers) alto referred as <strong style="color: #d
 <span style="color: #d65d0e">Repository Manager</span> <span style="color: #3588E9">--></span> cloud-based service or on-premises installation. includes capabilities such as: issue tracking, pull requests, code review, access controls, inline editing.
 
 Some of the most popular repository hosts are:
-- <span style="color: #689d6a">GitHub</span> <span style="color: #3588E9">--></span> cloud hosting, open-source leader, REST API to access data, Gists feature for sharing small code snippets.
+- <span style="color: #689d6a">GitHub</span> <span style="color: #3588E9">--></span> cloud hosting, open-source leader, REST API to access data, Git's feature for sharing small code snippets.
 - <span style="color: #689d6a">GitLab</span> <span style="color: #3588E9">--></span> cloud and self-hosting (completely free), CI capabilities support via its GitLab Runner feature, Cycle analytics.
 - <span style="color: #689d6a">Bitbucket</span> <span style="color: #3588E9">--></span> multi-platform, Jira integration, Confluence integration. 
 ##### <span style="color: #d79921">Distributed VCS</span>
@@ -533,7 +533,7 @@ Some of the well-know <strong style="color: #d79921">container orchestration too
 - <span style="color:#98971a">Marathon</span> <span style="color: #3588E9">--></span> is a framework for Apache Mesos, and open-source cluster manager that was developed by the University of California at Berkeley. It allows the developer to scale container infrastructure by automating the bulk of management and monitoring tasks.
 - <span style="color:#98971a">Hashicorp's Nomad</span> <span style="color: #3588E9">--></span> is a free and open-source cluster management and scheduling tool that supports Docker and other standalone, virtualized, or containerized applications on all major operating systems across all infrastructure, whether on-premises or in the cloud.
 - <span style="color:#98971a">Docker Swarm</span> <span style="color: #3588E9">--></span> it's the cluster management and orchestration feature that was designed specifically to work with Docker Engine and other Docker tools. It's functionality comes from a separate project that Docker calls Swarmkit.
-- <span style="color:#98971a">Kubernetes</span> <span style="color: #3588E9">--></span> it's an open-source platform developed by Google, and it's the de facto standard for container orchestration. Kubernetes automates a host of container management tasks like: deployment, storage provisioning, load balancing and scaling, service discovery and "self-healing".
+- <span style="color:#98971a">Kubernetes</span> <span style="color: #3588E9">--></span> it's an open-source platform developed by Google, and it's the standard for container orchestration. Kubernetes automates a host of container management tasks like: deployment, storage provisioning, load balancing and scaling, service discovery and "self-healing".
 
 >[!info]
 >Container orchestration helps to meet business goals and increase profitability by using <span style="color: #d65d0e">automation</span>.
@@ -703,7 +703,7 @@ IaC can be broadly classified into three types: Configuration Management, Server
 
 <span style="color: #d65d0e">Server Templating Tools</span> <span style="color: #3588E9">--></span> these are tools like Docker, Vagrant and Packer from Hashicorp that can be used to create a custom image of a virtual machine or a container. These images already contain all the required software and dependencies installed on them.
 
-<strong style="color: white">Benefits</strong> of <span style="color: #d65d0e">IaC</span>: faster time to production, more efficient development, protection against staff churn, lower costs and improved use of developer time, and idempotente.
+<strong style="color: white">Benefits</strong> of <span style="color: #d65d0e">IaC</span>: faster time to production, more efficient development, protection against staff churn, lower costs and improved use of developer time, and idempotent.
 
 <span style="color: #d65d0e">In place update</span> <span style="color: #3588E9">--></span> use the same software upgrade life cycle for each server using the same approach
 
@@ -918,6 +918,29 @@ Continuous Delivery <strong style="color: #d79921">requires</strong> Continuous 
 - [[Jenkins]], [[GitHub Actions]], [[Gitlab]], [[Tekton]], [[Openshift Pipelines]]
 ###### <span style="color: #689d6a">GitOps</span>
 
+
+
+<span style="color:#d65d0e">ArgoCD</span> <span style="color: #3588E9">--></span> declarative Continuous Delivery tool that makes CD easy to automate, audit, and understand. It follows the GitOps pattern of using Git repositories as the single source of truth for defining the desired application state. 
+
+It reports deviations and providers visualizations to help developers manually and automatically sync the live state with the desire state.
+
+ArgoCD, as a Kubernetes controller, monitors the current application state compared to the desired state, visualizes the differences, and ensures parity by automatically syncing. It automates the sunchronization of the desired state with each of teh specified target environments, 
+
+- Argo CD was originally developed by Intuit, as they were looking for a lighter tool than Spinnaker that would improve build and deployment times and streamline their GitOps workflow. The UI is well made and easy to use and integrates well with a variety of CI tools such as Jenkins, GitHub Actions, CircleCI, and more.
+
+concepts:
+- 
+
+- <strong style="color: white">Features:</strong>
+	- Declarative application deployment
+	- Continuous Monitoring Synchronization
+	- Single Sign-On (SSO) Integrations
+	- Rollback and Controlled Roll-outs
+	- Reusable Application Configurations Patterns
+	- Robust Role-based Access Control (RBAC)
+
+## **GitOps**
+
 <span style="color: #d65d0e">GitOps</span> is an operational framework that utilizes the best practices of DevOps.
 
 Also known as Git powered Ops.
@@ -940,17 +963,20 @@ GitOps advocates to apply principles such as reviews, pull requests, and tagging
 >The beauty of the GitOps approach is that it eliminates the need for manual intervention while maintaining the security and integrity of the system. The developers or SREs can reverse the process just as easily by simply reverting the Git changes in the IaC repository.
 
 - <strong style="color: white">Principles</strong>
+	- declarative versus imperative approach --> it demans that the entrie system insluding infra and applicartions anifest to be declared in a declarative state
 	- Defines system definition as code --> facilitates easy roll-out and rollback
 	- Versions and defines desired system configuration
-	- Provides git changes that enable pull requests
+	- make use of Git, Provides git changes that enable pull requests, all the declarative filr (derised state) are stored in a Git repository.
 	- Offers a controller to avoid configuration drifts --> current system state matches desired state
+	- GitOps operators (software agents) --> automaticallt pull the desied state from GIt and apply them in one or more environment or clusters.
+	- GitOps opetators also makes sure the the entire stytem is self-healing to reduce the risk of human errors.
 - <strong style="color: white">Benefits</strong>
 	- Continuous Deployment --> automation of infrastructure changes
 		- Ensures quick and reliable updates
 	- Version Control and Traceability
 		- Provides a complete history of changes
 		- Allows rollback to the previous
-	- Consistency and Reproducibility
+	- Consistency and reproducibility
 		- Relies on version-controlled configuration
 		- Ensures that actual state matches desired state
 	- Collaboration and Review
@@ -959,16 +985,7 @@ GitOps advocates to apply principles such as reviews, pull requests, and tagging
 		- Provides a centralized and auditable record of modifications
 	- Infrastructure as Code
 		- Defines and manages infrastructure and configuration
-
-<span style="color:#d65d0e">ArgoCD</span> <span style="color: #3588E9">--></span> declarative Continuous Delivery tool that makes CD easy to automate, audit, and understand. It follows the GitOps pattern of using Git repositories as the single source of truth for defining the desired application state. ArgoCD, as a Kubernetes controller, monitors the current application state compared to the desired state, visualizes the differences, and ensures parity by automatically syncing.
-- Argo CD was originally developed by Intuit, as they were looking for a lighter tool than Spinnaker that would improve build and deployment times and streamline their GitOps workflow. The UI is well made and easy to use and integrates well with a variety of CI tools such as Jenkins, GitHub Actions, CircleCI, and more.
-- <strong style="color: white">Features:</strong>
-	- Declarative application deployment
-	- Continuous Monitoring Synchronization
-	- Single Sign-On (SSO) Integrations
-	- Rollback and Controlled Roll-outs
-	- Reusable Application Configurations Patterns
-	- Robust Role-based Access Control (RBAC)
+	- Eliminates configuration drift
 ## **Micro services**
 ---
 <span style="color: #d65d0e">Microsserviços</span> é uma <strong style="color: #b16286">forma particular de projetar aplicações de software como suítes de serviços implantáveis de forma independente</strong>. 
