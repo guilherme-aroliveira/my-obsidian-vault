@@ -346,57 +346,68 @@ The <span style="color: #d65d0e">labels</span> for the Pod template and for the 
 >``` 
 
 To update the number of replicas:
-- update the number of replicas in the definition file 
-- run `kubectl scale --replicas=6 -f replicaset.definition.yml` 
-- run `kubectl scale --replicas=6 replicaset(TYPE) mapp-replicaset(NAME)` 
+- update the number of replicas in the definition file
+- run `kubectl scale replicasets --replicas=6 -f replicaset.definition.yml` 
+- run `kubectl scale replicasets frontend-rs --replicas=6` 
 - automatically scaling based on load
 
 >[!note]
 >Using the file name as input will not result in the number of replicas being updated automatically in the file.
 ###### <strong style="color:#98971a">Deployments</strong>
 
-<span style="color:#98971a">Deployments</span> <span style="color: #3588E9">--></span> higher-level object that provides updates for Pods and ReplicaSets. Deployments run multiple replicas of an application using ReplicaSets and offer additional management capabilities on top of these ReplicaSets.
+O <span style="color:#98971a">Deployment</span> é o recurso responsável por realizar a implantação da aplicação. It's a higher-level object that provides updates for Pods and ReplicaSet. Deployments run multiple replicas of an application using ReplicaSet and offer additional management capabilities on top of these ReplicaSet. 
+
+The <span style="color:#98971a">deployment</span> is a kubernetes object that comer higher in the hierarchy, it provides capability to upgrade the underlying instances seamlessly using Rolling Updates. It can also perform Rollbacks and maintain a record of revisions and record the cause of change. 
+
+>[!info]
+>Por padrão o kubernetes utiliza a estratégia de rolling updates (rolling release), que executa uma atualização baseadas em percentual de indisponibilidade de Pods. O padrão é ter no máximo 25% de indisponibilidade do total de Pods rodando.
+
+Outra estratégia de deployment é o Recreate Deployment --> destroy all instances and than deploy new ones of the applications version. This strategy (not default) let the application down and inaccessible to users. 
 
 Examples of Deployments include: the deployment of a replicated application, Pod updates managed by a Deployment, or the scaling up of an application.
 
-it can hep to perform rolling updates and rollbacks and maintain a record of revisions and record the cause of change.
+The contents of the deployment definition file are exactly similar to the ReplicaSet definition file except for the kind which is now going to be deployment. It automatically creates a ReplicaSet.
 
-kubernetes objestc that comer higher in the hirarchy. the deployment provides the capability to upgrade the underlyings instances seamslessly usin grolling updates.
-
-The contents of the deployment definition file are exactly similar to the replica set definition file except for the kind which is now going to be deployment.
-
-The deployment automatically creates a replica set. deployments, creates a new Kubernetes object called deployment.
-
->[!example] Definition - kubectl
->```shell
-># to create a deployment
->kubectl create -f deployment-definition.yml
->
-># to see all the created objects at once
->kubectl get all
->
-># 
->kubectl apply -f deployment-definition.yml
->
+>[!example] Example - deployment file
+>```yaml
+>apiVersion: apps/v1
+>kind: Deployment
+>metadata:
+>  name: frontend-deployment
+>  labels:
+>    app: frontend
 >```
 
-When you first create a deployment, it triggers a rollout. A new rollout creates a new deployment revision (revision 1). when the application is upgraded (when the container vversion is updated), a new rollout is triggered and a new deployment revision is created named Revision two. helps us keep track of the changes made to our deployment and enables us to roll back to a previous version of deployment if necessary.
+To return all deployments:
 
-`kubectl rollout status deplpyment/myapp-deployment` # show the status if the rollout
+```shell
+kubectl get deployments
+```
 
-to show the revisions and history of rollout
-`kubectl roolout history deplpyment/myapp-deployment`
+When a deployment is created by the first time, it triggers a rollout.  A new rollout creates a new deployment revision (revision 1), and when the application is upgraded a new rollout is triggered and a new deployment revision is created (revision 2).
 
-There are two types of deployment strategies.
-- recreate strategy --> destroy all instances and than deploy new ones of the applications version. This strategy (not default) let the application down and inaccessible to users. 
-- rolling updates -->  upgrade instances one after the other
+Obs: The rollout helps to keep track of the changes made to the deployment and enable it to rollback to a previous version if necessary.
 
-the difference betweem each atrategy can be seen when view the deployent in detail.
+To check the rollout status:
 
-if a strategy is not specified while creating a deployment, it will assume it to be rolling updates (default deployment strategy.
+```shel
+kubectl rollout status deployment.apps/frontend-deployment
+```
 
+To verify more informant about the object:
 
-A new rollout is triggered and a version of the deployment is created an apply is executed.
+```shell
+kubectl describe deployment.apps/frontend-deployment
+```
+
+>[!note]
+>The difference between each deployment strategy can be seen with the <code style="color:#98971a">describe</code> option with the <code style="color:#98971a">kubectl</code> command.
+
+To check the rollout revisions:
+
+```shell
+kubectl roolout history deployment.apps/frontend-deployment
+```
 
 Another way to update the container image of a deployment:
 `kubectl set image deployemtm/myapp-deployemnt nginx \ nginx-container=nginx:1.9.1`
