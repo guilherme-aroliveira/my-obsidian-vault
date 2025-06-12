@@ -133,7 +133,8 @@
               "title": "Jenkins"
             }
           }
-        ]
+        ],
+        "currentTab": 6
       }
     ],
     "direction": "vertical"
@@ -263,13 +264,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Computer Science/DevOps.md",
-                "followCursor": true,
+                "file": "Computer Science/DevOps/Containers/Orchestration/Kubernetes.md",
+                "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of DevOps"
+              "title": "Outline of Kubernetes"
             }
           },
           {
@@ -306,11 +307,12 @@
       "vscode-editor:Create Code File": false
     }
   },
-  "active": "bca1a14235fdfd5f",
+  "active": "10e26bcaa82c768c",
   "lastOpenFiles": [
-    "Computer Science/Software Engineering.md",
-    "Computer Science/DevOps.md",
     "Computer Science/DevOps/Containers/Docker.md",
+    "Computer Science/DevOps.md",
+    "Computer Science/DevOps/CI/ArgoCD.md",
+    "Computer Science/Software Engineering.md",
     "Computer Science/DevOps/Containers/Orchestration/Kubernetes.md",
     "Computer Science/Cloud Providers/AWS/Lambda.md",
     "Computer Science/DevOps/IaC/Terraform.md",
@@ -333,7 +335,6 @@
     "Computer Science/Programming/Rust.md",
     "Computer Science/DevOps/Containers/Orchestration/AWS EKS.md",
     "Computer Science/Databases/SQL Server.md",
-    "Computer Science/Databases/Postgree SQL.md",
     "Computer Science/Cloud Providers/Azure",
     "Computer Science/DevOps/Tools",
     "Computer Science/DevOps/Containers/Orchestration",

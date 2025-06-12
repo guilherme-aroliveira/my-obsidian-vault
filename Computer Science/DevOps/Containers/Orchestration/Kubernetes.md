@@ -7,6 +7,28 @@ Kubernetes is supported on all public cloud services providers like GCP, Azure, 
 
 It's also known as "Kates" or K8s. Kubernetes is widely supported by leading cloud providers, many of whom now offer fully managed Kubernetes service. Kubernetes can run in any kind of server, such as on-premise data centers, public, private and hybrid cloud.
 
+<span style="color: #d65d0e">K8s</span> <span style="color: #3588E9">--></span> acrônimo de Kubernetes
+
+<strong style="color: white">Características</strong>
+- <span style="color: #d79921">Imutabilidade</span>
+	- princípios da infraestrutura imutável
+	- substituir um objeto criado
+	- incremento de segurança contra indisponibilidade
+- <span style="color: #d79921">Disponibilidade</span>
+	- configuração declarativa
+	- comandos imperativos - ações
+	- configuração declarativas - estado
+	- self-healing system <span style="color: #3588E9">--></span> sistemas de auto correção
+	- Auto-scale Up/Down
+	- DevOps Automation Tool
+	- Fault Protection <span style="color: #3588E9">--></span> acoes de forma preventiva
+- <span style="color: #d79921">Escalabilidade</span>
+	- YAML/JSON manifest files
+	- Escala declarativa
+	- Cluster scale support
+	- Service-based decoupling for teams
+	- Separation of Responsibilities Concept
+
 ---
 ##### <strong style="color: #689d6a">Kubernetes Architecture</strong>
 
@@ -18,9 +40,15 @@ The <span style="color:#d65d0e">master</span> is another node with Kubernetes in
 
 When kubernetes is being installed on a system, it's actually installing the following components: the <span style="color:#98971a">API Server</span>, <span style="color:#98971a">etcd service</span>, <span style="color:#98971a">kubelet service</span>, <span style="color:#98971a">Container Runtime</span>, <span style="color:#98971a">Controller and Schedulers</span>.
 
-The <span style="color:#98971a">Control Plane</span> maintains the intended cluster state by making decisions about the cluster and detecting and responding to events in the cluster. Each node is <strong style="color: white">managed</strong> by the Control Plane and contains the services necessary to run applications.
+The <span style="color:#98971a">Control Plane</span> maintains the intended cluster state by making decisions about the cluster and detecting and responding to events in the cluster. Each node is <strong style="color: white">managed</strong> by the Control Plane and contains the services necessary to run applications. 
 
-<span style="color:#98971a">API Server</span> acts as the front end for Kubernetes - the users, management devices, command line interfaces, all talk to the API server to interact with the Kubernetes cluster. <strong style="color: #b16286">All the communication in the cluster utilizes this API</strong>.
+O <span style="color:#98971a">API Server</span> é o servidor de API do kubernetes. Pertence a camada de gerenciamento do kubernetes, é um componente do Control Plane. É escalonável horizontalmente (tolerância a falhas).  
+
+The <span style="color:#98971a">API Server</span> acts as the front end for Kubernetes - the users, management devices, command line interfaces, all talk to the API server to interact with the Kubernetes cluster. <strong style="color: #b16286">All the communication in the cluster utilizes this API</strong>.
+
+The <span style="color:#98971a">controllers</span> are the brain behind orchestration. They are <strong style="color: #d79921">responsible for noticing and responding when nodes, containers or endpoints goes down</strong>. The controllers make decisions to bring up new containers in such cases. 
+
+O <span style="color:#98971a">Cloud controller manager</span> é um componente opcional que executa controladores específicos para provedor de nuvem. Ele vincula o cluster na API do provedor de nuvem.
 
 <span style="color:#98971a">Etcd</span> is <strong style="color: #d79921">distributed, reliable and highly available key value store</strong> used by Kubernetes to store all data used to manage the cluster. It stores deployment configuration data, defines the state in a <span style="color:#d65d0e">Kubernetes cluster</span>, and the system works to bring the actual state to match the desired state. 
 
@@ -29,9 +57,11 @@ The <span style="color:#98971a">Control Plane</span> maintains the intended clus
 >[!note]
 >Kubernetes works towards <strong style="color: #b16286">matching the current state to the desired state</strong>.
 
-The <span style="color:#98971a">kube-scheduler</span> is <strong style="color: #d79921">responsible for distributing work or containers across multiple nodes</strong>. It looks for newly created Pods and assigns them to nodes. It selects the most optimal node according to kubernetes scheduling principles, configuration options and available resources.
+O <span style="color:#98971a">kube-proxy</span> é uma implementação de um proxy de rede, que roda em cada node dentro do cluster. Ele viabiliza a comunicação de rede com os Pods, dentro e fora do cluster. 
 
-The <span style="color:#98971a">controllers</span> are the brain behind orchestration. They are <strong style="color: #d79921">responsible for noticing and responding when nodes, containers or endpoints goes down</strong>. The controllers make decisions to bring up new containers in such cases. 
+O <span style="color:#d65d0e">Pod</span> é a menor unidade computacional que se pode criar e gerenciar. Um Pod pode conter um ou mais containers.
+
+The <span style="color:#98971a">kube-scheduler</span> is <strong style="color: #d79921">responsible for distributing work or containers across multiple nodes</strong>. It looks for newly created Pods and assigns them to nodes. It selects the most optimal node according to kubernetes scheduling principles, configuration options and available resources.
 
 >[!info]
 >The container runtime is the underlying software that is used to run containers. Example: Docker.
@@ -41,34 +71,135 @@ The <span style="color:#98971a">controllers</span> are the brain behind orchestr
 The <span style="color:#98971a">Kubelet</span> It's also responsible to carry out actions requested by the master on the worker nodes. All the information gathered are stored in a key value store on the master, which is based on the popular <span style="color:#98971a">etcd</span> framework.
 
 The <span style="color:#d65d0e">worker node</span> is where the containers are hosted, like Docker containers for example. The master server has the <span style="color:#98971a">kube-api-server</span> and that is what makes it a master. All the information gathered by the <span style="color:#98971a">Kubelet</span> agent about the worker nodes are stored in <span style="color:#98971a">etcd</span> on the master node. The <strong style="color: #b16286">master also has the control manager and the scheduler</strong>.
-###### <strong style="color: #d79921">Container D</strong>
 
-Kubernetes introduced an interface called <span style="color:#d65d0e">Container Runtime Interface</span> (CRI), which allowed any vendor to work as a container runtime for Kubernetes as long as they adhere to the OCI standards. 
+O kubernetes <span style="color:#d65d0e">Container Runtime Interface</span> (CRI) é uma interface de plugin que habilita o <span style="color:#98971a">kubelet</span> a utilizar uma variedade de container runtime para Kubernetes (as long as they adhere to the OCI standards). 
+
+- <span style="color:#98971a">kubelet</span> <-- <span style="color:#d65d0e">CRI</span> --> <span style="color: #3588E9">CRI Plugin</span> - container D ---> <span style="color:#d65d0e">OCI</span> ---> containers
 
 <span style="color:#d65d0e">OCI</span> stands for <span style="color:#d65d0e">Open Container Initiative</span>, and it consist of an image spec and a runtime spec.
 - <span style="color:#98971a">image spec</span> <span style="color: #3588E9">--></span> specification on how an image should be built
 - <span style="color:#98971a">runtime spec</span>  <span style="color: #3588E9">--></span> defines the standards in how any container runtime should be developed
+
+Qualquer runtime que seja compatível com o padrão <span style="color:#d65d0e">OCI</span> será compatível com o kubernetes.
 
 >[!note]
 >In version 1.24 Kubernetes removed the support for Docker.
 
 <strong style="color: #b16286">Container D is CRI compatible</strong> and can work directly with kubernetes as all other runtime, which can be used as a runtime on its own, separate from Docker.
 
-`ctr` <span style="color: #3588E9">--></span> command line tool for Container D, made for debugging container D.
-- `ctr images pull docker.io/library/redis:alpine redis` --> to pull images
-- `ctr run docker.io/library/redis:alpine redis` to run a container 
+The <span style="color:#98971a">ctr</span> is a command line tool for Container D, made for debugging container D.
 
-`nerdctl` <span style="color: #3588E9">--></span> node control tool (CTL) which is better alternative for Container D than ctr. It's very similar to Docker, and supports all of the options that Docker supports.
-- `nerdctl run` <span style="color: #3588E9">--></span> name redis redis:alpine
-- `nerdcl run` <span style="color: #3588E9">--></span> name webserver -p 80:80 -d nginx
+To pull images:
 
-`crictl` <span style="color: #3588E9">--></span> command line tool used to interact with CRI compatible container runtime. It's maintained and developed by the kubernetes community. It works across all the different container runtimes and it's used to inspect and debug container runtime Obs: no ideally used to create container unlike Docker or the `nerdctl`.
-- `crictl pull busybox`
-- `crictl images`
-- `crictl ps -a`
-- `crictl ecec -t <tag> ls`
-- `crictl logs`
-- `crictl pods `
+```shell
+ctr images pull docker.io/library/redis:alpine redis
+```
+
+To run a container:
+
+```shell
+ctr run docker.io/library/redis:alpine redis
+```
+
+The <span style="color:#98971a">nerdctl</span> is a node control tool (CTL) which is better alternative for Container D than ctr. It's very similar to Docker, and supports all of the options that Docker supports.
+
+To run a container:
+
+```shell
+nerdtcl run name webserver -p 80:80 -d nginx
+```
+
+The <span style="color:#98971a">crictl</span> is command line tool used to interact with CRI compatible container runtime. It's maintained and developed by the kubernetes community. It works across all the different container runtime and it's used to inspect and debug container runtime. 
+
+>[!note]
+>Obs: no ideally used to create container unlike Docker or the <span style="color:#98971a">nerdctl</span>
+
+To install a container:
+
+```shell
+crictl pull busybox
+```
+
+To list all containers:
+
+```shell
+crictl ps -a
+```
+
+To list all pods:
+
+```shell
+crictl pods
+```
+
+To list all images:
+
+```shell
+crictl images
+```
+##### <strong style="color: #689d6a">Kubernetes Tools</strong>
+###### <span style="color:#98971a">minikube</span>
+
+<span style="color:#98971a">minikube</span> <span style="color: #3588E9">--></span> is a software (utility) that allows developers to run a Kubernetes cluster on the local machine. It's a very useful tool that helps in the process of learning Kubernetes.
+- all the basic operations can be done on a <span style="color:#98971a">minikube</span> cluster
+- it uses the <span style="color:#98971a">kubectl</span> tool to manage the cluster
+- <code style="color:#689d6a">minikube start --driver=virtualbox</code>
+- <code style="color:#689d6a">minikube status</code>
+###### <span style="color:#98971a">kubectl</span>
+
+<span style="color:#98971a">kubectl</span> <span style="color: #3588E9">--></span> is the Kubernetes command line interface (CLI), stands for <span style="color:#d65d0e">Kube Command Line Tool</span>. It's <strong style="color: #d79921">used to deploy and manage applications on a Kubernetes cluster</strong> to get cluster information, to get status of other nodes in the cluster, inspect and manage cluster resources, view logs, and more. Key commands types: Imperative commands, Imperative object configuration and Declarative object configuration.
+- <code style="color:#98971a">kubectl [<span style="color:#689d6a">command</span>] [<span style="color:#689d6a">type</span>] [<span style="color:#689d6a">name</span>] [<span style="color:#689d6a">flags</span>]</code>
+	- [<span style="color:#689d6a">command</span>] <span style="color: #3588E9">=</span> any operation to be performed (create, get, apply, delete)
+	- [<span style="color:#689d6a">type</span>] <span style="color: #3588E9">=</span> resource type (pod, deployment, replica set)
+	- [<span style="color:#689d6a">name</span>] <span style="color: #3588E9">=</span> resource name (if applicable)
+	- [<span style="color:#689d6a">flags</span>] <span style="color: #3588E9">=</span> special options or modifiers that override default values
+- <strong style="color: #d79921">Imperative commands</strong>:
+	- Allows to create, update and delete objects directly. Operations should be specified as arguments or flags.
+	- They don't provide an audit trail. They also don't use templates, and they can't integrate with change review processes.
+	- <span style="color: #3588E9">--></span> ideal for development and test environments.
+	- <code><span style="color:#98971a">$ kubectl</span> <span style="color:#689d6a">run</span></code> <span style="color: #3588E9">--></span> used to deploy an application on the cluster.
+		-  Ex: `kubectl run hello-minikybe`
+	- <code style="color:#689d6a">kubectl cluster-info</code> <span style="color: #3588E9">--></span> to view information about the cluster
+	- kubectl get all --> to list all objects
+	- <code style="color:#689d6a">kubectl get nodes</code> <span style="color: #3588E9">--></span> to list all the nodes of the cluster
+	- <code style="color:#689d6a">kubectl get deployments</code>
+	- <code style="color:#689d6a">kubectl get pods</code>
+	- <code style="color:#689d6a">kubectl get secrets</code> --> shows all the secrets in the kubernetes cluster
+		- Ex: `kubectl get secrets -n database`
+		- `kubectl get secrets -n database <secret_name> -o yaml`
+- <strong style="color: #d79921">Imperative object configuration</strong>:
+	- The kubectl command specifies required operations, optional flags, and at least one file name.
+	- The specified configuration file specified must contain a full definition of the objects in YAML or JSON format.
+	- <code><span style="color:#98971a">$ kubectl <span style="color:#689d6a">create -f pod-definition.yaml</span></span></code>
+	- Configuration templates help replicate identical results.
+- <strong style="color: #d79921">Declarative object configuration</strong>:
+	- Stores configuration data in files.
+	- Operations are identified by <code style="color:#98971a">kubectl</code> not the user.
+	- Works on directories or individual files
+	- <code><span style="color:#98971a">$ kubectl <span style="color:#689d6a">apply -f nginx/</span></span></code>
+	- The user isn't required to perform any operations, since they are performed by the system automatically.
+	- Configuration files define desired state, and Kubernetes actualizes the state.
+	- <span style="color: #3588E9">--></span> ideal method for production system.
+
+>[!example] Creating a Resource
+> <code style="color:#98971a">$ kubectl <span style="color:#689d6a">apply -f nginx.yaml</span></code>
+> <code style="color:#98971a">$ kubectl <span style="color:#689d6a">get deployment my-dep</span></code>
+
+>[!info]
+>A <code style="color:#98971a">kubectl</code> <strong style="color: white">context</strong> is a <strong style="color: #b16286">group of access parameters</strong>, including a cluster, a user, and a namespace.
+
+###### <span style="color:#98971a">kubeadm</span>
+
+<span style="color:#98971a">kubeadm</span> <span style="color: #3588E9">--></span> tool that helps to set up a Multi-node cluster using Kubernetes best practices. 
+- it needs to have multiple system or VMs provisioned
+- one node must be designated as the master and the rest as worker nodes
+- it needs a container runtime on the hosts (can be container D)
+- the kubeadm tool must be installed on all the nodes
+###### <span style="color:#98971a">kops</span>
+
+kops --> stands for Kubernetes Operations, it allows to do production grade Kubernetes installations, upgrades and management
+
+kops --> best tool to setup kubernetes on AWS, has AWS integrations automatically kops is still recommendend (on AWS)
 ##### <strong style="color: #689d6a">Kubernetes Concepts</strong>
 
 Kubernetes does not deploy containers directly on the worker nodes, containers are encapsulated into a Kubernetes object known as pods.
@@ -117,7 +248,7 @@ For any Kubernetes definition file the spec definition defines what's inside the
 
 To scale up an application in Kubernetes, a new Pod is created altogether with a new instance of the same application. Additional Pods can be deployed on a new node in the cluster. <span style="color: #3588E9">--></span> It will have a new node added to the cluster to expand the clusters physical capacity.
 
-Pods <strong style="color: #d79921">usually have a 1 to 1 relationship with containers</strong> running an application. To scale up new Pods are created, and to scale down an existing Pod is deleted. 
+Pods <strong style="color: #d79921">usually have a 1 to 1 relationship with containers</strong> running an application. To scale up, new Pods are created, and to scale down, an existing Pod is deleted. 
 
 >[!note]
 >Additional containers <strong style="color: #d79921">are not added</strong> to an existing Pod to scale the application. 
@@ -136,65 +267,39 @@ Pods <strong style="color: #d79921">usually have a 1 to 1 relationship with cont
 >```
 >While the Pod name could be anything, the image name has to be the name of an image available at Docker Hub or any other container registry
 
+To return all pods from the cluster:
+
+```shell
+kubectl get pods --all-namespaces
+```
+
+To remove a pod:
+
+```shell
+kubectl delete pod my-pod-apache-server # pod name
+```
+
+To delete all pods:
+
+```shell
+kubectl delete --all pods
+```
+
 The `apply` and `create` commands can be used to create a new object. The `-f` option specifies the file name.
 
-```yaml
+```shell
 kubectl apply -f pod.yaml
 ```
-###### <strong style="color:#98971a">Job</strong>
-
-It creates Pods and track its completion process.  
-
->[!note]
->Jobs are retried until completed
->Deleting a Job will remove the created Pods
->Suspending a Job will delete its active Pods until the Job resumes
-
-A Job can run several Pods in parallel, and a <span style="color:#d65d0e">cronjob</span> is regularly used to create Jobs on interactive schedule
-
-Job it's the final way to deploy more than one Pods at a time. A Job will create one or more Pods and run the container inside of them until it has successfully completed its task.
-###### <strong style="color:#98971a">Replication Controller</strong>
-
-To prevent users from losing access to the application, it should have more than one instance or pod running at the same time.
-
-The <span style="color: #98971a">Replication Controller</span> <strong style="color: #d79921">helps to run multiple instances of a single Pod</strong> in the Kubernetes cluster, thus providing high availability. Even if it has single pod, the replication controller can help by automatically bringing up a new pod when the existing one fails.
-
-The Replication Controller <strong style="color: #d79921">ensures that the specified number of pods are running at all times.</strong>
-
-Another reason to use replication controller is to create multiple ports to share the load across them. It spans across multiple nodes in the cluster.
-
->[!example] Replication Controller
->```yaml
->apiVersion: v1
->kind: ReplicationController
->metadata:
->  name: myapp-rc
->  labels:
->    app: myapp
->    type: front-ned
->spec:
->  template:
->    metadata:
->      # Pod configuration
->  replicas: 3 # define number of replicas
->```
->When the replication controller is created, it first creates the Pod using the pod definition template as many as required.
->```shell
->kubectl create -f rc.definition.yml
->```
-
->[!note]
->Replication controller is the older technology that is being replaced by replica set
 ###### <strong style="color:#98971a">ReplicaSets</strong>
 
-The ReplicaSet ensures that a minimum number os replicas are available all the time. It's the new recommended way to set up replication.
+O ReplicaSet é um recurso que controla a quantidade de Pods. It ensures that a minimum number os replicas are available all the time. It's the new recommended way to set up replication.
 
-The <strong style="color: #b16286">role</strong> of the <span style="color: #98971a">ReplicaSet</span> is to  <strong style="color: #d79921">monitor the pods and if any of them were to fail deploy new ones</strong>. The ReplicaSet is in fact a process that monitors the parts, and it can also manage PODs that were not created as part of the ReplicaSet creation.
+The <strong style="color: #b16286">role</strong> of the <span style="color: #98971a">ReplicaSet</span> is to  <strong style="color: #d79921">monitor the pods and if any of them were to fail deploy new ones</strong>. The ReplicaSet is in fact a process that monitors the parts, and it can also manage Pods that were not created as part of the ReplicaSet creation.
 
 The ReplicaSet <strong style="color: #b16286">monitors Pods by using labels as a filter</strong>. The same concept of labels and selectors is used in many other places throughout Kubernetes.
 
 <strong style="color: white">Use Case:</strong>
-- monitor existing PODs, if they haven't been created, the ReplicaSet will create them.
+- monitor existing Pods, if they haven't been created, the ReplicaSet will create them.
 
 >[!example] replicaset-definition.yml
 >```yaml
@@ -235,6 +340,9 @@ The <span style="color: #d65d0e">labels</span> for the Pod template and for the 
 >
 ># to edit the replica set definition file
 >kubectl edit replicaset replicaset_name (myapp-rs)
+>
+># to return all replicaset
+>kubectl get replicasets
 >``` 
 
 To update the number of replicas:
@@ -245,30 +353,6 @@ To update the number of replicas:
 
 >[!note]
 >Using the file name as input will not result in the number of replicas being updated automatically in the file.
-###### <strong style="color:#98971a">DaemonSets</strong>
-
-<span style="color:#98971a">DaemonSet</span> <span style="color: #3588E9">--></span> object that makes sure that Nodes run a copy of a Pod. 
-- as nodes are added to a cluster, Pods are added to the nodes. Pods are garbage collected when removed form a cluster
-- if a DaemonSet is deleted, all Pods are removed
-- a DaemonSet is ideally used for storage, logs, and monitoring nodes
-
-DaemonSets are like ReplicaSets, as in it helps you deploy multiple instances of pods. But it runs one copy of your pod on each node in your cluster.
-Whenever a new node is added to the cluster, a replica of the pod is automatically added to that node. And when a node is removed the pod is automatically removed.
-
-The DaemonSet ensures that one copy of the pod is always present in all nodes in the cluster.
-
-Uses cases: 
-- deploy a monitoring agent or log collector on each of your nodes in the cluster -- as it can deploy your monitoring agent in the form of a pod in all the nodes in your cluster.
-- kube proxy --> can be deployed as a DaemonSet in the cluster
-- networking --> Networking solutions like Vivenet requires an agent to be deployed on each node in the cluster.
-
-Creating a DaemonSet is similar to the ReplicaSet creation process. except that the kind is a DaemonSet. 
-Ensure the labels in the selector matches the ones in the pod template.
-`kubectl create -f daemon-set-definition.yaml` --> create the DaemonSet
-`kubectl gert daemonset` --> to view created daemon sets
-`kubectl describe daemonsets monitoring-daemon` --> to view more details
-
-From version 1.12 onwards the DaemonSet uses the default scheduler and node affinity rules to schedule pods on nodes.
 ###### <strong style="color:#98971a">Deployments</strong>
 
 <span style="color:#98971a">Deployments</span> <span style="color: #3588E9">--></span> higher-level object that provides updates for Pods and ReplicaSets. Deployments run multiple replicas of an application using ReplicaSets and offer additional management capabilities on top of these ReplicaSets.
@@ -332,21 +416,6 @@ ps -p 1
 Update the deployment to use this version instead:
 
 `kubectl set image deployment/hello-world hello-world=us.icr.io/$MY_NAMESPACE/hello-world:2`
-###### <strong style="color:#98971a">Services</strong>
-
-service can be used to expose and application to other applications or users for external access.
-a service is only required if the application has some kind of process or database service or web service the needs to be exposed.
-
-. Sevice biding manages configuration and credentuals for back-end services while protecting sensitive data. In addition, it makes Service credentiasl available automatically as a Secret.
-
-. Sevice biding consumes the external Service by biding the application to a deployment. Then, the application code uses the credentials from the biding and calls the corresponding Service.
-
-Cluster IPs are only accesible within the cluster. To make this externally accessible, we will create a proxy.
-
-ClusterIP
-
-kubectl expose deployment/hello-world --> In order to access the application, we have to expose it to the internet via a Kubernetes Service. This creates a service of type ClusterIP.
-
 ###### <strong style="color:#98971a">Namespaces</strong>
 
 <span style="color:#98971a">Namespaces</span> <span style="color: #3588E9">--></span> provides a mechanism for isolating group of resources within a single cluster. They isolate and manage applications and services.
@@ -400,72 +469,91 @@ spec:
 		limits.cpu: "10"
 		limits.memomry: 10Gi
 ```
+###### <strong style="color:#98971a">Services</strong>
+
+service can be used to expose and application to other applications or users for external access.
+a service is only required if the application has some kind of process or database service or web service the needs to be exposed.
+
+. Sevice biding manages configuration and credentuals for back-end services while protecting sensitive data. In addition, it makes Service credentiasl available automatically as a Secret.
+
+. Sevice biding consumes the external Service by biding the application to a deployment. Then, the application code uses the credentials from the biding and calls the corresponding Service.
+
+Cluster IPs are only accesible within the cluster. To make this externally accessible, we will create a proxy.
+
+ClusterIP
+
+kubectl expose deployment/hello-world --> In order to access the application, we have to expose it to the internet via a Kubernetes Service. This creates a service of type ClusterIP.
+###### <strong style="color:#98971a">DaemonSet</strong>
+
+<span style="color:#98971a">DaemonSet</span> <span style="color: #3588E9">--></span> object that makes sure that Nodes run a copy of a Pod. 
+- as nodes are added to a cluster, Pods are added to the nodes. Pods are garbage collected when removed form a cluster
+- if a DaemonSet is deleted, all Pods are removed
+- a DaemonSet is ideally used for storage, logs, and monitoring nodes
+
+DaemonSets are like ReplicaSets, as in it helps you deploy multiple instances of pods. But it runs one copy of your pod on each node in your cluster.
+Whenever a new node is added to the cluster, a replica of the pod is automatically added to that node. And when a node is removed the pod is automatically removed.
+
+The DaemonSet ensures that one copy of the pod is always present in all nodes in the cluster.
+
+Uses cases: 
+- deploy a monitoring agent or log collector on each of your nodes in the cluster -- as it can deploy your monitoring agent in the form of a pod in all the nodes in your cluster.
+- kube proxy --> can be deployed as a DaemonSet in the cluster
+- networking --> Networking solutions like Vivenet requires an agent to be deployed on each node in the cluster.
+
+Creating a DaemonSet is similar to the ReplicaSet creation process. except that the kind is a DaemonSet. 
+Ensure the labels in the selector matches the ones in the pod template.
+`kubectl create -f daemon-set-definition.yaml` --> create the DaemonSet
+`kubectl gert daemonset` --> to view created daemon sets
+`kubectl describe daemonsets monitoring-daemon` --> to view more details
+
+From version 1.12 onwards the DaemonSet uses the default scheduler and node affinity rules to schedule pods on nodes.
+###### <strong style="color:#98971a">Job</strong>
+
+It creates Pods and track its completion process.  
+
+>[!note]
+>Jobs are retried until completed
+>Deleting a Job will remove the created Pods
+>Suspending a Job will delete its active Pods until the Job resumes
+
+A Job can run several Pods in parallel, and a <span style="color:#d65d0e">cronjob</span> is regularly used to create Jobs on interactive schedule
+
+Job it's the final way to deploy more than one Pods at a time. A Job will create one or more Pods and run the container inside of them until it has successfully completed its task.
+###### <strong style="color:#98971a">Replication Controller</strong>
+
+To prevent users from losing access to the application, it should have more than one instance or pod running at the same time.
+
+The <span style="color: #98971a">Replication Controller</span> <strong style="color: #d79921">helps to run multiple instances of a single Pod</strong> in the Kubernetes cluster, thus providing high availability. Even if it has single pod, the replication controller can help by automatically bringing up a new pod when the existing one fails.
+
+The Replication Controller <strong style="color: #d79921">ensures that the specified number of pods are running at all times.</strong>
+
+Another reason to use replication controller is to create multiple ports to share the load across them. It spans across multiple nodes in the cluster.
+
+>[!example] Replication Controller
+>```yaml
+>apiVersion: v1
+>kind: ReplicationController
+>metadata:
+>  name: myapp-rc
+>  labels:
+>    app: myapp
+>    type: front-ned
+>spec:
+>  template:
+>    metadata:
+>      # Pod configuration
+>  replicas: 3 # define number of replicas
+>```
+>When the replication controller is created, it first creates the Pod using the pod definition template as many as required.
+>```shell
+>kubectl create -f rc.definition.yml
+>```
+
+>[!note]
+>Replication controller is the older technology that is being replaced by replica set
 
 
-##### <strong style="color: #689d6a">Kubernetes Tools</strong>
 
-###### <span style="color:#98971a">minikube</span>
-
-<span style="color:#98971a">minikube</span> <span style="color: #3588E9">--></span> is a software (utility) that allows developers to run a Kubernetes cluster on the local machine. It's a very useful tool that helps in the process of learning Kubernetes.
-- all the basic operations can be done on a <span style="color:#98971a">minikube</span> cluster
-- it uses the <span style="color:#98971a">kubectl</span> tool to manage the cluster
-- <code style="color:#689d6a">minikube start --driver=virtualbox</code>
-- <code style="color:#689d6a">minikube status</code>
-###### <span style="color:#98971a">kubectl</span>
-
-<span style="color:#98971a">kubectl</span> <span style="color: #3588E9">--></span> is the Kubernetes command line interface (CLI), stands for <span style="color:#d65d0e">Kube Command Line Tool</span>. It's <strong style="color: #d79921">used to deploy and manage applications on a Kubernetes cluster</strong> to get cluster information, to get status of other nodes in the cluster, inspect and manage cluster resources, view logs, and more. Key commands types: Imperative commands, Imperative object configuration and Declarative object configuration.
-- <code style="color:#98971a">kubectl [<span style="color:#689d6a">command</span>] [<span style="color:#689d6a">type</span>] [<span style="color:#689d6a">name</span>] [<span style="color:#689d6a">flags</span>]</code>
-	- [<span style="color:#689d6a">command</span>] <span style="color: #3588E9">=</span> any operation to be performed (create, get, apply, delete)
-	- [<span style="color:#689d6a">type</span>] <span style="color: #3588E9">=</span> resource type (pod, deployment, replica set)
-	- [<span style="color:#689d6a">name</span>] <span style="color: #3588E9">=</span> resource name (if applicable)
-	- [<span style="color:#689d6a">flags</span>] <span style="color: #3588E9">=</span> special options or modifiers that override default values
-- <strong style="color: #d79921">Imperative commands</strong>:
-	- Allows to create, update and delete objects directly. Operations should be specified as arguments or flags.
-	- They don't provide an audit trail. They also don't use templates, and they can't integrate with change review processes.
-	- <span style="color: #3588E9">--></span> ideal for development and test environments.
-	- <code><span style="color:#98971a">$ kubectl</span> <span style="color:#689d6a">run</span></code> <span style="color: #3588E9">--></span> used to deploy an application on the cluster.
-		-  Ex: `kubectl run hello-minikybe`
-	- <code style="color:#689d6a">kubectl cluster-info</code> <span style="color: #3588E9">--></span> to view information about the cluster
-	- kubectl get all --> to list all objects
-	- <code style="color:#689d6a">kubectl get nodes</code> <span style="color: #3588E9">--></span> to list all the nodes of the cluster
-	- <code style="color:#689d6a">kubectl get deployments</code>
-	- <code style="color:#689d6a">kubectl get pods</code>
-	- <code style="color:#689d6a">kubectl get secrets</code> --> shows all the secrets in the kubernetes cluster
-		- Ex: `kubectl get secrets -n database`
-		- `kubectl get secrets -n database <secret_name> -o yaml`
-- <strong style="color: #d79921">Imperative object configuration</strong>:
-	- The kubectl command specifies required operations, optional flags, and at least one file name.
-	- The specified configuration file specified must contain a full definition of the objects in YAML or JSON format.
-	- <code><span style="color:#98971a">$ kubectl <span style="color:#689d6a">create -f pod-definition.yaml</span></span></code>
-	- Configuration templates help replicate identical results.
-- <strong style="color: #d79921">Declarative object configuration</strong>:
-	- Stores configuration data in files.
-	- Operations are identified by <code style="color:#98971a">kubectl</code> not the user.
-	- Works on directories or individual files
-	- <code><span style="color:#98971a">$ kubectl <span style="color:#689d6a">apply -f nginx/</span></span></code>
-	- The user isn't required to perform any operations, since they are performed by the system automatically.
-	- Configuration files define desired state, and Kubernetes actualizes the state.
-	- <span style="color: #3588E9">--></span> ideal method for production system.
-
->[!example] Creating a Resource
-> <code style="color:#98971a">$ kubectl <span style="color:#689d6a">apply -f nginx.yaml</span></code>
-> <code style="color:#98971a">$ kubectl <span style="color:#689d6a">get deployment my-dep</span></code>
-
->[!info]
->A <code style="color:#98971a">kubectl</code> <strong style="color: white">context</strong> is a <strong style="color: #b16286">group of access parameters</strong>, including a cluster, a user, and a namespace.
->
-###### <span style="color:#98971a">kubeadm</span>
-
-<span style="color:#98971a">kubeadm</span> <span style="color: #3588E9">--></span> tool that helps to set up a Multi-node cluster using Kubernetes best practices. 
-- it needs to have multiple system or VMs provisioned
-- one node must be designated as the master and the rest as worker nodes
-- it needs a container runtime on the hosts (can be container D)
-- the kubeadm tool must be installed on all the nodes
-###### <span style="color:#98971a">kops</span>
-
-kops --> stands for Kubernetes Operations, it allows to do production grade Kubernetes installations, upgrades and management
-
-kops --> best tool to setup kubernetes on AWS, has AWS integrations automatically kops is still recommendend (on AWS)
 ##### <strong style="color: #689d6a">Kubernetes Networking</strong>
 
 <span style="color:#98971a">Ingress</span> <span style="color: #3588E9">--></span> <span style="color: #d65d0e">API object</span> that when combined with a Controller, provides routing rules to manage external users access to multiple services in a Kubernetes cluster. 

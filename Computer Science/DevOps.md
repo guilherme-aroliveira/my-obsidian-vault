@@ -916,34 +916,17 @@ Continuous Delivery <strong style="color: #d79921">requires</strong> Continuous 
 
 <strong style="color: white">CI/CD tools:</strong>
 - [[Jenkins]], [[GitHub Actions]], [[Gitlab]], [[Tekton]], [[Openshift Pipelines]]
-###### <span style="color: #689d6a">GitOps</span>
-
-
-
-<span style="color:#d65d0e">ArgoCD</span> <span style="color: #3588E9">--></span> declarative Continuous Delivery tool that makes CD easy to automate, audit, and understand. It follows the GitOps pattern of using Git repositories as the single source of truth for defining the desired application state. 
-
-It reports deviations and providers visualizations to help developers manually and automatically sync the live state with the desire state.
-
-ArgoCD, as a Kubernetes controller, monitors the current application state compared to the desired state, visualizes the differences, and ensures parity by automatically syncing. It automates the sunchronization of the desired state with each of teh specified target environments, 
-
-- Argo CD was originally developed by Intuit, as they were looking for a lighter tool than Spinnaker that would improve build and deployment times and streamline their GitOps workflow. The UI is well made and easy to use and integrates well with a variety of CI tools such as Jenkins, GitHub Actions, CircleCI, and more.
-
-concepts:
-- 
-
-- <strong style="color: white">Features:</strong>
-	- Declarative application deployment
-	- Continuous Monitoring Synchronization
-	- Single Sign-On (SSO) Integrations
-	- Rollback and Controlled Roll-outs
-	- Reusable Application Configurations Patterns
-	- Robust Role-based Access Control (RBAC)
-
 ## **GitOps**
 
-<span style="color: #d65d0e">GitOps</span> is an operational framework that utilizes the best practices of DevOps.
+<span style="color: #d65d0e">GitOps</span> is an operational framework where the entire code delivery process is controllerd via Git. It also includes infrastrcuratue and application definition as code, and automatin ti deploy chnages and roolbacks. 
+
+that utilizes the best practices of DevOps.
 
 Also known as Git powered Ops.
+
+The core idea is to have infrastructure, applications and all related components declaratively defined in one or more Git repositories. 
+
+In the GitOps scenario, an automated process ensures that the desired state in the repository and the actual state in the prod environment always matches.
 
 Uses shell script for encoding the deployment, and it uses YAML file to describe the desired state.
 
@@ -961,6 +944,7 @@ GitOps advocates to apply principles such as reviews, pull requests, and tagging
 
 >[!info]
 >The beauty of the GitOps approach is that it eliminates the need for manual intervention while maintaining the security and integrity of the system. The developers or SREs can reverse the process just as easily by simply reverting the Git changes in the IaC repository.
+
 
 - <strong style="color: white">Principles</strong>
 	- declarative versus imperative approach --> it demans that the entrie system insluding infra and applicartions anifest to be declared in a declarative state
