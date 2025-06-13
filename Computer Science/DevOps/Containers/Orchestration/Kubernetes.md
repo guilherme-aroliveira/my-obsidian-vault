@@ -244,9 +244,9 @@ For any Kubernetes definition file the spec definition defines what's inside the
 - a StatefulSet maintains a sticky identity for each Pod request and provides persistent storage volumes for the workloads
 ###### <strong style="color:#98971a">Pods</strong>
 
-<span style="color:#98971a">Pod</span> <span style="color: #3588E9">--></span> single instance of an application. It's the <strong style="color: #b16286">smallest deployable compute object</strong> that can be created in Kubernetes and higher-level abstraction to run workloads.
+A <span style="color:#98971a">Pod</span> is a single instance of an application. It's the <strong style="color: #b16286">smallest deployable compute object</strong> that can be created in Kubernetes and higher-level abstraction to run workloads.
 
-To scale up an application in Kubernetes, a new Pod is created altogether with a new instance of the same application. Additional Pods can be deployed on a new node in the cluster. <span style="color: #3588E9">--></span> It will have a new node added to the cluster to expand the clusters physical capacity.
+To scale up an application in Kubernetes, a new Pod is created altogether with a new instance of the same application. Additional Pods can be deployed on a new node in the cluster <span style="color: #3588E9">--></span> It will have a new node added to the cluster to expand the clusters physical capacity.
 
 Pods <strong style="color: #d79921">usually have a 1 to 1 relationship with containers</strong> running an application. To scale up, new Pods are created, and to scale down, an existing Pod is deleted. 
 
@@ -292,7 +292,7 @@ kubectl apply -f pod.yaml
 ```
 ###### <strong style="color:#98971a">ReplicaSets</strong>
 
-O ReplicaSet é um recurso que controla a quantidade de Pods. It ensures that a minimum number os replicas are available all the time. It's the new recommended way to set up replication.
+O <span style="color: #98971a">ReplicaSet</span> é um recurso que controla a quantidade de Pods. It ensures that a minimum number os replicas are available all the time. It's the new recommended way to set up replication.
 
 The <strong style="color: #b16286">role</strong> of the <span style="color: #98971a">ReplicaSet</span> is to  <strong style="color: #d79921">monitor the pods and if any of them were to fail deploy new ones</strong>. The ReplicaSet is in fact a process that monitors the parts, and it can also manage Pods that were not created as part of the ReplicaSet creation.
 
