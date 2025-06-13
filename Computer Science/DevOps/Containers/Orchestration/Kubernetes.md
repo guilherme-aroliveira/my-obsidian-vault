@@ -406,8 +406,61 @@ kubectl describe deployment.apps/frontend-deployment
 To check the rollout revisions:
 
 ```shell
-kubectl roolout history deployment.apps/frontend-deployment
+kubectl rollout history deployment.apps/frontend-deployment
 ```
+
+Para realizar um rollback:
+
+```shell
+kubectl rollout undo deployment.apps/frontend-deployment
+```
+
+Para realizar um rollback de um revision especifica: 
+
+```shell
+kubectl rollout undo deployment.apps/frontend --revision=5
+```
+
+Obs: Quando um rollback é realizado o Kubernetes criar uma nova revision, porém baseada na versão anterior do último deployment. 
+
+Para pausar uma atualização:
+
+```shell
+kubectl rollout pause deployment.apps/frontend-deployment
+```
+
+Para retomar o rollout:
+
+```shell
+kubectl rollout resume deployment.apps/frontend-deployment
+```
+
+Para alterar o deployment strategy:
+
+>[!example] Example - recreate strategy
+>```yaml
+>spec:
+>  template:
+>    metadata:
+>    spec:
+>      containers:
+>
+>  selector:
+>    matchLabels: 
+>      env: production
+>    strategy:
+>      type: Recreate
+>    replicas: 5   
+>```
+
+>[!info]
+>É possível combinar comandos linux com a ferramenta kubectl para retornar resultados específicos. 
+>```shell
+>kubectl describe deployment.apps/frontend-deployment | grep StrategyType
+>```
+
+
+
 
 Another way to update the container image of a deployment:
 `kubectl set image deployemtm/myapp-deployemnt nginx \ nginx-container=nginx:1.9.1`
@@ -429,10 +482,23 @@ Update the deployment to use this version instead:
 `kubectl set image deployment/hello-world hello-world=us.icr.io/$MY_NAMESPACE/hello-world:2`
 ###### <strong style="color:#98971a">Namespaces</strong>
 
+O <span style="color:#98971a">namespace</span> é um recurso utilizado para fazer organização lógica dentro do cluster. It's a mechanism for isolating group of resources within a single cluster, they isolate and manage applications and services.
+
+>[!note]
+>the default namespace is created automatically by Kubernetes when the cluster is first set up.
+
+They are ideal when the number of cluster users is large, and it also provides a scope for the names of objects. Each object must have a unique name for the resource type within a namespace.
+
+Namespace-based scoping --> são os objetos (recursos) de kubernetes que podem estar em um namespace. Exemplos: Pod, Deployment, etc.
+
+Cluster-wide objects --> objetos referentes ao cluster e que não podem ser colocados dentro de um namespace. Exemplos: Nodes, Persistent Volumes, etc.
+
+Cada recurso do kubernetes só pode estar em um namespace, e não se pode alinhar namespaces uns dentro dos outros.
+
+
+
 <span style="color:#98971a">Namespaces</span> <span style="color: #3588E9">--></span> provides a mechanism for isolating group of resources within a single cluster. They isolate and manage applications and services.
-- they are ideal when the number of cluster users is large, and it also provides a scope for the names of objects
-- each object must have a unique name for the resource type within a namespace
-- the default namespace is created automatically by Kubernetes when the cluster is first set up.
+- they are ideal when the number of cluster users is large, and it also provides a scope for the names of objects.
 - kubernetes creates a set of pods and services for its internal purpose, and to isolate them from the user, kubernetes creates them under the at the kube-system namespace.  
 - kupe-public --> a third namespace created automatically by Kubernetes
 	- where where resources that should be made available to all users are created.
@@ -518,7 +584,7 @@ Ensure the labels in the selector matches the ones in the pod template.
 `kubectl describe daemonsets monitoring-daemon` --> to view more details
 
 From version 1.12 onwards the DaemonSet uses the default scheduler and node affinity rules to schedule pods on nodes.
-###### <strong style="color:#98971a">Job</strong>
+###### <strong style="color:#98971a">Jobs</strong>
 
 It creates Pods and track its completion process.  
 
@@ -566,6 +632,22 @@ Another reason to use replication controller is to create multiple ports to shar
 
 
 ##### <strong style="color: #689d6a">Kubernetes Networking</strong>
+
+o kubernetes virtualiza uma rede dentro do worker node para comunicacao de Pods, e os enderecos IPs são atribuidos pelo proprio kubernetes.
+
+virtual bridge network --> estabelece a comuncaão entre os Pods. Isso permite que containers em Pods diferentes possam comunicar entre si.
+
+Tipos de Redes kubernetes:
+
+Container to Container Communication --> um ou mais containers dentro de um Pod, compartilham o mesmo host network, e cada Pod possui seu próprio endereço IP.  Todos os Pods compartilham o mesmo endereço IP mas ele funcionar em uma porta diferentes. A comunicação entre os containers acontece dentro do próprio Pod, mas em uma porta diferente. 
+
+Pod to Pod Communication:
+- Intra Node Pod Network --> comunicação de Pods em um único Node
+	- os endereços IPs do Pods são diferentes e atribuídos a partir de sua rede local (compartilham o mesmo host)
+- Inter Node Pod Network --> comunicação de Pods em nodes diferentes
+	- a comunicação é realizada através de um plugin de rede do K8s --> as tabelas de rotas necessárias são criadas. 
+	- a tabela de roteamento permite que os containers se comuniquem
+	- encaminha o trafego de qualquer Pod de um worker node para qualquer Pod de outro worker node. 
 
 <span style="color:#98971a">Ingress</span> <span style="color: #3588E9">--></span> <span style="color: #d65d0e">API object</span> that when combined with a Controller, provides routing rules to manage external users access to multiple services in a Kubernetes cluster. 
 - in production, Ingress exposes applications to the internet via port 80 (HTTP) or port 443 (HTTPS).
