@@ -489,67 +489,144 @@ O <span style="color:#98971a">namespace</span> é um recurso utilizado para faze
 
 They are ideal when the number of cluster users is large, and it also provides a scope for the names of objects. Each object must have a unique name for the resource type within a namespace.
 
+Cada recurso do kubernetes só pode estar em um namespace, e não se pode alinhar namespaces uns dentro dos outros. 
+
+Através dos <span style="color:#98971a">namespaces</span> recursos (objetos) do kubernetes podem ser alocados no cluster para cada equipe kubernetes, como por exemplo, uma equipe front-end, uma equipe back-end e uma equipe middleware. Os recursos do cluster também podem ser divididos como recursos de processamento e de memória (resource quota) para cada namespace. That way, each name space is guaranteed a certain amount and does not use more than its allowed limit
+
 Namespace-based scoping --> são os objetos (recursos) de kubernetes que podem estar em um namespace. Exemplos: Pod, Deployment, etc.
 
 Cluster-wide objects --> objetos referentes ao cluster e que não podem ser colocados dentro de um namespace. Exemplos: Nodes, Persistent Volumes, etc.
 
-Cada recurso do kubernetes só pode estar em um namespace, e não se pode alinhar namespaces uns dentro dos outros.
+>[!info]
+>Kubernetes creates a set of pods and services for its internal purpose, and to isolate them from the user, kubernetes creates them under the kube-system namespace.
+> 
+>O namespace kube-node-lease é utilizado pelo kubelet para fazer verificações, como por exemplo, busca por falhas.
+>
+>The kube-public is a third namespace created automatically by Kubernetes. It's where the resources that should be made available to all users are created
 
+Obs: In a small environment namespace is not necessary, but in case it grows or for productions purposes it should be used. 
 
+Para retornar todos os namespaces:
 
-<span style="color:#98971a">Namespaces</span> <span style="color: #3588E9">--></span> provides a mechanism for isolating group of resources within a single cluster. They isolate and manage applications and services.
-- they are ideal when the number of cluster users is large, and it also provides a scope for the names of objects.
-- kubernetes creates a set of pods and services for its internal purpose, and to isolate them from the user, kubernetes creates them under the at the kube-system namespace.  
-- kupe-public --> a third namespace created automatically by Kubernetes
-	- where where resources that should be made available to all users are created.
-In a small environment namespace is not necessary, but in case it grows or for productions purposes it should be used. 
-Each of these name spaces can have its own set of policies that define who can do what.
-You can also assign quota of resources to each of these name spaces. That way, each name space is guaranteed a certain amount and does not use more than its allowed limit.
-Example: for the web pod in the default name space to connect to the database in the dev environment or namespace use the servicename.namespace.svc.cluster.local format. --> `mysql.connect("db-service.dev.svc.cluster.local")`
-
-kubectl get pods --namespace=kube-system --> To list pods in another name space
-kubectl create -f pods.definition.yaml --namespace=dev --> To create the pod in another name space
-
-ex:
-```yaml
-apiVersion: v1
-kind: Pod
-metadata: 
-	name: myapp-pod
-	namespace: dev
+```shell
+kubectl get ns
 ```
-good way to ensure your resources are always created in the same name space
-a new namesapcae is created like any other object
-```yaml
-apiVersion: v1
-kind: Namespace
-metadata: 
-	name: dev
-```
-kubectl create -f namespace.dev.yaml
-kubectl create namespace dev
-kubectl config  set-context $(kubectl config current-context) --namespace=dev --> to switch to the dev name space permanently - set the name space in the current context to dev.
-kubectl get pods --all-namespace --> to view pods in all name spaces
 
-To limit resources in a name space, create a resource quota.
-```yaml
-apiVersion: v1
-kind: ResourceQuota
-metadata: 
-	name: compute-quota
-	namescape: dev
-spec:
-	hard:
-		pods: "10"
-		requests.cpu "4"
-		requests.memory: 5Gi
-		limits.cpu: "10"
-		limits.memomry: 10Gi
+Para exibir os Pods de um namespace:
+
+```shell
+kubectl get pods -n default
 ```
+
+To create a namespace:
+
+```shell
+kubectl create namespace frontend --save-config
+```
+
+To create a object to a namespace:
+
+```shell
+kubectl create -f tomcat-pod.yaml --namespace=frontend
+```
+
+Para definir um outro namespace como padrão:
+
+```shell
+kubectl config set-context --current --namespace=frontend
+```
+
+Para remover um object de um namespace:
+
+```shell
+kubectl delete pods my-pod-apache --namespace=frontend
+```
+
+Para remover um namespace
+
+```shell
+kubectl delete namespace frontend
+```
+
+Obs: Quando um namespace é excluído, todos os recursos dentro desse namespace também são excluídos. Isso inclui pods, serviços, deployments, configmaps, secrets e outros objetos criados dentro desse escopo. 
+
+Além de criar namespace de maneira imperativa (pelo kubectl), ele também pode ser adicionado de maneira declarativa, nos arquivos yaml de cada objeto de kubernetes.
+
+>[!example] Example - namespace
+>```yaml
+>apiVersion: v1
+>kind: Pod
+>metadada:
+>  name: redis-pod
+>  namespace: backend-ns
+>  labels:
+>    apps: backens
+>spec: 
+>  containers:
+>    - name: redis-container
+>      image: redis
+>```
+
+A good way to ensure the resources are always created in the same namespace os to create it like any other object.
+
+>[!example]
+>```yaml
+>apiVersion: v1
+>kind: Namespace
+>metadata:
+>  name: backend-ns
+>  labels:
+>    apps: backend-apps
+>```
+>---
+>```shell
+>kubectl create -f backend-namespace.yaml
+>```
+
+To view pods in all name spaces:
+
+```shell
+kubectl get pods --all-namespace
+```
+
+Para colocar um Pod em novo namespace:
+
+```shell
+kubectl apply -f redis-pod.yaml --namespace=backend-ns
+```
+
+Resources in a namespace can be limited by creating a resource quota.
+
+>[!example] Example - resource quota
+>```yaml
+>apiVersion: v1
+>kind: ResourceQuota
+>metadata:
+>  name: compute-quota
+>  namespace: backend-ns
+>spec:
+>  hard:
+>    pods: "10"
+>    requests.cpu: "4"
+>    requests.memory: 5Gi
+>    limits.cpu: "10"
+>    limits.memory: 10Gi  
+>```
 ###### <strong style="color:#98971a">Services</strong>
 
-service can be used to expose and application to other applications or users for external access.
-a service is only required if the application has some kind of process or database service or web service the needs to be exposed.
+K8s Service é um tipo de recurso que expõe a aplicação para fora do cluster. O tráfego externo (internet) precisa ter permissão para chegar ao servidor dentro do cluster. 
+
+O Kubernetes oferece um serviço de DNS expostos aos Pods que executam no cluster. Este serviço é instalado como um componente do sistema na criação do cluster. 
+
+>[!info]
+>O DNS do cluster é um servidor DNS real --> faz parte de toda a infraestrutura de rede virtual dentro do cluster de Kubernetes.
+
+Obs: a service is only required if the application has some kind of process or database service or web service that needs to be exposed.
+
+>[!note]
+>Os serviços podem ser consumidos pelo próprio Cluster (para acesso interno) ou por acesso externo (Internet).
+
+Através do namespace, basta utilizar o nome do Service para se conectar com um Pod identificado por um Service.
 
 . Sevice biding manages configuration and credentuals for back-end services while protecting sensitive data. In addition, it makes Service credentiasl available automatically as a Secret.
 
@@ -628,9 +705,6 @@ Another reason to use replication controller is to create multiple ports to shar
 
 >[!note]
 >Replication controller is the older technology that is being replaced by replica set
-
-
-
 ##### <strong style="color: #689d6a">Kubernetes Networking</strong>
 
 o kubernetes virtualiza uma rede dentro do worker node para comunicacao de Pods, e os enderecos IPs são atribuidos pelo proprio kubernetes.
