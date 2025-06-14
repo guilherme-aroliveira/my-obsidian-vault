@@ -619,7 +619,7 @@ K8s Service é um tipo de recurso que expõe a aplicação para fora do cluster.
 O Kubernetes oferece um serviço de DNS expostos aos Pods que executam no cluster. Este serviço é instalado como um componente do sistema na criação do cluster. 
 
 >[!info]
->O DNS do cluster é um servidor DNS real --> faz parte de toda a infraestrutura de rede virtual dentro do cluster de Kubernetes.
+>O DNS do cluster é um servidor DNS real <span style="color: #3588E9">--></span> faz parte de toda a infraestrutura de rede virtual dentro do cluster de Kubernetes.
 
 Obs: a service is only required if the application has some kind of process or database service or web service that needs to be exposed.
 
@@ -628,13 +628,17 @@ Obs: a service is only required if the application has some kind of process or d
 
 Através do namespace, basta utilizar o nome do Service para se conectar com um Pod identificado por um Service.
 
-. Sevice biding manages configuration and credentuals for back-end services while protecting sensitive data. In addition, it makes Service credentiasl available automatically as a Secret.
+ClusterIP é o Service padrão do kubernetes usado para comunicação interna do cluster. O serviço é apenas acessível dentro do Cluster <span style="color: #3588E9">--></span> comportamento padrão do ClusterIP. Obs: os serviços não podem ser chamados de fora do Cluster sem usar um proxy.
+
+Portas envolvidas na comunicação com serviços: 
+- port <span style="color: #3588E9">--></span> atributo utilizado para acessar o recurso do kubernetes. É um atributo obrigatório, é através desta porta que o serviço é disponibilizado.
+- TargetPort <span style="color: #3588E9">--></span> porta onde a aplicação é disponibilizada dentro do container. É um atributo opcional.  
+
+Obs: Pods não possuem IPs estáticos. 
+
+. Sevice biding manages configuration and credentuals for back-end services while protecting sensitive data. In addition, it makes Service credentiasl available automatically as a Secret. 
 
 . Sevice biding consumes the external Service by biding the application to a deployment. Then, the application code uses the credentials from the biding and calls the corresponding Service.
-
-Cluster IPs are only accesible within the cluster. To make this externally accessible, we will create a proxy.
-
-ClusterIP
 
 kubectl expose deployment/hello-world --> In order to access the application, we have to expose it to the internet via a Kubernetes Service. This creates a service of type ClusterIP.
 ###### <strong style="color:#98971a">DaemonSet</strong>
