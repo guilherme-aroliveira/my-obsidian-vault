@@ -104,13 +104,32 @@ DTR is an on-site, on-premises registry for centralized storage for all the cont
 
 A Docker image is a read-only template with instructions for creating Docker container.
 
+images are templates / bluertns for container, multile containers can be created bases on one image.
+
+With that, I mean that when you build an image,or when you rebuild it,
+only the instructions where something changed,and all the instructions there after are re-evaluated.
+
 <span style="color:#98971a">Docker images</span> consist on multiple layers, which are <strong>Read-Only</strong>, and each of these layers has an unique ID.
+
+Every image has its own internal file system which is totally detached from the file system on the machine that docker is running. It's hidden away inside the Docker container. 
+
+the image should be the template for the container.The image is not what you run in the end, you run a container based on an image.
+
+Docker caches every instruction result,
+and when you then rebuild an image,
+it will use these cached results
+if there is no need to run an instruction again.
+And this is called a layer based architecture.
+
+images contain multiples laywers (1 insturctions = 1 layer) to optimze build spped (caching) and re-usability.
 
 <span style="color: #d65d0e">Layers</span> are saved on disk only once and can be shared between images, which saves disk space and network bandwidth.
 
 Each <span style="color: #d65d0e">layer</span> is only a set of differences from the layer before it, the layers are stacked on top of each other. When an image is run as a container a new <span style="color: #d65d0e">writable layer</span> (container layer) is added, which allows to make changes to the container.
 
 Multiple containers are typically based on the same image, called <span style="color: #d65d0e">base image</span>. Changes made to the base image are actually stored in a new layer and don't the base layer.
+
+images are either downloaded (docker pull) or created with a DOckerfile and docker build.
 
 All changes made to the running container, are written to the container layer. But the files won't be persistent after the container is deleted. To write data in the writable layer of the container, Docker uses <span style="color: #d65d0e">storage drivers</span>.
 
@@ -122,6 +141,11 @@ Naming a Docker image:
 >[!note]
 > Each version of the software can have multiple short and long tags associated with it
 
+`docker build -t goals:latest .`
+
+
+tha image name defines a grouo pf possible psefializaed, images. Example: node
+
 A <span style="color: #d65d0e">Docker repository</span> within a registry is a collection of related Docker images with the same name but different tags. Each image is stored as a tag that can refer to different variations of an image.
 
 >[!note]
@@ -131,6 +155,14 @@ A <span style="color: #d65d0e">Docker repository</span> within a registry is a c
 
 To modify the <span style="color: #d65d0e">entrypoint</span> during runtime: 
 - <code style="color:#689d6a">docker run --entrypoint sleep2.0 ubuntu-sleeper 10</code>
+
+`docker image inspect ID` to inspect an image
+
+to push image:
+`docker push IMAGE_NAME`
+
+to pull images:
+`docker pull IMAGE_NAME`
 ###### <span style="color:#98971a">Container</span>
 
 A container is a runnable instance of an image, it encapsulates everything an application needs to run.
@@ -140,6 +172,9 @@ Can be created, stopped, started or deleted using the Docker API or CLI.
 Can connect to multiple networks, attach storage to the container, or create a new image based on its current state.
 
 Is well isolated from other containers an its host machine.
+that a Docker container is isolated.
+It's isolated from our local environment.
+And as a result, it also has its own internal network.
 
 Containers are independent of the storage containers. Depending on the storage layer, in some cases it may run out of layers. Some storage have a limited number of layers.
 
@@ -152,6 +187,17 @@ All Docker container are nothing more than a process, looked from the perspectiv
 In Docker, the container starts with an init process and vanishes when this process exits.
 
 To keep a long running container, its necessary to specify what the <span style="color: #d65d0e">Process ID 1</span> is. If that process is gone, the container will stop.
+
+to copy file to a container
+`docker cp local_folder/.  container_name:/path_inside_container`
+`docker cp dummy/. brogin_vaughan:/test`
+
+to copy a file from a container
+`docker cp brogin_vaughan:/test local_folder`
+
+naming and tagging a container
+`docker run -p 3000:80 -d --rm --name goalsapp goals:latest`
+
 ###### <span style="color:#98971a">Dockerfile</span>
 
 A Dockerfile is a text file that contains instructions needed to create an image, it can be created using any editor, from the console or terminal.
@@ -187,25 +233,70 @@ Each docker instruction on a Dockerfile creates a new layer in the image.
 >CMD ["bash"]
 >```
 
+By default, all those commands will be executed in the working directory off your Docker container and image. And by default, that working directory is the root folder in that container file system.
+
 Dockerfile elements
 - <code style="color: #689d6a">FROM</code> <span style="color: #3588E9">--></span> it defines the base image
 - <code style="color: #689d6a">RUN</code> <span style="color: #3588E9">--></span> executes arbitrary commands
-- <code style="color: #689d6a">CMD</code> <span style="color: #3588E9">--></span> stands for command, it defines the program that will be run within the container when it starts.
+- COPY --> 
+- ADD --> 
+- <code style="color: #689d6a">CMD</code> <span style="color: #3588E9">--></span> stands for command, it defines the program that will be run within the container when it starts. should be the last instructon
 	- Obs: should only have 1 command instructions.
 	- Different ways of specifying commands:
 		- Shell form: `command1 param1`
 		- JSON array: `["command", "param1"]` <span style="color: #3588E9">--></span> Obs: the first element should be the executable
 - <code style="color: #689d6a">ENTRYPOINT</code> <span style="color: #3588E9">--></span> similar to the CMD instruction, it can specify the program that will run when the container starts.
+- WORKDIR --> set teh working direcoty inside teh container, tells Docker that all the subsequent commands will be executed from inside that folder.
+- EXPOSE --> expose a certain port to the local system (machien running the container) It **documents** that a process in the container will expose this port, it'ß an optional comand. 
 
-A Dockerfile is executed by the <code style="color:#689d6a">docker build</code> command
+```dockerfile
+FROM node
+
+WORKDIR /app
+
+COPY package.json /app
+
+RUN npm install
+
+COPY . ./app
+
+EXPOSE 80
+
+CMD ["node", "server.js"]
+```
+
+When adding or coping  a file to the Docker container it's a good practice to use a sub folder instead of entering the root folder.
+
+>[!example] Example  
+>```dockerfile
+>COPY . /app
+>```
+>All the files from the machine will be copied into the `.app` folder inside the container. If it doesn't exist the folder will be created in the image. 
+
+COPY . ./ --> current working directory inside of our Docker container.
+
+A Dockerfile is executed by the <code style="color:#689d6a">docker build</code> command. to create an image based on the instructions in this Dockerfile. 
 
 >[!example] docker build
 >```shell
->docker build nginx
+>docker build .
 >```
 >When Docker finishes running the Dockerfile, the resulting image will be on the <span style="color: #d65d0e">local registry</span>.
 
-Each step of running a Dockerfile is cached, Docker skips lines that haven't changed since the last build.
+Each step of running a Dockerfile is cached, Docker skips lines that haven't changed since the last build. dot here,
+we tell Docker that the Dockerfile
+will be in the same folder
+as we're running this command in.
+
+to run the container based of the dockerfile
+docker run ID -p 3000:80
+
+Every instruction represents a layer in your Dockerfile.
+And an image is simply built up from multiple layers
+based on these different instructions.
+
+
+
 ###### <span style="color:#98971a">Network</span>
 
 network are used for the isolated container communication.
@@ -311,6 +402,7 @@ Docker uses network namespaces that creates a separate namespace for each contai
 - To <strong style="color: #b16286">inspect</strong> a container <span style="color: #3588E9">--></span> <code style="color:#689d6a">docker inspect [name]</code>
 	- it returns all details of a container in a JSON format
 - To <strong style="color: #b16286">see the logs</strong> of a container <span style="color: #3588E9">--></span> <code style="color:#689d6a">docker logs [name]</code>
+	- `-f` --> to keep listening the container
 - To <strong style="color: #b16286">list all</strong> available images <span style="color: #3588E9">--></span> <code style="color:#689d6a">docker images</code>
 	- <code style="color:#689d6a">docker image ls</code> <span style="color: #3588E9">--></span> new syntax
 - To <strong style="color: #b16286">delete an image</strong> <span style="color: #3588E9">--></span> <code style="color:#689d6a">docker rmi [id]</code>
@@ -333,4 +425,16 @@ Whenever a new image is created or an existing image is updated, it's pushed to 
 Link is a command line option which can be used to link to container together
 
 `docker run -d --name-vote -p 5000:80 --link redis:redis voting-app`
-it creates an entrypoiny on ETcd host file one the voting app container, adding and entry with the host name redis whot the internal IP of the redis container.
+it creates an entrypoint on ETcd host file one the voting app container, adding and entry with the host name redis whot the internal IP of the redis container.
+
+to attach the container 
+`docker attach container_name`
+
+`docker start -a container_name` --> to start in the attach mode
+
+`docker run --name mycontainer myimage`
+
+to remove a container automatically:
+`docker run -p 3000:80 -d --rm ID`
+Being able to run a container with the --rm flag
+to automatically remove it when it's been stopped.

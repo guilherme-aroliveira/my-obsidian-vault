@@ -239,9 +239,6 @@ For any Kubernetes definition file the spec definition defines what's inside the
 <span style="color:#689d6a">object spec</span> <span style="color: #3588E9">--></span> provided by the user which dictates an object's desired state.
 
 <span style="color:#689d6a">status</span> <span style="color: #3588E9">--></span> provided by Kubernetes, this describes the current state of the object.
-
-<span style="color:#98971a">StatefulSet</span> <span style="color: #3588E9">--></span> object that manages stateful applications. Manages deployment and scaling of Pods, and provides guarantees about ordering and uniqueness of Pods. 
-- a StatefulSet maintains a sticky identity for each Pod request and provides persistent storage volumes for the workloads
 ###### <strong style="color:#98971a">Pods</strong>
 
 A <span style="color:#98971a">Pod</span> is a single instance of an application. It's the <strong style="color: #b16286">smallest deployable compute object</strong> that can be created in Kubernetes and higher-level abstraction to run workloads.
@@ -284,6 +281,22 @@ To delete all pods:
 ```shell
 kubectl delete --all pods
 ```
+
+>[!example] Example - pod.yaml
+>```yaml
+>apiVersion: v1
+>kind: Pod
+>metadata: 
+>  name: web-pod
+>  labels:
+>    type: web-app
+>spec:
+>  containers:
+>    - name: web-server-apache
+>      image: https
+> 	 ports:
+> 	   - containerPort: 80 
+>```
 
 The `apply` and `create` commands can be used to create a new object. The `-f` option specifies the file name.
 
@@ -634,7 +647,36 @@ Portas envolvidas na comunicação com serviços:
 - port <span style="color: #3588E9">--></span> atributo utilizado para acessar o recurso do kubernetes. É um atributo obrigatório, é através desta porta que o serviço é disponibilizado.
 - TargetPort <span style="color: #3588E9">--></span> porta onde a aplicação é disponibilizada dentro do container. É um atributo opcional.  
 
-Obs: Pods não possuem IPs estáticos. 
+Obs: Pods não possuem IPs estáticos. Os Pods são agrupados em serviços, e o cliente da aplicação acessa o serviço e não se preocupa com os IPs dos Pods. O Kube-DNS se encarrega de resolver o caminho (endereçamento IP) até os Pods.
+
+>[!example] Example - ClusterIP
+>```yaml
+>apiVersion: v1
+>kind: Service
+>metadata:
+>  name: frontend-service
+>spec:
+>  type: ClusterIP
+>  selector:
+>    type: web-app  # seleciona o Pod
+>  ports: # defini a porta para o serviço
+>    - name: http
+>      port: 80
+>      targetPort: 80
+>```
+>O atributo targetPort irá encaminhar as solicitações nesse serviço para a porta 80, que é a porta configurada do container pelo Pod.
+
+Para exibir os serviços:
+
+```shell
+kubectl get svc
+```
+
+Para remover um serviço:
+
+```shell
+kubectl delete services frontend-service --namespace=default
+```
 
 . Sevice biding manages configuration and credentuals for back-end services while protecting sensitive data. In addition, it makes Service credentiasl available automatically as a Secret. 
 
@@ -677,6 +719,10 @@ It creates Pods and track its completion process.
 A Job can run several Pods in parallel, and a <span style="color:#d65d0e">cronjob</span> is regularly used to create Jobs on interactive schedule
 
 Job it's the final way to deploy more than one Pods at a time. A Job will create one or more Pods and run the container inside of them until it has successfully completed its task.
+###### <strong style="color:#98971a">StatefulSet</strong>
+
+<span style="color:#98971a">StatefulSet</span> <span style="color: #3588E9">--></span> object that manages stateful applications. Manages deployment and scaling of Pods, and provides guarantees about ordering and uniqueness of Pods. 
+- a StatefulSet maintains a sticky identity for each Pod request and provides persistent storage volumes for the workloads
 ###### <strong style="color:#98971a">Replication Controller</strong>
 
 To prevent users from losing access to the application, it should have more than one instance or pod running at the same time.
