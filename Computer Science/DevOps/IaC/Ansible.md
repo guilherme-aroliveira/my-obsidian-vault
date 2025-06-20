@@ -321,6 +321,8 @@ Inventory file --> stores information about the target system, the default inven
 
 ansible tower -- a REST API, web service, and wbe based console desiged to make Ansible more usable for IT teams. It's a hub for automation tasks and it helps to manage inventory.
 
+`ansible-inventory --list -i aws_inventory.py`  --> list all hosts
+
 ##### ansible modules
 
 Ansible modules are categorized into various groups based on their functionality.
@@ -467,3 +469,113 @@ And even better way to do this would be to move the variables into a file in the
 >```
 
 Remember this format we are using to use variables in playbooks is called Jinja2 Templating.
+##### ansible conditions
+
+I could use the when conditional statement to specify a condition for each task.
+Only if the condition is true, that task is run.
+
+```yaml
+- name: Install NGINX
+  hosts: all 
+  tasks:
+  - name: Install NGINX on Debian
+    apt:
+      name: nginx
+      state: present
+    when: ansible_os_family == "Debian" and
+          ansible_distribution_version == "16.04"
+
+  - name: Install NGINX on Redhat
+    yum:
+      name: nginx
+	  state: present
+	when: ansible_os_family == "Redhat" or 
+	      ansible_os_family == "SUSE"  
+```
+
+You may use conditionals in a loop as well.
+
+```yaml
+- name: Install Softwares
+  hosts: all 
+  vars:
+    packages: 
+      - name: nginx
+        required: True
+      - name: mysql
+        required: True
+      - name: apache
+        required: True
+  tasks:
+    - name: Install "{{ item.name }}" on Debian
+      apt:
+        name: "{{ item.name }}"
+        state: present
+      when: item.required == True
+      loop: "{{ packages }}"
+```
+
+To use conditionals with the output of a previous task, we have a requirement to develop a playbook to check the status of a service and email if it's done.
+
+```yaml
+- name: Check status of a service and email if its down
+  hosts: localhost
+  tasks:
+   - command: service httpd status
+     register: result
+
+   - mail: 
+      to: admin@company.com
+      subject: Service Alert
+      body: Httpd Service is down
+      when: result.stdout.find('down') != -1
+```
+
+##### ansible loops
+
+Loop is a looping directive that executes the same task multiple number of times each time it runs.
+
+```yaml
+name: Create users
+hosts: localhost
+tasks:
+  - user: 
+      name='{{ item }}' 
+      state=present
+    loop:
+      - joe
+      - george
+      - ravi
+      - mani
+```
+
+ with directives
+with items. Just iterates over a list of items.
+
+```yaml
+name: View config file
+hosts: localhost
+tasks:
+  - debug: var=item
+    with_file:
+      - "/etc/hosts"
+      - "/etc/resolv.conf"
+      - "/etc/ntp.conf"
+```
+
+```yaml
+name: Check multipl mongodbs
+hosts: localhost
+tasks:
+  - debug: msg="DB={{ item.database}} PID={{ item.pid }}"
+    with_mongodb:
+      - database: dev
+        connection_string: "mongodb://dev.mongo/"
+      - database: prod
+        connection_string: "mongodb://prod.mongo/"
+```
+
+In fact, everything you see after the with underscore string is a lookup plugin --> ustom scripts that can do specific tasks like read files, connect to a URL or connect to a database or connect to other systems like Kubernetes or OpenShift.
+
+##### ansible roles
+
