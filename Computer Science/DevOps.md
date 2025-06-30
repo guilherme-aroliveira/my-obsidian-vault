@@ -441,9 +441,9 @@ For <strong style="color: white">large teams</strong> <span style="color: #3588E
 ---
 ##### <span style="color:#689d6a">Virtual Machines</span>
 
-A virtualização permite criar diversas aplicações e servidores sem a necessidade de coexistirem. Porém, os recursos dd máquina host (physical host) serão divididos. Cada vm (virtual machine) pode estar em sistemas operacionais distintos. 
+A virtualização permite criar diversas aplicações e servidores sem a necessidade de coexistirem. Porém, os recursos dd máquina host (physical host) serão divididos. Cada VM (virtual machine) pode estar em sistemas operacionais distintos. 
 
-The <strong style="color: white">objective</strong> of the virtualization is to <strong style="color: #d79921">chop the server up into smaller chunks</strong>, so that each one of these chunks can potentially contain an application. The vm stays on top of the hypervisor. 
+The <strong style="color: white">objective</strong> of the virtualization is to <strong style="color: #d79921">chop the server up into smaller chunks</strong>, so that each one of these chunks can potentially contain an application. The VM stays on top of the hypervisor. 
 
 <span style="color: #d65d0e">hypervisor</span> <span style="color: #3588E9">--></span> a software that can virtualize the hardware resources. It's the hypervisor job to manage the resources for every virtua system. It creates multiple machines, and each machine can run its own guest OS.
 
@@ -464,6 +464,14 @@ To check if virtualization is supported on Linux:
 - <code style="color: #689d6a">$ grep -E --color 'vmx|svm' /proc/cpuinfo</code>
 
 <span style="color: #98971a">Vagrant</span> <span style="color: #3588E9">--></span> created by Hashicorp, is a tool for creating and managing virtual machines, on different platforms and operating systems.
+
+Lima --> lightweight virtual machine manager that deploys virtual machines through the QEMU hypervisor
+
+WSL Windos Subsystem for linx --> background service that is able to tranalate linux system call or syscall into their appropriate Windows counterparts through a lightweight virtual machine 
+
+wsl --list --online --> shows all of the valid distributions that can be installed
+
+wsl --install -d ubuntu --> to install ubuntu 
 ##### <span style="color:#689d6a">Containers</span>
 
 An <span style="color: #d65d0e">image</span> <strong style="color: #b16286">is a package or a template</strong>, just like a VM template that you might have worked with in the virtualization world. <strong style="color: #b16286">It is used to create one or more containers.</strong>
@@ -508,6 +516,8 @@ There are many popular container vendors today, which include: [[Docker]], <span
 - <span style="color:#98971a">Vagrant</span> <span style="color: #3588E9">--></span> offers the highest levels of isolation on the running physical machine.
 
 <span style="color:#98971a">busybox</span> <span style="color: #3588E9">--></span> it's a binary that contains many well know Unix tools like <span style="color: #98971a">awk</span>, <span style="color: #98971a">date</span>, <span style="color: #98971a">whoami</span>, <span style="color: #98971a">wget</span>.
+
+Container images are prepackaged file systems for containers. Almost every container image start as a compressed archive with gzip. They are compressed to keep their size down as much as possible. 
 
 Container based virtualization is the option being adopt by most PaaS cloud players. <strong style="color: #d79921">Containers are all process based</strong>, so they have less isolation than a VM. Containers usually take mili-seconds to start, while a VM may take minutes. 
 ###### <span style="color:#98971a">Amazon ECR</span>

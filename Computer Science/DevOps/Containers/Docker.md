@@ -31,6 +31,11 @@ Docker requires that virtualization to be enabled in the Bios, <span style="colo
 
 >[!note]
 > The main purpose of Docker is to package and containerized applications and to ship them and to run them anywhere any time as many times is needed.
+
+Best practices:
+- use verified images --> use a container image scanner if using a verified image isn't possible. Example: Clair, Trivy or Dagba.
+- avoid tagging as latest --> version tags can be overriudenm making rollback difficult 
+- use non-root users --> it makes the contaienrs more secure.
 ##### <span style="color: #d65d0e">Docker Engine</span>
 
 Docker consist of multiple tools that are grouped together like <span style="color:#98971a">Docker CLI</span>, <span style="color:#98971a">Docker API</span>, the build tools for building images.
@@ -121,11 +126,18 @@ it will use these cached results
 if there is no need to run an instruction again.
 And this is called a layer based architecture.
 
+within the are one or more layers, each container snippets of the container's filesystem. layers are compressed archive that container set of files that make uo the containeer's file system along with some data about itself. These files are combined together to make up the folder that the container is given for its root file system,
+
 images contain multiples laywers (1 insturctions = 1 layer) to optimze build spped (caching) and re-usability.
 
 <span style="color: #d65d0e">Layers</span> are saved on disk only once and can be shared between images, which saves disk space and network bandwidth.
 
 Each <span style="color: #d65d0e">layer</span> is only a set of differences from the layer before it, the layers are stacked on top of each other. When an image is run as a container a new <span style="color: #d65d0e">writable layer</span> (container layer) is added, which allows to make changes to the container.
+
+the last layer is an image usually, but not always, contains instructions for configuring the container.
+
+Each image will container a manifest at the root levels that provide more information about itself, including the relationship between its layers.
+the container runtime uses manifests as guides for layers should be extracted and their containers configured.
 
 Multiple containers are typically based on the same image, called <span style="color: #d65d0e">base image</span>. Changes made to the base image are actually stored in a new layer and don't the base layer.
 
@@ -198,13 +210,15 @@ to copy a file from a container
 naming and tagging a container
 `docker run -p 3000:80 -d --rm --name goalsapp goals:latest`
 
+use nont-root users when runnign container:
+`docker run --rm -it --user somubody-else suspect-image:v1.0.1`
 ###### <span style="color:#98971a">Dockerfile</span>
 
-A Dockerfile is a text file that contains instructions needed to create an image, it can be created using any editor, from the console or terminal.
+The Dockerfile is a language for creating and describing docker container images. Dockerfile is the name of the lannguage, as well as the default name of thr file that Docker looks for when creaaing contaienr images. 
 
-Each docker instruction on a Dockerfile creates a new layer in the image.
+Every Dockerfile vonsist of a serr of commands (instructions), eahc on theur own line. The instruction is the first word of teh satement, every oher word after the inctruction is provided ot is as arguments.
 
->[!example]
+>[!example] Example - Dockerfile
 >```dockerfile
 ># Pull basde image
 >FROM ubuntu:14:04
@@ -233,10 +247,18 @@ Each docker instruction on a Dockerfile creates a new layer in the image.
 >CMD ["bash"]
 >```
 
+Docker process Docker file from top to bottom. Docker runs each Dockerilfe command in an "interminiadte container" (temporary container) and saves the reslts as ian image layer. These layers are joined together for form the mage as the Dockerfile is processed
+
+The byproduct of the comabd that ran in te hcontainer is saved in to a layer. This layer is added t the the new image, which is goven t the intermidiate container crated by the next command of the DOckerfile. This process repeats until evry command inf Dockerfile is processed.
+
+Each docker instruction on a Dockerfile creates a new layer in the image.
+
 By default, all those commands will be executed in the working directory off your Docker container and image. And by default, that working directory is the root folder in that container file system.
 
-Dockerfile elements
-- <code style="color: #689d6a">FROM</code> <span style="color: #3588E9">--></span> it defines the base image
+Obs: Command like label, expose and entrypoint do not run in intermiadte containers.
+
+Dockerfile commands
+- <code style="color: #689d6a">FROM</code> <span style="color: #3588E9">--></span> defines the "base" image that the Dockerfile's image will be created from. It links the current image to the new image.
 - <code style="color: #689d6a">RUN</code> <span style="color: #3588E9">--></span> executes arbitrary commands
 - COPY --> 
 - ADD --> 
@@ -245,9 +267,11 @@ Dockerfile elements
 	- Different ways of specifying commands:
 		- Shell form: `command1 param1`
 		- JSON array: `["command", "param1"]` <span style="color: #3588E9">--></span> Obs: the first element should be the executable
-- <code style="color: #689d6a">ENTRYPOINT</code> <span style="color: #3588E9">--></span> similar to the CMD instruction, it can specify the program that will run when the container starts.
+- <code style="color: #689d6a">ENTRYPOINT</code> <span style="color: #3588E9">--></span> similar to the CMD instruction, it can specify the program that will run when the container starts. It appends commands typed on the terminal with `docker run` 
 - WORKDIR --> set teh working direcoty inside teh container, tells Docker that all the subsequent commands will be executed from inside that folder.
-- EXPOSE --> expose a certain port to the local system (machien running the container) It **documents** that a process in the container will expose this port, it'ß an optional comand. 
+- EXPOSE --> expose a certain port to the local system (machien running the container) It **documents** that a process in the container will expose this port, it'ß an optional command. 
+- VOLUME --> maps a folder in the container to persist data
+- USER --> to set the docker user
 
 ```dockerfile
 FROM node
@@ -258,14 +282,43 @@ COPY package.json /app
 
 RUN npm install
 
-COPY . ./app
+COPY . .
 
-EXPOSE 80
+ARG DEFAULT_PORT=80
+
+ENV PORT $DEFAULT_PORT
+
+EXPOSE $PORT
 
 CMD ["node", "server.js"]
 ```
 
+Ways to use FROM command:
+select the "latest" tag of an image
+```dockerfile
+FROM ubuntu
+```
+
+select the tag of an image
+```dockerfile
+FROM ubuntu:kinetic
+```
+
+select the latest tag of an image and git it an alais (multi-stage build only)
+```dockerfile
+FROM ubuntu AS base
+```
+
+select the tag of an image and git it an alias name (multi-stage build only)
+```dockerfile
+# FROM $image:$tag AS $name
+FROM ubuntu:kinetic AS base
+```
+
 When adding or coping  a file to the Docker container it's a good practice to use a sub folder instead of entering the root folder.
+
+to restrict what is copied to the container, add a `.dockerignore` file to the project.
+specify which folders and files, should not be copied by a copy instruction. just as using `.gitignore`
 
 >[!example] Example  
 >```dockerfile
@@ -295,8 +348,65 @@ Every instruction represents a layer in your Dockerfile.
 And an image is simply built up from multiple layers
 based on these different instructions.
 
+Docker supports build-time arguments and runtime environment variables.
+Arguments allow you to set flexible bits of data, in your Dockerfile which you can use in there to pluck different values into certain Dockerfile instructions.
+set on image build (docker build) via `--build-arg`
+
+Environment variables on the other hand are available inside of a Dockerfile like arg,
+but args are available in your entire application code in your running application.
+and you can set them with the `--env` option inside of a Dockerfile,
+
+`docker run -d --rm -p 3000:8000 --env PORT=8000 --name feedback-app`
+`docker run -d --rm -p 3000:8000 -e PORT=8000 --name feedback-app`
+
+you can also specify a file that contains your environment variable
+
+```env
+PORT=8000
+```
+
+`docker run -d --rm -p 3000:8000 --env-file ./.env --name feedback-app`
 
 
+And args and environment variables allow you to create more flexible images and containers because you don't have to hard-code everything into these containers and images. Instead, you can set it dynamically when you build an image or even only when you run a container.
+
+to build for another environment with a different port value
+
+`docker build -t feedback-node:dev --build-arg DEFAULT_PORT=8000 .`
+
+Multi-Stage builds allow you to have one Dockerfile, that define multiple build steps or setup steps, so called "stages" inside of that file.
+
+Stages can copy results from each other, so we can have one stage to create the optimized files and another stage to serve them.
+
+We can either build the entire Dockerfile going through all stages, step by step from top to bottom or we select individual stages up to which we wanna build, skipping all stages that would come after them
+
+Now, with multistage builds, we just have to use "RUN" instead of command
+
+>[!example] Example - multi stage build
+>```dockerfile
+>FROM node:14-alpine as build
+>
+>WORKDIR /app
+>
+>COPY package.json .
+>
+>RUN npm install 
+>
+>COPY .. 
+>
+>RUN npm run build
+>
+>FROM nginx:stable-alpine
+>
+>COPY --from=build /app/build /usr/share/nginx/html
+>
+>EXPOSE 80
+>
+>CMD ["nginx", "-g", "daemon off;"]
+>```
+
+After FROM build, you still need to specify the source path,
+we're telling Docker that this copy will not refer to our local host project folder, but instead queue the file system from this build stage.
 ###### <span style="color:#98971a">Network</span>
 
 network are used for the isolated container communication.
@@ -324,13 +434,56 @@ Meaning if you were to run a web server on Port 5000 in a web app container, it 
 We could create our own internal network using the Command Docker network, create and specify the driver, which is bridge in this case and the subnet for that network, followed by the custom isolated network name run.
 
 The docker network ls command to list all networks.
+
+multiple containers can be added into the same network, by using the `--network` option. on the `docker run` command. 
+
+Within a Docker network, all containers can communicate with each other and IPs are automatically resolved.
+
+`docker network create ` --> create a docker internal network
+`docker network create favorites-net`
+`docker run -d --name mongodb --network favorites-net mongo`
+`docker run --name favorites --network favorites-net -f --rm -p 3000:3000 favorites-node`
+
+to allow communication between the applications running in a container to the host achine machine just use the address `host.docker.internal`
+
+Docker Networks actually support different kinds of "**Drivers**" which influence the behavior of the Network. The default driver is the "**bridge**" driver
+The driver can be set when a Network is created, simply by adding the `--driver` option. `docker network create --driver bridge my-net`
+
+Docker also supports these alternative drivers - though you will use the "bridge" driver in most cases:
+
+- **host**: For standalone containers, isolation between container and host system is removed (i.e. they share localhost as a network)
+    
+- **overlay**: Multiple Docker daemons (i.e. Docker running on different machines) are able to connect with each other. Only works in "Swarm" mode which is a dated / almost deprecated way of connecting multiple containers
+    
+- **macvlan**: You can set a custom MAC address to a container - this address can then be used for communication with that container
+    
+- **none**: All networking is disabled.
+    
+- **Third-party plugins**: You can install third-party plugins which then may add all kinds of behaviors and functionalities
+
 ###### <span style="color:#98971a">Storage</span>
 
 Docker uses volumes and bind mounts to persist data even after a container stops
+built int feature, 
+it helps with persistent data 
+values are folders on the host machine hard drive with are mounted ("mapped") into containers. values persist if a container shuts down. If a container (re)-stars and mounts a volume, anu data inside of the volume is available in the container. 
+A container can write data into a volume and read data from it.
+
+A defined path in the container is mapped to the create volume / mount.
+
+volumes --> managed by docker
+- anonymous volumes  --> created specifically for a single container, attach to a container, can be used to save (temporary) data inside the container
+- named volumes --> volumes persist even if the container is shut down, as the folders in the hard drive. good for data which should be persistent but which it doesn't need to be edit directly. 
+
+anonymous volumes are **removed automatically**, when a container is removed
+with the `--rm` option container are remove automatically when a container is removed. If you start a container **without that option**, the anonymous volume would **NOT be removed ** even if you remove the container (with `docker rm ...`).
+
+docker sets ups a folder / path on the host machine, the exact location in unknown to the user. and it's managed by the `docker volumes` command. 
 
 Docker stores all its data by default on this location: `/var/lib/docker`
 
 <code style="color:#689d6a">docker volume create</code> <span style="color: #3588E9">--></span> docker command to create a volume
+docker volumes ls --> list all volumes managed
 
 >[!example] example - docker volume create
 >```shell
@@ -339,6 +492,12 @@ Docker stores all its data by default on this location: `/var/lib/docker`
 >creates a folder called d_volume under the `/var/lib/docker/volumes` directory.
 
 To persist data, it's necessary to mount a volume or map a directory outside the container on the docker host or host to a directory inside the container.
+
+`docker run -v /app/data/ ...` --> creates an anonymous volume
+`docker run -v data:/app/data ...` --> creates a named volume
+`docker rum -v /path/to/code:/app/code ...` --> creates a bind mount
+
+`docker volume rm VOL_NAME` or `docker volume prune` to remove **unused anonymous volumes**
 
 >[!example] mount volume
 >```shell
@@ -351,7 +510,7 @@ To persist data, it's necessary to mount a volume or map a directory outside the
 
 The are two types of mounts:
 - <span style="color:#98971a">volume mounting</span> <span style="color: #3588E9">--></span>  mounts a volume from the volumes directory
-- <span style="color:#98971a">bind mounting</span> <span style="color: #3588E9">--></span> mounts a directory from any location on the Docker host
+- <span style="color:#98971a">bind mounting</span> <span style="color: #3588E9">--></span> mounts a directory from any location on the Docker host (host machine) . good for persistent, editable data.
 
 >[!example] bind mount
 >```shell
@@ -364,6 +523,18 @@ The are two types of mounts:
 >```
 >The source is the location on the host and the target is the location on the container.
 
+We use this bind Mount during development to reflect changes in our code, into running container instantly. Because if the container is running in production on a server, there is no connected source code, which updates while it's running.
+
+bind mount:
+`docker run -d -p 3000:80 --rm --name feedback-app -v feedback:app/feedback -v "home/user/guilherme/dev:/app" -v feddback-note:volumes`
+
+`-v $(pwd):/app`
+
+by default volumes are read write, --> the container is able to read data from there and write data to them.
+
+to ensures that docker will now not be able to write into this folder or any of its sub-folders.
+
+`docker run -d -p 3000:80 --rm --name feedback-app -v feedback:app/feedback -v "home/user/guilherme/dev:/app:ro" -v feddback-note:volumes`
 
 Docker uses storage drivers to enable layered architecture. Some of the common storage drivers are: AUFS, ZFS, BTRFS, Device Mapper, Overlay, Overlay2. The selection of the storage driver depends on the underlying OS.
 
@@ -375,7 +546,140 @@ How can I get my web server to access the database on the database container?
 The right way to do it is to use the container name. All containers in a docker host can resolve each other with the name of the container. Docker has a built in DNS server that helps the containers to resolve each other using the container name.
 
 How were the containers isolated within the host?
-Docker uses network namespaces that creates a separate namespace for each container. It then uses virtual ethernet pairs to connect containers together.
+Docker uses network namespaces that creates a separate namespace for each container. It then uses virtual Ethernet pairs to connect containers together.
+
+Obs: Bind mount shouldn't be used in Production!
+##### <span style="color: #d79921">Docker Compose</span>
+
+Docker compose is a tool for defining and running multi-container Docker applications. It allows to define an entire stack, including services, networks, and volumes with a single configuration file and then a set of orchestration commands to start all those services.
+
+Docker Compose will not replace Docker files for custom images. Docker Compose works together with Docker files.
+
+Docker Compose is really great for managing multiple containers on one and the same host.
+
+>[!example] Example - 
+>```yaml
+>services:
+>  bookstack:
+>    image: lscr.io/linuxserver/bookstack:version-
+>    container_name: bookstack
+>    # environment:
+>      # - DB_USERNAME=bookstack
+>      # - DB_PASSWORD=
+>    env_file: 
+>      - ./env/mongo.env
+>    volumes:
+>      - ./app_data:/config
+>    networks:
+>      - bookstack
+>    ports: 
+>     - 6875:80
+>
+>networks:
+>  bookstack:
+>    name: bookstack 
+>```
+
+<strong style="color:#98971a">Components:</strong>
+
+services --> defines the various containers (services) that make up the application. Each service has a name, and under each service, parameters can be configured such as Docker image to use, environment variables, port to expose, volume to mount, etc.
+
+image --> overrides the image name specified in the Dockerfile
+
+volumes --> This section allows to define named volumes or bind mounts for the seervices. Volumes are used to persist data between contaienr restarts.
+
+networks --> This section lest define custom networks and connect services to them. This is useful for controlling communication between services.
+
+environment --> you can set environment variables for the services using 'environment' key. This is useful for configuring the applications dynamically.
+
+port: This key allows to map ports from the host to the container. This is essential for accessing services from outside the Docker environment.
+
+command: This key lets override the default command for the environment. This is useful when you need o specify how the container should start.
+
+```yaml
+command: npm start
+```
+
+build/context: It defines either a path do a directory containing a Dockerfile, or a URL to a git repository.
+
+>[!example] 
+>```yaml
+>build:
+>  context: ./dir
+>```
+>---
+>```yaml
+>services:
+>  webapp:
+>    build: https://github.com/mycompany/webapp.git
+>```
+
+dockerfile --> specifies an altervative Dockerfile for the build
+
+>[!example] 
+>```yaml
+>build:
+>  context: .
+>  dockerfile: Dockerfile.dev
+>```
+
+args --> passes bulid arguments to the build context. Useful for dynamically setting values during the build. 
+
+>[!example] 
+>```dockerfile
+>ARG GIT_COMMIT
+>RUN echo "Based on commit: $GIT_COMMIT"
+>```
+>```yaml
+>build:
+>  context: .
+>  args:
+>    GIT_COMMIT: cdc3b19
+>```
+
+tags --> defines a list of tags mappings that must be associated to the build image
+
+>[!example] 
+>```yaml
+>tags:
+>  - "myimage:mytag"
+>  - "registry/username/myrepos:my-other-tag"
+>```
+
+normal flow
+
+Dockerfile --> Docker Build Command --> Docker Image
+
+Docker compose workflow
+
+docker compose build --> build service
+docker compose up --> start up service
+-d --> background mode
+docker compose down --> tear down service 
+docker compose push --> push the images to docker hub
+docker compose logs --> to view the logs of a service 
+docker compose logs --tail=10 --> limit the container logs output
+docker compose logs --follow --> follow the container log output
+docker compose exec service_name shell --> shell into the container 
+/bin/bash
+
+>[!example] Example - npm tool
+>```yaml
+>services:
+>  npm: 
+>    build: ./
+>    stdin_open: true
+>    tty: true
+>    volumes:
+>      - ./:/app
+>```
+
+If you don't have a command or entry point at the end, then the command or entry point of the base image will be used if it has any.
+
+`docker compsoe up -d --build server`
+The `--build` option force docker compose to reevaluate the Docker files and rebuild images if required. orces docker-compose to go through the Docker files again and then recreate the images if something changed.
+
+
 ##### <span style="color: #d79921">Docker Commands</span>
 
 - To <strong style="color: #b16286">run/start</strong> a container from an image <span style="color: #3588E9">--></span> <code style="color:#689d6a">docker run nginx</code>   
@@ -438,3 +742,5 @@ to remove a container automatically:
 `docker run -p 3000:80 -d --rm ID`
 Being able to run a container with the --rm flag
 to automatically remove it when it's been stopped.
+
+`docker exec -it contaier_name npm init`

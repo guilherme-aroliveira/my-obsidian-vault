@@ -516,3 +516,117 @@ variables in Python can be re-declared (dynamically typed)
 <span style="color:#d65d0e">deaf program</span> <span style="color: #3588E9">--></span> program that doesn't use any input function
 
 The <strong style="color:#b16286">IOError</strong> usually happens when the computer or machine has some issues reading or writing any sort of I-O operation.
+
+.  although slower than some languages, is good at one thing and does this really, really well.
+That is developer productivity because Python is so easy to learn or at least is very similar to the English language.
+
+43 + [60] --> operands
+
+" + " --> operator
+
+25 // 5 --> for interger division; the result is rounded
+--> python follows mathemical conventions when performing mathemical expressions
+
+Replicate values of a string: 3 * "Michael Jason" --> result is a new string
+
+escape sequences are strings that are difficult to input
+```python
+print ("Michael jacson\nis the best")
+```
+Para usar um \ como string, há duas formas:
+```python
+print("Michael jacson \\is the best")
+print(r"Michael jacson \is the best")
+```
+O método find() procura por sub-strings:
+```python
+Name = "Michale Jackson"
+Name.find('el')
+Name.find('Jack') # irá retornar o index inicial da string
+```
+multiples name referring to the same object is known as aliasing.
+help() command shows more info on lists, tuples, and many other objects
+A venn diagram is a tool that uses shapes usually to represent sets
+The intersection of two sets is a new set containing elements which are in both of those sets.
+The & (ampersand) is used in Python  to find the intersection(union) of the two sets.
+
+```python
+album_set_1={"AC/DC", "Back in Black", "Thriller"}
+album_set_2={"AC/DC", "Back in Black", "The Dark Side of the Moon"}
+album_set_3=album_set_1 & album_set_2
+```
+
+
+
+## Built-in functions
+
+Math functions
+round() --> returns a whole number, round the number
+abs() --> returns the absolute value of the argument(no negative numbers)
+
+## OOP
+
+--> OOP is something a developer should know in order to be a great dev.
+thinking more in terms of functionality
+
+4 pillars:  encapsulation, abstraction, inheritance, polimorphism
+
+encapsulation --> biding of data in functions
+
+abstraction --> hiding information or abstractign away information and given access to only what is necessary.
+
+In python theres is not true private variables:
+_age --> indicates that it's a private variable. It's a convention.
+
+inheritance --> allows new objects to take new properties of existent objects.
+parent class and children class(subclasses or derived classes)
+
+isinstance()
+
+polimorphism -->
+
+## Machine Learning
+
+1 - Import the data
+2 - Clean the data
+3 - Slipt the data. Training Set/ Test Set
+4 - Create a Model
+5 - Check the output
+6 - Improve
+
+Tools:
+ . NumPy --> library that helps to use list and arrays in python, epecifically multi dimensial arrays.
+ . Pandas --> used for data analysis, manipulate data in tabular structure.
+ . scikit-learn --> use for data mining
+ . matplotlib --> allows to visualize data
+ . jupyter notebooks -->
+ . Kaggle --> has datasets
+
+A python module is .py file containing Python definitions, statements, functions and classes. a module can be imported to ohter scripts or notebooks, example: 
+```python
+from modules import square, doubler
+```
+
+A package is a collection of python modules into a dictionary with a `__init__.py`. 
+When you import a module or a package, the corresponding object created by Python is always of type module. the distinction between module and package is only at the file system level
+
+A library is a collection of packages or it can be a single package. Examples include numpy, pytorch, and Pandas. Note that the terms package and library are often used interchangeably. Therefore, numpy, pytorch, and Pandas are also referred to as packages
+
+To create a python package:
+	1. create a folder with the package name
+	2. crate an empty `__init__.py`
+	3. create the required modules
+	4. add code in `__init__.py` to reference the modules
+
+Open the python interpreter by running the command python in the shell.  Using the python prompt type import followed by the project name
+To verify a package: 
+	python --> import myproject --> 
+
+The general structure for testing your package is:
+`{package_name}.{module_name}.{function_name}(parameters)`
+Example: `myproject.basic.square(2)` 
+
+Templates are nothing but  pre-created HTML pages that are served from the Web application. They can be both static and dynamic
+
+Decorators help in annotating the methods and tell what a particular method is meant for. These are different from comments. This is used by the interpreter while running the code.
+The method decorator is also referred to as the wrapper, which wraps the output of the function, that it decorates.

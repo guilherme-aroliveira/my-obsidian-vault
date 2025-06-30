@@ -579,3 +579,9 @@ In fact, everything you see after the with underscore string is a lookup plugin 
 
 ##### ansible roles
 
+the primary purpose of roles to make your work reusable, be it for other tasks or projects within your organization or outside for others globally.
+
+Roles also help in organising your code within Ansible.
+
+Roles introduce a set of best practices that must be followed to organize all tasks into a task directory.
+
