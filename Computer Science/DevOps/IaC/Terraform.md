@@ -70,6 +70,8 @@ Terraform configuration must declare which providers they require so that Terraf
 >```
 >The `required_version` property allows to define a specific version of terraform that has to be used in a specific system. 
 
+To use a specific terraform version within a range, <span style="color: #d65d0e">comparison operators</span> can be used through what's called <span style="color: #d65d0e">pessimistic constraint operators</span>, represented by the symbol `~>`. This operator allows TerraForm to download the specific version or any available incremental version based on the value provided
+
 Terraform initializes the project and identifies the providers to be used for the target environment.
 
 <span style="color: #d65d0e">Terraform Core</span> is the installed version of Terraform that can be done on a Linux.
@@ -356,8 +358,6 @@ The Input Variable can also have a custom validation rules defined, which are de
 		- `map(...)` <span style="color: #3588E9">--></span> a collection of values identified by named labels, maps are used to store key/value pairs. <strong style="color: white">Example:</strong>`[us-east-1 = "ami-"]`
 		- `set(...)` <span style="color: #3588E9">--></span> a collection of unique values without any secondary identifiers or ordering.
 	- <span style="color: #d65d0e">Structural types</span> <span style="color: #3588E9">--></span> a collection of multiple values of several distinct types grouped together as a single value
-		- `object(...)` <span style="color: #3588E9">--></span> a collection of values each with their own type, objects allows to create complex data structures by combining all the variable types. <strong style="color: white">Example:</strong> `{name = "bella", age = 7, color = true}`
-		- `tuple(...)` <span style="color: #3588E9">--></span> a sequence of values each with their own type. <strong style="color: white">Example:</strong> `["cat", 7, true]`
 
 >[!example] Example - List
 >```hcl
@@ -451,7 +451,7 @@ The Input Variable can also have a custom validation rules defined, which are de
 >```
 
 Variable - <strong style="color: white">order of precedence:</strong>
-1. `-var` and `-var-file`
+1. `-var` and `-var-file` <span style="color: #3588E9">--></span> command line flags
 2. `*.auto.tfvars or .auto.tfvars.json`
 3. `terraform.tfvars.json`
 4. `terraform.tfvars` file
@@ -464,7 +464,9 @@ To change the value of a variable on the terminal:
 terraform apply -var variables_sub_az="us-east-1e"
 ```
 
-A `.tfvars` file is another way to set the value of the variables in Terraform. It's a special file that Terraform can use to retrieve specific values of variables without requiring the operator to modify the variables file or set environment variables.
+A `.tfvars` file (variable definition file) is another way to set the value of the variables in Terraform. It's a special file that Terraform can use to retrieve specific values of variables without requiring the operator to modify the variables file or set environment variables.
+
+The variable definition file if called `.tfvars` or `.tfvars.json` or by any other name ending with `*.auto.tfvars` or `*.auto.tfvars.json will` be automatically loaded by TerraForm.
 
 >[!example] Example - .tfvars 
 >```hcl
@@ -474,7 +476,7 @@ A `.tfvars` file is another way to set the value of the variables in Terraform. 
 >variables_sub_cidr = "10.0.204.0/24"
 >```
 
-A `.tfvars` file can be specified using the `-var-file` option at the command line.
+If another name is used for the `.tfvars` file, such as `prod.tfvars` for example, it must be pass it along with a command line flag `-var-file`.
 
 ```shell
 terraform plan -var-file="prod.tfvars"
@@ -576,7 +578,7 @@ For security concerns the value of an output can be suppressed during the execut
 >Even if the values are marked as sensitive in the Terraform input and output, it still needs to add the value to the state file.
 ###### <span style="color: #98971a">Data Source</span>
 
-Terraform uses data sources to fetch information from cloud provider APIs, such as disk image IDs, or information about the rest of your infrastructure through the outputs of other Terraform configurations.
+TerraForm can read attributes of existing infrastructure components by configuring data sources to fetch information from cloud provider APIs, such as disk image IDs, or information about the rest of your infrastructure through the outputs of other Terraform configurations.
 
 <span style="color: #d65d0e">Data sources</span> are <strong style="color: #b16286">used in Terraform to load or query data</strong> from APIs or other Terraform `workspaces`. To use data sources, declare it using a `data block` in the Terraform configuration.
 
@@ -846,6 +848,11 @@ The lifecycle directives are used to influence and ultimately control the order 
 >  }
 >}
 >```
+
+The `prevent_destroy` option is useful to prevent resources from getting accidentally deleted.
+
+>[!note]
+>Meta arguments can be used within any resource block to change the behavior of resources. That depends on for defining explicit dependency between resources and the lifecycle rules, which define how the resources should be created, updated and destroyed within TerraForm.
 ###### <span style="color: #98971a">Built-in Functions</span>
 
 Terraform language has many built-in functions that can be used in expressions to transform and combine values. Some functions accept a singular arguments, others multiple arguments and some accept just a specific data type.
@@ -1128,7 +1135,7 @@ The are cases that a module needs to be refactored, like change the name of a re
 The `moved` block should be kept to ensure backwards compatibility, until all resources and modules are updated. 
 ###### <span style="color: #98971a">Conditions and Loops</span>
 
-Boolean values can be used in a terraform ternary operation to create an if-else statement - `CONDITION ? TRUE_VAL : FALSE_VAL`
+Boolean values can be used in a terraform ternary operation (interpolation) to create an if-else statement.  Syntax: `CONDITION ? TRUE_VAL : FALSE_VAL`
 
 >[!example] Example 1 - condition
 >```hcl
@@ -1162,18 +1169,18 @@ Boolean values can be used in a terraform ternary operation to create an if-else
 >}
 >```
 
-count <span style="color: #3588E9">--></span> parameter used to loop over the resources. Can be used to create multiple copies of resources in terraform.
+count <span style="color: #3588E9">--></span> parameter (meta argument) used to loop over the resources. It's one of the easiest ways to create multiple copies of resources in terraform, like EC2 instances.
 
 >[!example] Example - count
 >```hcl
 >resource "aws_iam_user" "user-example" {
 >  count = 3
->  name = "myuser.$(count.index)"
+>  name = "var.users[count.index]"
 >}
 >```
+>The count index can be used to make iterations
 
-for <span style="color: #3588E9">--></span> parameter used to iterate over lists and maps. For loop is used to generate a single Value. Syntax of `for` loop: `for ITEM in LIST : OUTPUT`
-syntax map: `for KEY, VALUE in MAP : OUTPUT`
+for <span style="color: #3588E9">--></span> parameter used to iterate over lists and maps. For loop are typically used to assign a single value to an argument. Syntax of `for` loop: `for ITEM in LIST : OUTPUT`
 
 >[!example] Example - for
 >```hcl
@@ -1186,6 +1193,8 @@ syntax map: `for KEY, VALUE in MAP : OUTPUT`
 >  value = [for name in var.names : upper(name)]
 >}
 >```
+
+For loop syntax with map: `for KEY, VALUE in MAP : OUTPUT`
 
 >[!example] Example - for with map
 >```hcl
@@ -1203,7 +1212,8 @@ syntax map: `for KEY, VALUE in MAP : OUTPUT`
 >}
 >```
 
-for_each <span style="color: #3588E9">--></span> parameter used to create multiple copies of resource or inline blocks. Syntax: `for_each = COLLECTION`
+for_each <span style="color: #3588E9">--></span> parameter used to create multiple copies of resource or inline blocks, or to repeat nested blocks. It only works with map or set.
+Syntax: `for_each = COLLECTION`
 
 >[!example] Example 1 - list
 >```hcl
@@ -1498,9 +1508,9 @@ terraform workspace select default
 
 >[!note]
 >Workspaces isolate their state, if `terraform plan` is executed, Terraform will not see any existing state for this configuration.
-##### <span style="color: #689d6a">Terraform state</span>
+##### <span style="color: #689d6a">Terraform State</span>
 
-Terraform stores and operates on the state of the managed infrastructure. Terraform uses this <span style="color: #d65d0e">state</span> on each execution to make plan and make changes. This state must be stored and maintained on each execution so future operations can be performed correctly.  
+Terraform stores and operates on the state of the managed infrastructure. Terraform uses this <span style="color: #d65d0e">state</span> on each execution to make plan and make changes. This state must be stored and maintained on each execution so future operations can be performed correctly.
 
 The location and method of operation of Terraform's state is determined by the Terraform <span style="color: #d65d0e">backend</span>. By default Terraform uses a local backend, where state information is stored and acted upon locally within the working directory in local file name `terraform.tfstate`.
 
@@ -1548,7 +1558,7 @@ To rename a resource:
 terraform state mv aws_instance.server aws_instance.web_server
 ```
 
-To stop stop managing a resource without destroying it:
+To stop managing a resource without destroying it:
 
 ```shell
 terraform state rm <resource_name>
@@ -1892,47 +1902,7 @@ Sentinel has three enforcement levels:
 
 To add the policy set to Terraform Cloud organization:
 - organization settings <span style="color: #3588E9">--></span> policy sets <span style="color: #3588E9">--></span> connect a new policy set
-###### Terraform concepts
-
-TerraForm can read attributes of existing infrastructure components by configuring data sources. This can lead to be used for configuring other resources within TerraForm
-The data source block consists of specific arguments for a data source. Data sources are also called data resources.
-
-Meta arguments can be used within any resource block to change the behaviour of resources. That depends on for defining explicit dependency between resources and the lifecycle rules, which define how the resources should be created, updated and destroyed within TerraForm.
-
-One of the easiest ways to create multiple instances of the local file is to make use of the count meta argument. Ex: count = 3, We can make use of count index in the expression to make iterations --> filename = var.filename[count.index] # best way to do it
-
-for_each --> only works with a map or a set
-for_each = toset(var.filename)
-
-A Life cycle rule allows to a resource to be created first before the older one is deleted. Some options for the lifecycle: create_before_destroy, prevent_destroy --> useful to prevent your resources from getting accidentally deleted
-
-We can also combine the comparison operators like this to make use of a specific version within a range. pessimistic constraint operators --> defined by making use of the tilde greater than symbol --> ~> 1.2 This operator allows TerraForm to download the specific version or any available incremental version based on the value we provided.
- 
-we can also make use of command line flags. We can pass an as many variables as we want with this method by making use of the dashboard flag multiple times. terraform apply -var "filename=/root/pets.txt" -var "content=We love Pets!"
-
-when we're dealing with a lot of variables, we can load values by making use of variable definition files. These variable definition files can be named anything but should always end in either .tfvars or .tfvars.json. The variable definition file if called .tfvars or .tfvars.json or by any other name ending with *.auto.tfvars or *.auto.tfvars.json will be automatically loaded by TerraForm.
-
-If you use any other file name such as variable.tfvars for example, you will have to pass it along with a command line flag: terraform apply -var-file variables.tfvars
-
-variable definition precedence: -var or -var-file --> *.auto.tfvars --> terraform.fvars --> environment variables
-
-standardized AMIs : using file uploads, using remote exec, automation tools like ansible, chef which is integrated within terraform. puppet gent can be run using remote-exec.
-
-user data - best way is to use a template system
-
-interpolation in terraform may contain conditions (if-else)
-syntax --> `CONDITION ? TRUE : FALSE`
-Example
-`count = "${var.env == "prod" ? 2 : 1}"`
-
-builtin functions can be used terraform resources.
-the syntax to call a function is `name(arg1, arg2, ...)` and wrapped with `${...}`
-for example `${file("mykey.pub")}` would read the context of the public file.
-
-For loops are typically used when assigning a value to an argument
-Example: `[for s in var.list2: upper(s)]`
-`tags = {for k, v in merge({ Name = "Myvolume" }, var.project.tags): k => lower(v)}`
-For_each loops are used to repeat nested blocks.
+##### <span style="color: #689d6a">Terraform CDK</span>
 
 CDKTF is a new way of provisioning suing Terraform --> use a programming language o write the provisioning code
 - supported languages are currently, Typescript, Python, Java, C# and Go
