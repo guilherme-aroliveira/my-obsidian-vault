@@ -15,28 +15,55 @@ The processes running inside the container are in fact processes running on the 
 
 By default there is no restriction as to how much of a resource a container can use, and hence a container may end up utilizing all of the resources on the underlying host.
 
-Docker primarily uses <span style="color: #d65d0e">cgroups</span> (control groups) to restrict the amount of hardware resources allocated to each container <span style="color: #3588E9">--></span> can be done by providing the `--cpus` option to the Docker run command. 
+Docker uses <span style="color: #d65d0e">cgroups</span> (control groups) to: 
+1. Monitor and restrict CPU usage, or the amount of CPU time each container can take up.
+2. Monitor and restrict network and disk bandwidth
+3. Monitor and restrict memory consumption (more common)
 
->[!example] cgroups - example
->```shell
->docker run --cpus=.5ubuntu
->```
->Ensure that the container does not take up more than 50% of the host CPU at any given time
->```shell
->docker run --memory=100m ubuntu
->```
->The same goes with memory
+>[!info]
+>The usage of Control Groups makes easier to prevent busier, or larger containers from eating up all the system's resources and slowing other container down without having to carve up significant amount of memory like virtual machine do.
+
+Obs: Control Group can not be used to assign dick quotas to containers.
+
+To limit CPU usage:
+
+```shell
+docker run --cpus=.5 ubuntu
+```
+
+To limit memory usage:
+
+```shell
+docker run --memory=100m ubuntu
+```
+
+Docker primarily uses <span style="color: #d65d0e">cgroups</span> (control groups) to restrict the amount of hardware resources allocated to each container <span style="color: #3588E9">--></span> can be done by providing the `--cpus` option to the Docker run command.
 
 Docker requires that virtualization to be enabled in the Bios, <span style="color: #d65d0e">VT-X</span> or <span style="color: #d65d0e">AMD-V</span>.
 
 >[!note]
 > The main purpose of Docker is to package and containerized applications and to ship them and to run them anywhere any time as many times is needed.
 
-Best practices:
-- use verified images --> use a container image scanner if using a verified image isn't possible. Example: Clair, Trivy or Dagba.
-- avoid tagging as latest --> version tags can be overriudenm making rollback difficult 
-- use non-root users --> it makes the contaienrs more secure.
-##### <span style="color: #d65d0e">Docker Engine</span>
+<strong style="color: white">Best practices:</strong>
+- use verified images <span style="color: #3588E9">--></span> use a container image scanner if using a verified image isn't possible. Example: Clair, Trivy or Dagba.
+- avoid tagging as latest <span style="color: #3588E9">--></span> version tags can be overridden making rollback difficult 
+- use non-root users <span style="color: #3588E9">--></span> it makes the containers more secure.
+
+<strong style="color: white">Limitations:</strong>
+- Native only runs on Linux
+- Container images are bound to their parent operating systems (tied to the Kernel)
+
+The <span style="color:#98971a">portainer</span> is a tool that allows to view and manage in the browser all docker containers. To use it just run it as a docker container, by default it runs on port 9443.
+
+>[!example] Example - portainer
+>```shell
+>$ docker volume create portainer_data
+>
+>$ docker run -d -p 8000:8000 -p 9443:9443 --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:lts
+>
+>$ docker run -d -p 8000:8000 -p 9443:9443 --name portainer --restart=always -v /home/guilherme/.lima/docker/sock/docker.sock   -v portainer_data:/data portainer/portainer-ce:lts
+>```
+##### <span style="color: #689d6a">Docker Engine</span>
 
 Docker consist of multiple tools that are grouped together like <span style="color:#98971a">Docker CLI</span>, <span style="color:#98971a">Docker API</span>, the build tools for building images.
 
@@ -55,7 +82,7 @@ To use Docker CLI to work with remote docker engine, simply use `-h` option on t
 >`docker -H=[remote-docer-engine]:[port]`
 
 <span style="color: #3588E9">--></span> <span style="color:#98971a">docker daemon</span> can also communicate with other daemons to manage Docker services.
-##### <span style="color: #d79921">Docker Architecture</span>
+##### <span style="color: #689d6a">Docker Architecture</span>
 
 Docker is based on client-server architecture which provides a complete application environment. Docker components includes the client, the host, and the registry.
 
@@ -104,7 +131,17 @@ Docker also uses "copy-on-write" file systems to build images.
 UCP include centralized policy management for all containers centralized role-based access control, user management, application cluster management and the ability to organize the container as services and stacks.
 
 DTR is an on-site, on-premises registry for centralized storage for all the containers images. It can also include secure image scanning and continuous monitoring of the images in the registry.
-##### <span style="color: #d79921">Docker Objects</span>
+
+Multi-app images
+
+use an entrypoint script that execute other program in the background, then run with `docker run --init` --> configurdd the container to run th entrypont script whithin a process supervisor called tini --> watchs every process runnign in the container and makes sure that signal are passed coreeclty to them.
+
+install and configure systemd in the image
+
+use amore sophiscated process supervisor, like s6-overlay --> it does the same job as Tini, but it also allows users to express multiple service in convenient directory structure. 
+
+docker run -e APP_USER=Guilherme --rm test=app
+##### <span style="color: #689d6a">Docker Objects</span>
 ###### <span style="color:#98971a">Image</span>
 
 A Docker image is a read-only template with instructions for creating Docker container.
@@ -154,7 +191,6 @@ Naming a Docker image:
 > Each version of the software can have multiple short and long tags associated with it
 
 `docker build -t goals:latest .`
-
 
 tha image name defines a grouo pf possible psefializaed, images. Example: node
 
@@ -212,201 +248,7 @@ naming and tagging a container
 
 use nont-root users when runnign container:
 `docker run --rm -it --user somubody-else suspect-image:v1.0.1`
-###### <span style="color:#98971a">Dockerfile</span>
 
-The Dockerfile is a language for creating and describing docker container images. Dockerfile is the name of the lannguage, as well as the default name of thr file that Docker looks for when creaaing contaienr images. 
-
-Every Dockerfile vonsist of a serr of commands (instructions), eahc on theur own line. The instruction is the first word of teh satement, every oher word after the inctruction is provided ot is as arguments.
-
->[!example] Example - Dockerfile
->```dockerfile
-># Pull basde image
->FROM ubuntu:14:04
->
-># Install
->RUN \
->sed -i '' \
->apt-get update && \
->apt-get -y upgrade && \
->apt-get install -y build-essential && \
->apt-get install -y software-properties-common && \
->apt-get install -y byobu curl git htop man unzip vim wget
->
-># Add files
->ADD root/.bashrc /root/.bashrc
->ADD root/.gitconfig /root/.gitconfig
->ADD root/.scripts /root/.scripts
->
-># Set environment variables
->ENV HOME /root
->
-># Define working directory
->WORKDIR /root
->
-># Define default command
->CMD ["bash"]
->```
-
-Docker process Docker file from top to bottom. Docker runs each Dockerilfe command in an "interminiadte container" (temporary container) and saves the reslts as ian image layer. These layers are joined together for form the mage as the Dockerfile is processed
-
-The byproduct of the comabd that ran in te hcontainer is saved in to a layer. This layer is added t the the new image, which is goven t the intermidiate container crated by the next command of the DOckerfile. This process repeats until evry command inf Dockerfile is processed.
-
-Each docker instruction on a Dockerfile creates a new layer in the image.
-
-By default, all those commands will be executed in the working directory off your Docker container and image. And by default, that working directory is the root folder in that container file system.
-
-Obs: Command like label, expose and entrypoint do not run in intermiadte containers.
-
-Dockerfile commands
-- <code style="color: #689d6a">FROM</code> <span style="color: #3588E9">--></span> defines the "base" image that the Dockerfile's image will be created from. It links the current image to the new image.
-- <code style="color: #689d6a">RUN</code> <span style="color: #3588E9">--></span> executes arbitrary commands
-- COPY --> 
-- ADD --> 
-- <code style="color: #689d6a">CMD</code> <span style="color: #3588E9">--></span> stands for command, it defines the program that will be run within the container when it starts. should be the last instructon
-	- Obs: should only have 1 command instructions.
-	- Different ways of specifying commands:
-		- Shell form: `command1 param1`
-		- JSON array: `["command", "param1"]` <span style="color: #3588E9">--></span> Obs: the first element should be the executable
-- <code style="color: #689d6a">ENTRYPOINT</code> <span style="color: #3588E9">--></span> similar to the CMD instruction, it can specify the program that will run when the container starts. It appends commands typed on the terminal with `docker run` 
-- WORKDIR --> set teh working direcoty inside teh container, tells Docker that all the subsequent commands will be executed from inside that folder.
-- EXPOSE --> expose a certain port to the local system (machien running the container) It **documents** that a process in the container will expose this port, it'ß an optional command. 
-- VOLUME --> maps a folder in the container to persist data
-- USER --> to set the docker user
-
-```dockerfile
-FROM node
-
-WORKDIR /app
-
-COPY package.json /app
-
-RUN npm install
-
-COPY . .
-
-ARG DEFAULT_PORT=80
-
-ENV PORT $DEFAULT_PORT
-
-EXPOSE $PORT
-
-CMD ["node", "server.js"]
-```
-
-Ways to use FROM command:
-select the "latest" tag of an image
-```dockerfile
-FROM ubuntu
-```
-
-select the tag of an image
-```dockerfile
-FROM ubuntu:kinetic
-```
-
-select the latest tag of an image and git it an alais (multi-stage build only)
-```dockerfile
-FROM ubuntu AS base
-```
-
-select the tag of an image and git it an alias name (multi-stage build only)
-```dockerfile
-# FROM $image:$tag AS $name
-FROM ubuntu:kinetic AS base
-```
-
-When adding or coping  a file to the Docker container it's a good practice to use a sub folder instead of entering the root folder.
-
-to restrict what is copied to the container, add a `.dockerignore` file to the project.
-specify which folders and files, should not be copied by a copy instruction. just as using `.gitignore`
-
->[!example] Example  
->```dockerfile
->COPY . /app
->```
->All the files from the machine will be copied into the `.app` folder inside the container. If it doesn't exist the folder will be created in the image. 
-
-COPY . ./ --> current working directory inside of our Docker container.
-
-A Dockerfile is executed by the <code style="color:#689d6a">docker build</code> command. to create an image based on the instructions in this Dockerfile. 
-
->[!example] docker build
->```shell
->docker build .
->```
->When Docker finishes running the Dockerfile, the resulting image will be on the <span style="color: #d65d0e">local registry</span>.
-
-Each step of running a Dockerfile is cached, Docker skips lines that haven't changed since the last build. dot here,
-we tell Docker that the Dockerfile
-will be in the same folder
-as we're running this command in.
-
-to run the container based of the dockerfile
-docker run ID -p 3000:80
-
-Every instruction represents a layer in your Dockerfile.
-And an image is simply built up from multiple layers
-based on these different instructions.
-
-Docker supports build-time arguments and runtime environment variables.
-Arguments allow you to set flexible bits of data, in your Dockerfile which you can use in there to pluck different values into certain Dockerfile instructions.
-set on image build (docker build) via `--build-arg`
-
-Environment variables on the other hand are available inside of a Dockerfile like arg,
-but args are available in your entire application code in your running application.
-and you can set them with the `--env` option inside of a Dockerfile,
-
-`docker run -d --rm -p 3000:8000 --env PORT=8000 --name feedback-app`
-`docker run -d --rm -p 3000:8000 -e PORT=8000 --name feedback-app`
-
-you can also specify a file that contains your environment variable
-
-```env
-PORT=8000
-```
-
-`docker run -d --rm -p 3000:8000 --env-file ./.env --name feedback-app`
-
-
-And args and environment variables allow you to create more flexible images and containers because you don't have to hard-code everything into these containers and images. Instead, you can set it dynamically when you build an image or even only when you run a container.
-
-to build for another environment with a different port value
-
-`docker build -t feedback-node:dev --build-arg DEFAULT_PORT=8000 .`
-
-Multi-Stage builds allow you to have one Dockerfile, that define multiple build steps or setup steps, so called "stages" inside of that file.
-
-Stages can copy results from each other, so we can have one stage to create the optimized files and another stage to serve them.
-
-We can either build the entire Dockerfile going through all stages, step by step from top to bottom or we select individual stages up to which we wanna build, skipping all stages that would come after them
-
-Now, with multistage builds, we just have to use "RUN" instead of command
-
->[!example] Example - multi stage build
->```dockerfile
->FROM node:14-alpine as build
->
->WORKDIR /app
->
->COPY package.json .
->
->RUN npm install 
->
->COPY .. 
->
->RUN npm run build
->
->FROM nginx:stable-alpine
->
->COPY --from=build /app/build /usr/share/nginx/html
->
->EXPOSE 80
->
->CMD ["nginx", "-g", "daemon off;"]
->```
-
-After FROM build, you still need to specify the source path,
-we're telling Docker that this copy will not refer to our local host project folder, but instead queue the file system from this build stage.
 ###### <span style="color:#98971a">Network</span>
 
 network are used for the isolated container communication.
@@ -549,7 +391,440 @@ How were the containers isolated within the host?
 Docker uses network namespaces that creates a separate namespace for each container. It then uses virtual Ethernet pairs to connect containers together.
 
 Obs: Bind mount shouldn't be used in Production!
-##### <span style="color: #d79921">Docker Compose</span>
+##### <span style="color: #689d6a">Docker CLI</span>
+
+The `--help` flag works with every Docker command, which shows information about a command and how to use it.
+
+```shell
+docker network --help
+```
+
+To <strong style="color: #b16286">create</strong> a docker container:
+
+```shell
+docker container create hello-world:linux
+```
+
+>[!note]
+>If the image doesn't exist in the machine, Docker will try to retrieve it from a container image registry. By default, Docker always tries to pull from Docker Hub.
+
+To <strong style="color: #b16286">list</strong> running containers:
+
+```shell
+docker container ls
+```
+
+```shell
+docker ps # old syntax
+```
+
+To <strong style="color: #b16286">list</strong> all containers:
+
+```shell
+docker container ls -a
+```
+
+```shell
+docker ps --all # old syntax
+```
+
+To <strong style="color: #b16286">start</strong> a container:
+
+```shell
+docker start container_id
+```
+
+To <strong style="color: #b16286">see the logs</strong> of a container:
+
+```shell
+docker logs container_id # can be the image's name as well
+```
+
+<strong>Obs:</strong> The <code>-f</code> can be used to keep listening the container.
+
+An option to the `logs` command is to start the container and "attach" the terminal to the container's output:
+
+```shell
+docker container start --attach container_id
+```
+
+The short way to <strong style="color: #b16286">run/start</strong> a container:
+
+```shell
+docker run hello_world:linux
+```
+
+Obs: `Docker run` attaches to the container after it start it.
+
+The <code style="color:#689d6a">-d</code> option for detach mode, runs the in the background mode.:
+
+```shell
+docker run -d my-server
+```
+
+To  <strong style="color: #b16286">execute a command</strong> on a container:
+
+```shell
+docker exec d90d date
+```
+
+The `exec` command can be used to start terminal sessions within the container. To enter keystroke the command must be interactive.
+
+```shell
+docker exec --interactive --tty d90d bash
+```
+
+Short way to enter commands:
+
+```shell
+docker exec -i -t d90d bash # or -it
+```
+
+To <strong style="color: #b16286">stop</strong> a container:
+
+```shell
+docker stop fd69 # can be the container name as well
+```
+
+To <strong style="color: #b16286">force the stop</strong> of a container: 
+
+```shell
+docker stop -t 0 79f6 # can lead to data loss
+```
+
+To <strong style="color: #b16286">remove</strong> a container permanently:
+
+```shell
+docker container rm [container_id]
+```
+
+```shell
+docker rm [container_id] # old syntax
+```
+
+The `rm` command doesn't stop containers that are running, to do this use the `-f` option to remove running containers.
+
+```shell
+docker container rm -f [container_id]
+```
+
+To <strong style="color: #b16286">remove an image</strong>:
+
+```shell
+docker image rm [container_name]
+```
+
+```shell
+docker rmi [image_id] # old syntax
+```
+
+
+##### <span style="color: #689d6a">Dockerfile</span>
+
+The Dockerfile is a language for creating and describing docker container images. Dockerfile is the name of the language, as well as the default name of the file that Docker looks for when creating container images. 
+
+Every Dockerfile consist of a set of commands (instructions), each on their own line. The instruction is the first word of the statement, every other word after the instruction is provided to is as arguments.
+
+>[!example] Example - Dockerfile
+>```dockerfile
+>FROM ubuntu
+>
+>RUN apt-get update 
+>
+># Define working directory
+>WORKDIR /root
+>
+># Define default command
+>CMD ["bash"]
+>```
+>Docker process Docker file from top to bottom. Each docker instruction on a Dockerfile creates a new layer in the image which is simply built up from multiple layers based on these instructions.
+
+ >[!info]
+ >Docker runs each Dockerfile command in an "intermediate container" (temporary container) and saves the results as in an image layer. These layers are joined together to form the image as the Dockerfile is processed.
+
+The byproduct of the command that ran in the container is saved into a layer. This layer is added to the the new image, which is given to the intermediate container crated by the next command of the Dockerfile. This process repeats until every command in the Dockerfile is processed.
+
+<strong>Obs:</strong> Command like `LABEL`, `EXPOSE` and `ENTRYPOINT` do not run in intermediate containers.
+
+To build the image from a Dockerfile:
+
+```dockerfile
+docker image build .
+```
+
+To build the image from a specific Dockerfile:
+
+```dockerfile
+docker image --file server.Dockerfile --tag first-server .
+```
+
+>[!note]
+>The context is simply the folder containing files that Docker will include in the image.
+
+If the Dockerfile is elsewhere the path to ti must be informed:
+
+```dockerfile
+docker image build ~/Dockerfiles/ubuntu/
+```
+
+When Docker finishes running the Dockerfile, the resulting image will be on the <span style="color: #d65d0e">local registry</span>.
+
+Each step of running a Dockerfile is cached, Docker skips lines that haven't changed since the last build. dot here, we tell Docker that the Dockerfile will be in the same folder as we're running this command in.
+
+To run a container based on a Dockerfile:
+
+```dockerfile
+docker run container_id -p 3000:80
+```
+###### <span style="color:#98971a">Dockerfile Commands</span>
+
+<code style="color: #689d6a">FROM</code> <span style="color: #3588E9">--></span> defines the "base" image that the Dockerfile's image will be created from. It links the current image to the new image.
+
+>[!example] Ways to use FROM command
+>Select the "latest" tag of an image
+>```dockerfile
+>FROM ubuntu
+>```
+>Select the tag of an image
+>```dockerfile
+>FROM ubuntu:kinetic
+>```
+>Select the "latest" tag of an image and git it an alais (multi-stage build only)
+>```dockerfile
+>FROM ubuntu AS base
+>```
+>select the tag of an image and git it an alias name (multi-stage build only)
+>```dockerfile
+># FROM $image:$tag AS $name
+FROM ubuntu:kinetic AS base
+>```
+
+<code style="color: #689d6a">COPY</code> <span style="color: #3588E9">--></span> adds files and directories into Docker images from a provided context
+
+>[!example] Ways to use COPY command
+>Copy files into files
+>```dockerfile
+>COPY ./my-file.txt /app/my-file.txt
+>```
+>Copy files into drectories
+>```dockerfile
+>COPY ./my-file.txt /app/
+>```
+>Copy directories into directories
+>```dockerfile
+>COPY ./my-dir /app/
+>```
+>The first argument is the file or directory within the context to be copied. The second argument is the path inside of the container that file or directory in the first argument will be copied into
+
+Using **wildcards** on arguments:
+
+The `?` to replace single characters in a file or directory
+
+```dockerfile
+COPY song/ song-?.mp3 /songs
+```
+
+The `*` to copy files or directories that start with a specific word
+
+```dockerfile
+COPY songs/ song* /songs
+```
+
+Two useful <code style="color: #689d6a">COPY</code> arguments:
+
+`--chown` <span style="color: #3588E9">--></span> to set a user in group on a directory or file copied into Linux-based container images. Useful if the app running within the container image will run as a different user that the user created in its based image.
+
+`--link` <span style="color: #3588E9">--></span> to copies files or directory from context into a blank layer.
+
+<code style="color: #689d6a">ADD</code> <span style="color: #3588E9">--></span> old version of <code style="color: #689d6a">COPY</code>, also works with URLs to TAR files
+
+>[!note]
+>Obs: use COPY instead of ADD wherever possible.
+
+When adding or coping a file to the Docker container it's a good practice to use a sub folder instead of entering the root folder.
+
+>[!example] Example  
+>```dockerfile
+>COPY . /app
+>```
+>All the files from the machine will be copied into the `.app` folder inside the container. If it doesn't exist the folder will be created in the image. 
+
+COPY . ./ <span style="color: #3588E9">--></span> current working directory inside of our Docker container.
+
+to restrict what is copied to the container, add a `.dockerignore` file to the project.
+specify which folders and files, should not be copied by a copy instruction. just as using `.gitignore`
+
+container created by docker run are non interactive by default --> contaienrs are not configured to not accept input like keystrokes. 
+
+<code style="color: #689d6a">RUN</code> --> executes commands within temporary containers. 
+
+>[!example] Ways to use RUN command
+>Shell form
+>```dockerfile
+>RUN echo "Hello, word!"
+>```
+>Exec form
+>```dockerfile
+>RUN ["echo", "hello, world!"]
+>```
+>Commands in shell form runs inside os a shell, but the sub-process created will be forked from a shell.
+>
+>Commands written in exec from are run directly within the container without a shell --> any input sent to the container will go directly to the app.
+
+<code style="color: #689d6a">ENTRYPOINT</code> <span style="color: #3588E9">--></span> configures the container image to run an application when a container is created from it. It takes two forms, just like the RUN command. the form affects how the application behaves. 
+- If the entrypoint uses the shell form: Apps runs as a child of `/bin/sh` or cmd; any signa sent oto the app are caught by the shell, not the program. any code in the app trhat relies on signal wil not run. argument snt ot contianer will ge passed itno the shell, not the program. Environmant variables, pipels or anu shell featurs can eb leveraged, but an entrypoint scrit is much reliable
+
+```dockerfile
+ENTRYPONT ["/app/entrypoint.sh"]
+
+SOME_VAR=$SOME_VALUE_FROM_DOCKER;
+[ "$SOME_VAR" == "foo" ] && /app/app.sh --foo || /app/app.sh --bar
+
+# the script is invoked by the exec form
+```
+entrypoint scrit makes the Dockerfile easier to read and debug without removing control from te app like the shell form does.
+
+exec form: 
+- app runs aas the top-level process within the container (as PID 1)
+- any signal sento the app are sent to the progrtam
+- arguments snrt oto contaienr will get passed in the program
+
+<code style="color: #689d6a">CMD</code> <span style="color: #3588E9">--></span> stands for command. Sim,ilvar o entrypoint, it configures tcontainer to run an application on startup. It dependes wheter an Entryint is provided or not, and wheter CMD is writtent in sheel or exec form. is best suited from providingf default argument to an Etntrypoint.
+
+>[!example]
+>
+
+LABEL --> allows to document the images by adding metadata to them. Accepts a key-value pair. The most popular LABEL in Docker image is the maintainer.
+
+```dockerfile
+LABEL maintainer="Guilherme Oliveira <dev@guilhermeoliveira.me>"
+```
+
+WORKDIR --> sets a working directory from RUN commands within the Dockerfile and/or container create from the image. The last WORKDIR will be used by containers.
+
+```dockerfile
+WORKDIR /app
+```
+
+USER --> sets the Linux or Windows user to be used for RUN command and/or container. 
+- Linux users can be numerical.
+- It can be used multiple times to change the working directory while building. 
+- The last USER command will be used by containers. 
+- It prevents container for running as root by default
+- The default user can be overridden with `docker run --user`
+- Can create users within the Dockerfile for containers to run as later
+
+>[!example] USER command:
+>```dockerfile
+>USER newuser
+>ENTRYPOINT ["/app/app.sh"]
+>```
+>---
+>```shell
+>docker run --rm --entrypoint whoami my-image newuser
+>```
+
+EXPOSE --> documents network ports that containers created from the image should expose at runtime. It only accepts as arguments the port number.
+- By default it assumes TCP ports
+- Does not automatically expose ports
+- Useful for documentation; completely optional
+
+```dockerfile
+EXPOSE 8080
+```
+
+VOLUME --> maps a folder in the container to persist data
+
+```dockerfile
+FROM node
+
+WORKDIR /app
+
+COPY package.json /app
+
+RUN npm install
+
+COPY . .
+
+ARG DEFAULT_PORT=80
+
+ENV PORT $DEFAULT_PORT
+
+EXPOSE $PORT
+
+CMD ["node", "server.js"]
+```
+
+Docker supports build-time arguments and runtime environment variables.
+Arguments allow you to set flexible bits of data, in your Dockerfile which you can use in there to pluck different values into certain Dockerfile instructions.
+set on image build (docker build) via `--build-arg`
+
+Environment variables on the other hand are available inside of a Dockerfile like arg,
+but args are available in your entire application code in your running application.
+and you can set them with the `--env` option inside of a Dockerfile,
+
+`docker run -d --rm -p 3000:8000 --env PORT=8000 --name feedback-app`
+`docker run -d --rm -p 3000:8000 -e PORT=8000 --name feedback-app`
+
+you can also specify a file that contains your environment variable
+
+```env
+PORT=8000
+```
+
+`docker run -d --rm -p 3000:8000 --env-file ./.env --name feedback-app`
+
+And args and environment variables allow you to create more flexible images and containers because you don't have to hard-code everything into these containers and images. Instead, you can set it dynamically when you build an image or even only when you run a container.
+
+to build for another environment with a different port value
+
+`docker build -t feedback-node:dev --build-arg DEFAULT_PORT=8000 .`
+###### <span style="color:#98971a">Multi-Stage builds</span>
+
+Multi-stage builds use intermediate images to produces smaller final images in a single Dockerfile.
+
+Multi-stage builds can use multiple base images --> produces significantly smaller final images and accelerate build time through improved caching. 
+
+Each group of commands under a base image is called a stage. While each stage in a multi-stage build produces a temporary image, the last stage is the stage used officially create the final image. 
+
+Stages are a zero index <span style="color: #3588E9">--></span> they are count from 0 instead of 1
+
+Multi-stage builds allows to copy files, or directories, between stages. This enable to create images that only have everything that the app needs to run. It's done with the copy command with a `--from` flag.
+
+Stages can be named, which makes referencing them in later COPY operations easier.
+
+>[!example] Example - multi stage build
+>Stage 0
+>```dockerfile
+>FROM ubuntu as base
+>ENV curl_bin="curl"
+>RUN apt -y update && apt -y install "$curl bin"
+>RUN curl -i -sS google.com | \
+>  grep -E '^Date:' | \
+>  sed 's/^DateL //' | tr -d $'\r' > '/tmp/date.txt'
+>```
+>Stage 1 (The Final Image)
+>```dockerfile
+>FROM bash:alpine3.16 AS app
+>COPY . /app
+>COPY  --from=base /tmp/date.txt /app/include/date.txt
+>ENTRYPOINT [ "/app/app.sh" ]
+>CMD [ "--argument" ]
+>```
+
+Multi-stage builds can copy files or directories from images that aren't in the Dockerfile.
+
+```dockerfile
+COPY --from=some-other-image /header.txt /app/include/header.txt
+```
+
+Stages can also be used as many times as is necessary. Each stage descends from the image that was created by the stage that's referenced by FROM.
+
+<strong style="color: white">Advantages:</strong>
+- Produces significantly smaller final images
+- Can be much faster than builder pattern while being less fragile
+- Can produce extremely secure images by discarding unnecessary dependencies. 
+##### <span style="color: #689d6a">Docker Compose</span>
 
 Docker compose is a tool for defining and running multi-container Docker applications. It allows to define an entire stack, including services, networks, and volumes with a single configuration file and then a set of orchestration commands to start all those services.
 
@@ -680,16 +955,10 @@ If you don't have a command or entry point at the end, then the command or entry
 The `--build` option force docker compose to reevaluate the Docker files and rebuild images if required. orces docker-compose to go through the Docker files again and then recreate the images if something changed.
 
 
-##### <span style="color: #d79921">Docker Commands</span>
+##### <span style="color: #689d6a">Docker Commands</span>
 
 - To <strong style="color: #b16286">run/start</strong> a container from an image <span style="color: #3588E9">--></span> <code style="color:#689d6a">docker run nginx</code>   
 	- <code style="color:#689d6a">docker run redis:40</code> <span style="color: #3588E9">--></span> specifying a tag
-		- To <strong style="color: #b16286">list all</strong> running containers <span style="color: #3588E9">--></span> <code style="color:#689d6a">docker ps</code>
-			- <code style="color:#689d6a">-a</code> option <span style="color: #3588E9">--></span> to list all containers
-			- <code style="color:#689d6a">docker container ls</code> <span style="color: #3588E9">--></span> new syntax
-	- <code style="color:#689d6a">-d</code> option <span style="color: #3588E9">--></span> for detach mode, it runs the container in the background mode
-	- <code style="color:#689d6a">-i</code> option <span style="color: #3588E9">--></span> for interactive mode
-	- <code style="color:#689d6a">-t</code> option <span style="color: #3588E9">--></span> for pseudo terminal
 	- <code style="color:#689d6a">-p</code> <span style="color: #3588E9">--></span> for port mapping
 		- Ex: <code style="color:#689d6a">docker run -p 8283:8080 nginx</code> 
 	- <code style="color:#689d6a">-v</code> <span style="color: #3588E9">--></span> for volume mapping
@@ -698,35 +967,24 @@ The `--build` option force docker compose to reevaluate the Docker files and reb
 	- <code style="color:#689d6a">--link</code> <span style="color: #3588E9">--></span> option which can be used to link to containers together.
 		- it creates an entry into the etc/hosts file on the voting app container, adding an entry with the host name redis with the internal IP of the redis container.
 		- Ex: <code style="color:#689d6a">docker run -d --name=vote -p 500:80 --link redis:redis voting:app</code>
-- To <strong style="color: #b16286">stop</strong> a container <span style="color: #3588E9">--></span> <code style="color:#689d6a">docker stop</code>
-	- must provide either the container ID or the container name. Ex: <code style="color:#689d6a">docker stop silly_sammet</code>
-- To <strong style="color: #b16286">remove</strong> a container permanently <span style="color: #3588E9">--></span> <code style="color:#689d6a">docker rm [id]</code>
-	- must provide either the container ID or the container name
-	- <code style="color:#689d6a">docker container rm [container_id]</code> <span style="color: #3588E9">--></span> new syntax
 - To <strong style="color: #b16286">inspect</strong> a container <span style="color: #3588E9">--></span> <code style="color:#689d6a">docker inspect [name]</code>
 	- it returns all details of a container in a JSON format
-- To <strong style="color: #b16286">see the logs</strong> of a container <span style="color: #3588E9">--></span> <code style="color:#689d6a">docker logs [name]</code>
-	- `-f` --> to keep listening the container
 - To <strong style="color: #b16286">list all</strong> available images <span style="color: #3588E9">--></span> <code style="color:#689d6a">docker images</code>
 	- <code style="color:#689d6a">docker image ls</code> <span style="color: #3588E9">--></span> new syntax
-- To <strong style="color: #b16286">delete an image</strong> <span style="color: #3588E9">--></span> <code style="color:#689d6a">docker rmi [id]</code>
-	- all dependent containers must be stopped or deleted
-	- `docker image rm` --> new syntax
 - To <strong style="color: #b16286">download</strong> the image <span style="color: #3588E9">--></span> <code style="color:#689d6a">docker pull nginx</code>
 	- it pulls the image and stores on the host, it doesn't run the container.
 - To <strong style="color: #b16286">upload</strong> an image <span style="color: #3588E9">--></span> <code style="color:#689d6a">docker push</code>
 	- it sends a docker image to a public or private registry
-- To <strong style="color: #b16286">execute a command</strong> on a container <span style="color: #3588E9">--></span> <code style="color:#689d6a">docker exec [container_name]</code>
-	- Ex: <code style="color:#689d6a">docker exec silly_sammet cat /etc/hosts</code>
 - To <strong style="color: #b16286">attach back</strong> to the running container <span style="color: #3588E9">--></span> <code style="color:#689d6a">docker attach [id]</code>
 - To <strong style="color: #b16286">create</strong> an image <span style="color: #3588E9">--></span> <code style="color:#689d6a">docker build -t webapp-color .</code>
 	- <code style="color:#689d6a">-t</code> <span style="color: #3588E9">--></span> add a tag
 	- <code style="color:#689d6a">.</code> <span style="color: #3588E9">--></span> indicates the current directory
 
-
 Whenever a new image is created or an existing image is updated, it's pushed to the registry and every time anyone deploys this application, it is pulled from that registry.
 
 Link is a command line option which can be used to link to container together
+
+docker build -t image .
 
 `docker run -d --name-vote -p 5000:80 --link redis:redis voting-app`
 it creates an entrypoint on ETcd host file one the voting app container, adding and entry with the host name redis whot the internal IP of the redis container.

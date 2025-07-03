@@ -460,26 +460,36 @@ The hypervisor splits the physical hardware into the number of VMs that can be c
 - <span style="color: #98971a">amplified physical failures</span> <span style="color: #3588E9">--></span> if the machine goes down, all of the VMs goes down together
 - <span style="color: #98971a">performance reduces</span> <span style="color: #3588E9">--></span> some applications do not work well in a virtualized environment
 
-To check if virtualization is supported on Linux:  
-- <code style="color: #689d6a">$ grep -E --color 'vmx|svm' /proc/cpuinfo</code>
+To check if virtualization is supported on Linux: 
+
+```shell
+$ grep -E --color 'vmx|svm' /proc/cpuinfo
+```
 
 <span style="color: #98971a">Vagrant</span> <span style="color: #3588E9">--></span> created by Hashicorp, is a tool for creating and managing virtual machines, on different platforms and operating systems.
 
-Lima --> lightweight virtual machine manager that deploys virtual machines through the QEMU hypervisor
+<span style="color: #98971a">Lima</span> <span style="color: #3588E9">--></span> lightweight virtual machine manager that deploys virtual machines through the QEMU hypervisor
 
-WSL Windos Subsystem for linx --> background service that is able to tranalate linux system call or syscall into their appropriate Windows counterparts through a lightweight virtual machine 
+>[!example] Example - Lima for docker
+>```shell
+>$ limactl start ~/Documents/vm_images/docker.yaml --name docker --tty=false
+>
+>$ docker context create lima-docker --docker "host=unix://home/guilherme/.lima/docker/sock/docker.sock"
+>
+>$ docker context use lima-docker
+>```
 
-wsl --list --online --> shows all of the valid distributions that can be installed
+<span style="color: #98971a">Windows Subsystem for Linux</span> (WSL) <span style="color: #3588E9">--></span> background service that is able to translate linux system call or SysCall into their appropriate Windows counterparts through a lightweight virtual machine 
 
-wsl --install -d ubuntu --> to install ubuntu 
+>[!example] Example - WSL commands
+>```powershell
+># shows all of the valid distributions that can be installed
+>wsl --list --online
+>
+># to install ubuntu 
+>wsl --install -d ubuntu
+>``` 
 ##### <span style="color:#689d6a">Containers</span>
-
-An <span style="color: #d65d0e">image</span> <strong style="color: #b16286">is a package or a template</strong>, just like a VM template that you might have worked with in the virtualization world. <strong style="color: #b16286">It is used to create one or more containers.</strong>
-
-<span style="color: #d65d0e">Containers</span> <strong style="color: #b16286">are running instances of images</strong> that are isolated and have their own environments and set of processes. It's a way of packaging all of the configuration and dependencies to run a program into a small bundle of code that can be run on any machine or operating system.
-
->[!info]
->The container image doesn't have the OS Kernel, it has a slim version of all OS utilities that's needed to run the container.
 
 A <span style="color: #d65d0e">container</span>, powered by the <span style="color: #d65d0e">containerization engine</span>, is a <strong style="color: #d79921">standard unit of software</strong> that encapsulates everything (applications code, runtime, system tools, system libraries) that programmers need to build, ship and run applications efficiently.
 
@@ -488,12 +498,21 @@ A container is an isolated process that consist of the following items, all bund
 - thee required dependencies (e.g. libraries, utilities, configuration files)
 - the necessary runtime environment to run the application
 
->[!info]
->Containers solve the problem of making software portable so that applications can run on multiple platforms. This is possible because <strong>containers are platform-independent</strong> and can run on the cloud, desktop, and on-premises, and <strong>they are operating system-independent</strong>, which means they can run on Windows, Linux or Mac Os.
+An <span style="color: #d65d0e">image</span> <strong style="color: #b16286">is a package or a template</strong>, just like a VM template that you might have worked with in the virtualization world. <strong style="color: #b16286">It is used to create one or more containers.</strong>
 
-The container engine virtualizes the operating system and are responsible for running containers.
+<span style="color: #d65d0e">Containers</span> <strong style="color: #b16286">are running instances of images</strong> that are isolated and have their own environments and set of processes. It's a way of packaging all of the configuration and dependencies to run a program into a small bundle of code that can be run on any machine or operating system.
+
+>[!note]
+>The container image doesn't have the OS Kernel, it has a slim version of all OS utilities that's needed to run the container.
+
+Container run on container runtimes, which work with the operating system to allocate hardware and copy files and directories. The container engine virtualizes the operating system and are responsible for running containers.
 
 Unlike virtual machines, containers are not meant to host an operating system. Containers are meant to run a specific task or process, such as to host an instance of a web server or application server or a database.
+
+Containers do not emulate any hardware and do not need do "boot up", do not require operating system installation. It can run only one app at the time (by design), can can interact with their hosts.
+
+>[!info]
+>Containers solve the problem of making software portable so that applications can run on multiple platforms. This is possible because <strong>containers are platform-independent</strong> and can run on the cloud, desktop, and on-premises, and <strong>they are operating system-independent</strong>, which means they can run on Windows, Linux or Mac Os.
 
 The container gives the ability to run more applications and more workloads on the infrastructure. The notion of containers is to take care of all drawbacks that has been hampering the applications landscape.
 
@@ -502,7 +521,11 @@ The container gives the ability to run more applications and more workloads on t
 >[!note]
 >A container only leaves as long as the process inside it is alive. If the web service inside the container is stopped or crashed, then the container exits
 
-Container allow to bundle the application in a way that is depoyable on any environment, on any machine, on any cloud provider. it gives the ability to move the application from one environment to the other, but it also gives very high portability. 
+Container allow to bundle the application in a way that is depoyable on any environment, on any machine, on any cloud provider. It gives the ability to move the application from one environment to the other, but it also gives very high portability. 
+
+A container is compose of two things: 
+- Linux namespace <span style="color: #3588E9">--></span> Linux Kernel feature that provides the ability to expose different "views" of the sustem to applications running within it. Example: application running as root with access to an entire file system, when it's actually running as user 154678 with access to a single folder.
+- Linux control group <span style="color: #3588E9">--></span> Linux Kernel feature that provides the ability to restrict how much hardware each process can use.
 
 <strong style="color: white">Benefits of containers:</strong>
 - containers make easier for developers to create, deploy, and run applications on different hardware and platforms, quickly and easily
