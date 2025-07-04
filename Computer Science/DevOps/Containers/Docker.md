@@ -238,34 +238,35 @@ To push an image:
 docker push [image_name]
 ```
 
-To tag the image with the private registry URL:
+To log into Docker Hub:
 
 ```shell
-docker image tag my-image localhost:500/my-image
+docker login
 ```
 
-To push the image to the local private registry:
+>[!info]
+>Docker saves the credentials for Docker Hub in the home directory, so that it can easily login in the feature.
+
+To push the image into a registry:
 
 ```shell
-docker push localhost:5000/my-image
+docker image tag my-server username/my-server:0.0.1
 ```
 
-To pull the image from the localhost:
+```shell
+docker push username/my-server:0.0.1
+```
+
+To pull the image from registry:
 
 ```shell
-docker pull localhost:5000/my-image
+docker pull username/my-server:0.0.1
 ```
 
 The image can also be pulled using the IP address
 
 ```shell
-docker pull 192.168.56.100:5000/my-image
-```
-
-To run a container using an image from a private registry, it's necessary to log into the private registry.
-
-```shell
-docker login private-registry.io
+docker pull 192.168.56.100:5000/my-server
 ```
 
 To run the container from the private registry:
@@ -274,6 +275,16 @@ To run the container from the private registry:
 docker run -d -p 5000:5000 --name registry registry:2
 ```
 ###### <span style="color:#98971a">Network</span>
+
+Docker provides the ability to access network port within the container with port binding --> feature that allows to take a port of the host machine and map to a port within the container. 
+
+To map ports for the container:
+
+```shell
+docker run -d --name my-server -p 5001:5000 my-server
+```
+
+
 
 network are used for the isolated container communication.
 
@@ -327,6 +338,18 @@ Docker also supports these alternative drivers - though you will use the "bridge
     
 - **Third-party plugins**: You can install third-party plugins which then may add all kinds of behaviors and functionalities
 ###### <span style="color:#98971a">Storage</span>
+
+volume mounting --> feature allows Docker to map a folder from the host machine to a folder in the container. This can be done by using the `--volume` or `-v` option.
+
+```shell
+docker run --rm -v [/host]:[/container]
+```
+
+```shell
+docker run --rm --entrypoint sh -v /tmp/container:/tmp ubuntu -c "echo 'Hello World.' > /tmp/file && cat /tmp/file"
+```
+
+
 
 Docker uses volumes and bind mounts to persist data even after a container stops
 built int feature, 
@@ -610,22 +633,40 @@ The byproduct of the command that ran in the container is saved into a layer. Th
 To build the image from a Dockerfile:
 
 ```dockerfile
-docker image build .
+docker build .
 ```
 
-To build the image from a specific Dockerfile:
+In case in the current directory there are more than one Dockerfile, it can be specified using the `--file` or `-f` option.
 
 ```dockerfile
-docker image --file server.Dockerfile --tag first-server .
+docker build -f server.Dockerfile .
+```
+
+The `--force-rm` option allows to remove any intermediate containers that exist, even if the build is unsuccessful.
+
+```dockerfile
+docker build --force-rm=true .
+```
+
+The `--rm=true` option can also be used in case of unsuccessful build. The intermediate container will not be removed. This allows for debugging the last intermediate container or committing it as an intermediate image.
+
+```dockerfile
+docker build --rm=true .
 ```
 
 >[!note]
 >The context is simply the folder containing files that Docker will include in the image.
 
-If the Dockerfile is elsewhere the path to ti must be informed:
+The `--no-cache` option cane be used to skip the cache and rebuilt the entire image. It's useful in case the installation depends on external resources.
 
 ```dockerfile
-docker image build ~/Dockerfiles/ubuntu/
+docker build --no-cache .
+```
+
+If the Dockerfile is elsewhere the path to it must be informed:
+
+```dockerfile
+docker build ~/Dockerfiles/ubuntu/
 ```
 
 When Docker finishes running the Dockerfile, the resulting image will be on the <span style="color: #d65d0e">local registry</span>.
