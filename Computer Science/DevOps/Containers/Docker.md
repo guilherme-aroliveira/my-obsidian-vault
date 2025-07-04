@@ -206,14 +206,14 @@ dive [image_name]
 >[!note]
 > Each version of the software can have multiple short and long tags associated with it
 
-To <strong style="color: #b16286">name and tag</strong> an image:
+To <strong style="color: #b16286">tag</strong> an image:
 
 ```shell
-docker build -t [image_name]:[image_tag] .
+docker image tag [source_image]:[tag] target_image:[tag]
 ```
 
 ```shell
-docker build -t app:latest .
+docker image tag my-webapp:v1 my-webapp:nginx
 ```
 
 <span style="color: #d65d0e">Dangling images</span> are <strong>layers that have no relationship</strong> to any tagged images.
@@ -236,6 +236,18 @@ To push an image:
 
 ```shell
 docker push [image_name]
+```
+
+To search for images in Docker Hub:
+
+```shell
+docker search python
+```
+
+The `--filter` option allows to filter search results:
+
+```shell
+docker search --filter is-official=true python
 ```
 
 To log into Docker Hub:
@@ -673,6 +685,20 @@ When Docker finishes running the Dockerfile, the resulting image will be on the 
 
 Each step of running a Dockerfile is cached, Docker skips lines that haven't changed since the last build. dot here, we tell Docker that the Dockerfile will be in the same folder as we're running this command in.
 
+If the name of the source image is defined without a tag, the default tag will be used, which is latest. When there's no tag defined, Docker assumes that the image that's being created is the latest version of the images in the repository.
+
+To build an image with a tag:
+
+```dockerfile
+docker build -t my-webapp:v1 .
+```
+
+When creating a new version of an image, the `build` command must be used to rebuild the image with a new image ID --> good for keeping each version separate.
+
+```dockerfile
+docker build --no-cache -t my-webapp:v2 .
+```
+
 To run a container based on a Dockerfile:
 
 ```dockerfile
@@ -798,9 +824,20 @@ exec form:
 
 LABEL --> allows to document the images by adding metadata to them. Accepts a key-value pair. The most popular LABEL in Docker image is the maintainer.
 
-```dockerfile
-LABEL maintainer="Guilherme Oliveira <dev@guilhermeoliveira.me>"
-```
+>[!example] LABEL command:
+>Option 1
+>```dockerfile
+>LABEL maintainer="Guilherme Oliveira <dev@guilhermeoliveira.me>"
+>LABEL version="1.0"
+>LABEL description="This is a webapp built with flask"
+>```
+>Option 2
+>```dockerfile
+>LABEL "com.example.vendor"="Big Star Collections" \
+>version="1.0" \
+>description="The Big Star Collections Website \
+>using the Python base image."
+>```
 
 WORKDIR --> sets a working directory from RUN commands within the Dockerfile and/or container create from the image. The last WORKDIR will be used by containers.
 
@@ -1297,9 +1334,6 @@ image: "mysql:?Ooops TAG is a required"
 
 - To <strong style="color: #b16286">run/start</strong> a container from an image <span style="color: #3588E9">--></span> <code style="color:#689d6a">docker run nginx</code>   
 	- <code style="color:#689d6a">docker run redis:40</code> <span style="color: #3588E9">--></span> specifying a tag
-	- <code style="color:#689d6a">-p</code> <span style="color: #3588E9">--></span> for port mapping
-		- Ex: <code style="color:#689d6a">docker run -p 8283:8080 nginx</code> 
-	- <code style="color:#689d6a">-v</code> <span style="color: #3588E9">--></span> for volume mapping
 	- <code style="color:#689d6a">-e</code> <span style="color: #3588E9">--></span> for environment variables
 		- Ex: <code style="color:#689d6a">docker run -e APP_COLOR=pink webapp</code>
 	- <code style="color:#689d6a">--link</code> <span style="color: #3588E9">--></span> option which can be used to link to containers together.
