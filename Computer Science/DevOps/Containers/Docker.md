@@ -828,11 +828,9 @@ Stages can also be used as many times as is necessary. Each stage descends from 
 
 Docker compose is a tool for defining and running multi-container Docker applications. It allows to define an entire stack, including services, networks, and volumes with a single configuration file and then a set of orchestration commands to start all those services.
 
-Docker Compose will not replace Docker files for custom images. Docker Compose works together with Docker files.
+Docker Compose can document a system as a runnable configuration file --> compose manifest. It does not add any functionality do the docker ecosystem, but it does make the existing functionality significantly easier to use. Docker Compose works together with Dockerfiles.
 
-Docker Compose is really great for managing multiple containers on one and the same host.
-
->[!example] Example - 
+>[!example] Example - compose manifest
 >```yaml
 >services:
 >  bookstack:
@@ -855,19 +853,102 @@ Docker Compose is really great for managing multiple containers on one and the s
 >    name: bookstack 
 >```
 
-<strong style="color:#98971a">Components:</strong>
+Compose is a declarative tool, and it's self-document. It was designed as a tool for a single hosted server. It's well suited for local  development, staging server, continuous integration testing environment, and it's great for managing multiple containers on the same host.
+
+Obs: It's not designed for distributed system and has no tooling for containers across multiple hosts. Compose was designed for non-production environments only. 
+
+>[!note]
+>Every docker compose configuration must be in a yaml file, and be saved under the file name "docker-compose.yaml"
+
+Normal Workflow:
+- Dockerfile ---> Docker Build Command ---> Docker Image
+###### <span style="color:#98971a">Compose Commands</span>
+
+To build the services:
+
+```shell
+docker compose up
+```
+
+The `-d` flag allows to run the service in background
+
+```shell
+docker compose up -d
+```
+
+The `--build` option force docker compose to reevaluate the Dockerfiles and rebuild images if required. It forces docker compose to go through the Dockerfiles again and then recreate the images if something changed.
+
+```shell
+docker compsoe up -d --build bookstack
+```
+
+To start up only one service:
+
+```shell
+docker compose up -d bookstack 
+```
+
+To stop and delete all running containers:
+
+```shell
+docker compose down
+```
+
+The `--volumes` will automatically delete any named volumes:
+
+```shell
+docker compose down --volumes
+```
+
+To free up memory:
+
+```shell
+docker compose stop
+```
+
+To start and restart all running containers:
+
+```shell
+docker compose restart
+```
+
+To validade the docker compose file:
+
+```shell
+docker compose config
+```
+
+Obs: Thy syntax for using docker compose if it's installed as a part of docker engine is `docker compose`, but in case it's installed as a standalone binary, it must the following syntax: `docker-compose`.
+
+docker compose push --> push the images to docker hub
+docker compose logs --> to view the logs of a service 
+docker compose logs --tail=10 --> limit the container logs output
+docker compose logs --follow --> follow the container log output
+docker compose exec service_name shell --> shell into the container 
+/bin/bash
+###### <span style="color:#98971a">Compose Components</span>
 
 services --> defines the various containers (services) that make up the application. Each service has a name, and under each service, parameters can be configured such as Docker image to use, environment variables, port to expose, volume to mount, etc.
 
-image --> overrides the image name specified in the Dockerfile
+>[!example] Example - service
+>```yaml
+>services:
+>  bookstack:
+>    ...
+>  bookstack_db:
+>    ...
 
-volumes --> This section allows to define named volumes or bind mounts for the seervices. Volumes are used to persist data between contaienr restarts.
+Obs: Docker Compose ser vices can be named anything. They are intended to be human readable and ideally should be meaningful. 
 
-networks --> This section lest define custom networks and connect services to them. This is useful for controlling communication between services.
+image --> defines the value to be used for the service, it also overrides the image name specified in the Dockerfile.
 
-environment --> you can set environment variables for the services using 'environment' key. This is useful for configuring the applications dynamically.
-
-port: This key allows to map ports from the host to the container. This is essential for accessing services from outside the Docker environment.
+>[!example] Example - service
+>```yaml
+>services:
+>  bookstack_db:
+>    image: mariadb:lts
+>```
+>Docker Compose will tech the MariaDB image automatically from Docker Hub.
 
 command: This key lets override the default command for the environment. This is useful when you need o specify how the container should start.
 
@@ -898,19 +979,118 @@ dockerfile --> specifies an altervative Dockerfile for the build
 >  dockerfile: Dockerfile.dev
 >```
 
-args --> passes bulid arguments to the build context. Useful for dynamically setting values during the build. 
+Environment variables at docker are visible from inside the running container. The most common and simple use case a Docker environmenr vairnale if for specifying thing like a curret runtime configuration such as dev or prod.
 
->[!example] 
->```dockerfile
->ARG GIT_COMMIT
->RUN echo "Based on commit: $GIT_COMMIT"
->```
+Build arguments are a type ofr environment variable that are available to dockder ony at build ime, bit not inside the contianer. They are useful for specifying a version for a certain build tool or cloud platform configuration.
+
+>[!example] Example - build argument
 >```yaml
->build:
->  context: .
->  args:
->    GIT_COMMIT: cdc3b19
+>services:
+>  storefront:
+>    build: 
+>      context: .
+>      args: # can have any name or any value
+>        - region=us-east-1
+>    environment:
+>      - runtime_env=dev
 >```
+>args --> attribute to pass build arguments to the build context. Useful for dynamically setting values during the build. 
+>
+>environment --> to set environment variables for the service. Useful for configuring the applications dynamically
+
+Running `export runtime_env=dev` on the host machine and leaving the value out from the Docker Compose configuration will have the same effect as specifying inside the file. 
+
+Obs: use environment files if the lost of variable gets too long.
+
+Compose also supports passing in file paths to an environment configuration.
+
+>[!Example] Example - file paths
+>```config
+>MYSQL_ROOT_PASSWORD=]p0.3617SR
+>MYSQL_DATABASE=bookstack_app
+>MYSQL_USER=book_app
+>MYSQL_PASSWORD=]p0.3617S
+>```
+>---
+>```yaml
+>services:
+>  database:
+>    image: "mysql"
+>    env_file:
+>      - ./mysql/env_vars
+>```
+
+volumes --> This section allows to define named volumes or bind mounts for the services. Volumes are used to persist data between container restarts.
+
+>[!Example] Example - volumes
+>---
+>```yaml
+>services:
+>  bookstack_db:
+>    volumes:
+>      - ./db_data:/var/lib/mysql:ro
+>      - ./db_config:/etc/mysql/conf.d
+>```
+>./db_data --> source
+>/var/lib/mysql --> target
+
+Compose conforms to Bash standads for specifying a direcry path. 
+- `./` --> current directory
+- `../` --> parent direcotry, one level above the compose fongiuration file
+- `/` --> absolut path on the host machine (Root directory)
+
+To specify an access mode for volumes that are two possible values:
+- rw --> read-write (default)
+- ro --> read-only (safer)
+
+To allow Compose to manage the volume life cycle along the container life cycle, is recommended to use named volumes. 
+
+>[!Example] Example - named volumes
+>---
+>```yaml
+>services:
+>  bookstack_db:
+>    volumes:
+>      - db_data:/var/lib/mysql
+>volumes:
+>  db_data:      
+>```
+>`/var/lib/mysql` --> persist any database data written inside the container and store it in the host machine. 
+
+Advantage of using named volumes:
+- during `up` or `start` compose will automatically copy volume data from old container to new containers and ensure that no data is lost.
+
+port --> to expose a port that maps from the host machine to the Docker container. This is essential for accessing services from outside the Docker environment. The syntax for port mapping is `host_port_number:container_port_number`
+
+>[!Example] Example - port mapping
+>---
+>```yaml
+>services:
+>  bookstack_db: 
+>    ports:
+>      - "3136":"3136" # from port to port
+>```
+>It's recommend to put the mapping in quotes but not required unless the port number is below 60.
+
+Compose provides utilities to enforce startup order automatically using the `depends_on` flag. Compose will start and stop services in dependency order. Services can have any number of dependencies and many services can share a single dependency. 
+
+>[!Example] Example - dependency
+>---
+>```yaml
+>services:
+>  phpmyadmin:
+>    image: phpmyadmin:5.2.2
+>    ports:
+>      - "8080":"80"
+>    depends_on:
+>      - bookstack_db
+>```
+>It's recommend to put the mapping in quotes but not required unless the port number is below 60.
+
+>[!note]
+>Obs: modern versions of compose explicitly do not guarantee that dependent containers are running or are healthy, it only guarantees that they've been started.
+
+networks --> This section lest define custom networks and connect services to them. This is useful for controlling communication between services.
 
 tags --> defines a list of tags mappings that must be associated to the build image
 
@@ -920,23 +1100,6 @@ tags --> defines a list of tags mappings that must be associated to the build im
 >  - "myimage:mytag"
 >  - "registry/username/myrepos:my-other-tag"
 >```
-
-normal flow
-
-Dockerfile --> Docker Build Command --> Docker Image
-
-Docker compose workflow
-
-docker compose build --> build service
-docker compose up --> start up service
--d --> background mode
-docker compose down --> tear down service 
-docker compose push --> push the images to docker hub
-docker compose logs --> to view the logs of a service 
-docker compose logs --tail=10 --> limit the container logs output
-docker compose logs --follow --> follow the container log output
-docker compose exec service_name shell --> shell into the container 
-/bin/bash
 
 >[!example] Example - npm tool
 >```yaml
@@ -950,11 +1113,52 @@ docker compose exec service_name shell --> shell into the container
 >```
 
 If you don't have a command or entry point at the end, then the command or entry point of the base image will be used if it has any.
-
-`docker compsoe up -d --build server`
-The `--build` option force docker compose to reevaluate the Docker files and rebuild images if required. orces docker-compose to go through the Docker files again and then recreate the images if something changed.
+###### <span style="color:#98971a">Dynamic Configurations </span>
 
 
+
+A container with no profiles specified will be automatically included in the default profile --> it will run all the time with every service profile.
+
+docker compose up will run only services that are a art of the default profile.
+
+To enable a non default profile:
+
+```shell
+docker compose --profile storefron-serviced up
+```
+
+If the Docker Compose configuration needs to have different behaviors in different environments, but it won't support configuration overrides  for every environment, a good alternative is using environment variables. 
+
+Environment variables, although they can be used to substitute any part of the composed file to make ti more flexible in different environment.
+
+To specify a default variable:
+- empty string (automatic)
+- inline in docker compose configuration
+- in an external environment file (`.env`)
+- requiring that the variable is not empty
+
+>[!example] Example - environment variable
+>```yaml
+>services:
+>  database:
+>    image: "mysql:-${TAG}"
+>```
+>Obs: The curly braces are optional.
+
+If the environment file has a different name, or it' it's outside the project directory, the `--env-file` flag allows to explicitly the file:
+
+```shell
+docker compose --env-file [path]
+```
+
+>[!note]
+>Any environment that is set in the shell will always override a default value, whether that default is set inline or in an ENV file.
+
+To require that an environment variable is present:
+
+```yaml
+image: "mysql:?Ooops TAG is a required"
+```
 ##### <span style="color: #689d6a">Docker Commands</span>
 
 - To <strong style="color: #b16286">run/start</strong> a container from an image <span style="color: #3588E9">--></span> <code style="color:#689d6a">docker run nginx</code>   
