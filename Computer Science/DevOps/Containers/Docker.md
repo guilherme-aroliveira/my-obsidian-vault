@@ -1139,6 +1139,26 @@ To enable a non default profile:
 docker compose --profile storefront-service up
 ```
 
+A good case for multiple compose files is any situation where there are two distinct sets of desired behavior, that will never coincide. Example: separate compose override file for multiple environments. But having multiple compose files for different arts of a single system is not a good case.
+
+By default, docker compose will read two configuration files, one named `docker-compose.yaml` (defaults), and another named `docker-composed.override.yaml`. The override file essentially inherits from the main configuration file.
+
+Docker Compose will merge the two files together. During the merge, any field that can handle an array way of parameters like `dependen_on`, will include all values from both the primary and the override file. Any field that can handle only one value will five preference to that override. 
+
+Obs: Any file paths reference in the override file must be relative to the primary configuration file.
+
+The override file can be a partial or incomplete configuration. It can contain snippets of configurations specific only to what is being overwritten. One Docker Compose configuration can be easily shared between multiple project or repositories. It's also possible to have multiple override file in the same repository. Example: `docker-compose.local.yaml` and `docker-compose.staging.yaml`.
+
+To run confirmation override files the `-f` flag must be used:
+
+```shel
+docker compose -f [primary file] -f [override file] [command]
+```
+
+```shel
+docker compose -f docker-compose.yaml -f docker-compose.local.yaml up
+```
+
 If the Docker Compose configuration needs to have different behaviors in different environments, but it won't support configuration overrides  for every environment, a good alternative is using environment variables. 
 
 Environment variables, although they can be used to substitute any part of the composed file to make ti more flexible in different environment.
