@@ -302,7 +302,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 300,
+    "collapsed": true
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -321,7 +322,7 @@
       "vscode-editor:Create Code File": false
     }
   },
-  "active": "3898fd55b9107adb",
+  "active": "5eb5605f8644a8ed",
   "lastOpenFiles": [
     "Computer Science/DevOps/Containers/Orchestration/Docker Swarm.md",
     "Computer Science/DevOps/IaC/Terraform.md",

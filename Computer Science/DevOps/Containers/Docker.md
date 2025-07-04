@@ -1115,16 +1115,28 @@ tags --> defines a list of tags mappings that must be associated to the build im
 If you don't have a command or entry point at the end, then the command or entry point of the base image will be used if it has any.
 ###### <span style="color:#98971a">Dynamic Configurations </span>
 
+Docker Compose provides a utility to start named subnet of services inside a single docker compose yaml file. Service profiles allows to put a docker service in one or more categories.
 
+>[!example] Example - service profile
+>```yaml
+>services:
+>  scheduler:
+>    profiles: 
+>      - scheduling_services
+>  storefront:
+>    profiles:
+>      - storefront_services
+>  database:
+>```
 
 A container with no profiles specified will be automatically included in the default profile --> it will run all the time with every service profile.
 
-docker compose up will run only services that are a art of the default profile.
+Once a default profile is specified in the configuration, docker compose will only apply to a service if its profile is explicit enabled. The `docker compose up` will run only services that are a part of the default profile.
 
 To enable a non default profile:
 
 ```shell
-docker compose --profile storefron-serviced up
+docker compose --profile storefront-service up
 ```
 
 If the Docker Compose configuration needs to have different behaviors in different environments, but it won't support configuration overrides  for every environment, a good alternative is using environment variables. 
