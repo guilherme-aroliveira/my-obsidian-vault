@@ -148,7 +148,7 @@
             }
           }
         ],
-        "currentTab": 5
+        "currentTab": 6
       }
     ],
     "direction": "vertical"
@@ -278,13 +278,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Computer Science/DevOps/Containers/Orchestration/Docker Swarm.md",
+                "file": "Computer Science/DevOps/Containers/Docker.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of Docker Swarm"
+              "title": "Outline of Docker"
             }
           },
           {
@@ -321,11 +321,11 @@
       "vscode-editor:Create Code File": false
     }
   },
-  "active": "3898fd55b9107adb",
+  "active": "5eb5605f8644a8ed",
   "lastOpenFiles": [
-    "Computer Science/DevOps/Containers/Docker.md",
     "Computer Science/DevOps/Containers/Orchestration/Docker Swarm.md",
     "Computer Science/DevOps/IaC/Terraform.md",
+    "Computer Science/DevOps/Containers/Docker.md",
     "Computer Science/DevOps/IaC/Ansible.md",
     "Computer Science/DevOps.md",
     "Computer Science/Software Engineering.md",

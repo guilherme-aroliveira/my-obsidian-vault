@@ -9,8 +9,6 @@ Docker creates a set of namespaces for every container and each aspect runs in a
 
 Namespaces keep containers isolated until docker administrator allows containers to communicate over docker virtual network on the same host. 
 
-<span style="color:#98971a">Process ID namespaces</span> <span style="color: #3588E9">--></span> namespace isolation technique
-
 The processes running inside the container are in fact processes running on the underlying host. With process ID namespaces, each process can have multiple process IDs associated with it.
 
 By default there is no restriction as to how much of a resource a container can use, and hence a container may end up utilizing all of the resources on the underlying host.
@@ -36,8 +34,6 @@ To limit memory usage:
 ```shell
 docker run --memory=100m ubuntu
 ```
-
-Docker primarily uses <span style="color: #d65d0e">cgroups</span> (control groups) to restrict the amount of hardware resources allocated to each container <span style="color: #3588E9">--></span> can be done by providing the `--cpus` option to the Docker run command.
 
 Docker requires that virtualization to be enabled in the Bios, <span style="color: #d65d0e">VT-X</span> or <span style="color: #d65d0e">AMD-V</span>.
 
@@ -81,7 +77,12 @@ To use Docker CLI to work with remote docker engine, simply use `-h` option on t
 >```
 >`docker -H=[remote-docer-engine]:[port]`
 
-<span style="color: #3588E9">--></span> <span style="color:#98971a">docker daemon</span> can also communicate with other daemons to manage Docker services.
+Obs: the <span style="color:#98971a">docker daemon</span> can also communicate with other daemons to manage Docker services.
+
+The Docker engine uses namespaces to isolate what's happening in a  running container from the Operating System that hey are running. With namespaces, the Kernel resources, such as process ID, users ID, network, storage, can all be virtualized and share between the host Operating System and the container running on top of it.
+
+>[!note]
+>Namespace is similar in concept to what a hypervisor does to provide virtual machine to the VM. They keep containers isolated until docker administrator allows containers to communicate over docker virtual network on the same host. 
 ##### <span style="color: #689d6a">Docker Architecture</span>
 
 Docker is based on client-server architecture which provides a complete application environment. Docker components includes the client, the host, and the registry.
@@ -96,33 +97,14 @@ Docker stores and distributes images in a <span style="color:#98971a">Registry</
 > registry access: <span style="color:#689d6a">PUSH</span> <span style="color: #3588E9">--></span> [<span style="color:#98971a"> registry </span>] <span style="color: #3588E9"> --> </span> <span style="color:#689d6a">PULL</span>
 > <strong style="color: #d65d0e">image:</strong> <code style="color:#689d6a">[Registry]/[User/Account/Image/Repository]</code> <span style="color: #3588E9">--></span> <code style="color:#689d6a">docker.io/library/nginx</code>
 
-<span style="color: #3588E9">--></span> The <span style="color: #d65d0e">Docker Registry</span> is itself another application, and it's available as a Docker image.
-
-To run a container using an image from a private registry, first log in to the private registry
-- `docker login private-registry.io`
-
->[!example] <strong style="color: #b16286">Deploy</strong> private registry:
->```shell
->docker run -d -p 5000:5000 --name registry registry:2
->
-># tag the image with the private registry URL
->docker image tag my-image localhost:500/my-image
->
-># push the image to the local private registry
->docker push localhost:5000/my-image
->
-># pull the image from the localhost
->docker pull localhost:5000/my-image
->
-># pull the image using the IP
->docker pull 192.168.56.100:5000/my-image
->```
+The <span style="color: #d65d0e">Docker Registry</span> is itself another application, and it's available as a Docker image.
 
 The two main Docker components, Client and Server (host), communicate via socket, that can be a network socket where the Client is running on one computer and the Server in another computer in a <span style="color: #d65d0e">Cloud Provider</span>, or they can be running on same hardware, with the Server in a virtual machine, which a common case.
 
 <span style="color: #3588E9">--></span> When the Client and the Server are running on the same computer, they connect through a special file called socket. The Client can run even run inside Docker itself.
 
-Docker also uses "copy-on-write" file systems to build images.
+>[!info]
+>Docker also uses "copy-on-write" file systems to build images.
 
 <span style="color:#98971a">copy-on-write</span> <span style="color: #3588E9">--></span> Docker takes each layer, split them and make them into `gzip` files and ships them over the network separately, and the receiving end of that connection (running Docker server) receives all those layers separately and then puts them together using the file system.
 
@@ -131,25 +113,57 @@ Docker also uses "copy-on-write" file systems to build images.
 UCP include centralized policy management for all containers centralized role-based access control, user management, application cluster management and the ability to organize the container as services and stacks.
 
 DTR is an on-site, on-premises registry for centralized storage for all the containers images. It can also include secure image scanning and continuous monitoring of the images in the registry.
+###### <span style="color:#98971a">Container</span>
 
-Multi-app images
+A Docker container is a runnable instance of an image, it encapsulates everything an application needs to run. It can be created, stopped, started or deleted using the Docker API or the Docker CLI.
 
-use an entrypoint script that execute other program in the background, then run with `docker run --init` --> configurdd the container to run th entrypont script whithin a process supervisor called tini --> watchs every process runnign in the container and makes sure that signal are passed coreeclty to them.
+All Docker container are nothing more than a process, looked from the perspective of the operating systems. When it starts the container automatically gets a random ID and a name created for it by Docker.
 
-install and configure systemd in the image
+To <strong style="color: #b16286">add a name</strong> to the container:
 
-use amore sophiscated process supervisor, like s6-overlay --> it does the same job as Tini, but it also allows users to express multiple service in convenient directory structure. 
+```shell
+docker run --name=app_container [image_name]
+```
 
-docker run -e APP_USER=Guilherme --rm test=app
-##### <span style="color: #689d6a">Docker Objects</span>
+```shell
+docker run --name app_container [image_name]
+```
+
+>[!info]
+>In Docker, the container starts with an init process and vanishes when this process exits. To keep a long running container, its necessary to specify what the <span style="color: #d65d0e">Process ID 1</span> is. If that process is gone, the container will stop.
+
+When running a container it's a good strategy to remove the container as soon the application finish executing. This can be done by the `--rm` flag.
+
+```shell
+docker run --rm -it --name app_container [image_name]
+```
+
+Containers are independent of the storage containers. Depending on the storage layer, in some cases it may run out of layers. Some storage have a limited number of layers.
+
+To <strong style="color: #b16286">copy a file</strong> to a container:
+
+```shell
+docker cp local_folder/. container_name:/path_inside_container
+```
+
+```shell
+docker cp dummy/. brogin_vaughan:/test
+```
+
+To <strong style="color: #b16286">copy a file</strong> from a container:
+
+```shell
+docker cp brogin_vaughan:/test local_folder
+```
+
+To <strong style="color: #b16286">use a non-root user</strong> to run a container:
+
+```shell
+docker run --rm -it --user raziel image:v1.0.1
+```
 ###### <span style="color:#98971a">Image</span>
 
-A Docker image is a read-only template with instructions for creating Docker container.
-
-images are templates / bluertns for container, multile containers can be created bases on one image.
-
-With that, I mean that when you build an image,or when you rebuild it,
-only the instructions where something changed,and all the instructions there after are re-evaluated.
+A Docker image is a read-only template/blueprint with instructions for creating Docker container. Multiple containers can be created based on the same image.
 
 <span style="color:#98971a">Docker images</span> consist on multiple layers, which are <strong>Read-Only</strong>, and each of these layers has an unique ID.
 
@@ -211,44 +225,31 @@ to push image:
 
 to pull images:
 `docker pull IMAGE_NAME`
-###### <span style="color:#98971a">Container</span>
-
-A container is a runnable instance of an image, it encapsulates everything an application needs to run.
-
-Can be created, stopped, started or deleted using the Docker API or CLI.
-
-Can connect to multiple networks, attach storage to the container, or create a new image based on its current state.
-
-Is well isolated from other containers an its host machine.
-that a Docker container is isolated.
-It's isolated from our local environment.
-And as a result, it also has its own internal network.
-
-Containers are independent of the storage containers. Depending on the storage layer, in some cases it may run out of layers. Some storage have a limited number of layers.
-
-Each container automatically gets a random ID and name created for it by Docker.
-
-The Container ID uniquely identifies the container, it's used to refer to a certain container. When a container is started, if Docker doesn't return the Docker ID, then something is wrong. If there isn't an image on the machine, Docker will download the image.
-
-All Docker container are nothing more than a process, looked from the perspective of the operating systems.
-
-In Docker, the container starts with an init process and vanishes when this process exits.
-
-To keep a long running container, its necessary to specify what the <span style="color: #d65d0e">Process ID 1</span> is. If that process is gone, the container will stop.
-
-to copy file to a container
-`docker cp local_folder/.  container_name:/path_inside_container`
-`docker cp dummy/. brogin_vaughan:/test`
-
-to copy a file from a container
-`docker cp brogin_vaughan:/test local_folder`
 
 naming and tagging a container
 `docker run -p 3000:80 -d --rm --name goalsapp goals:latest`
 
-use nont-root users when runnign container:
-`docker run --rm -it --user somubody-else suspect-image:v1.0.1`
+depending on the storage layer, in soem cases it mays run out of layers. some storage have a limited naumber of layers.
 
+To run a container using an image from a private registry, first log in to the private registry
+- `docker login private-registry.io`
+
+>[!example] <strong style="color: #b16286">Deploy</strong> private registry:
+>```shell
+>docker run -d -p 5000:5000 --name registry registry:2
+>
+># tag the image with the private registry URL
+>docker image tag my-image localhost:500/my-image
+>
+># push the image to the local private registry
+>docker push localhost:5000/my-image
+>
+># pull the image from the localhost
+>docker pull localhost:5000/my-image
+>
+># pull the image using the IP
+>docker pull 192.168.56.100:5000/my-image
+>```
 ###### <span style="color:#98971a">Network</span>
 
 network are used for the isolated container communication.
@@ -302,7 +303,6 @@ Docker also supports these alternative drivers - though you will use the "bridge
 - **none**: All networking is disabled.
     
 - **Third-party plugins**: You can install third-party plugins which then may add all kinds of behaviors and functionalities
-
 ###### <span style="color:#98971a">Storage</span>
 
 Docker uses volumes and bind mounts to persist data even after a container stops
@@ -391,6 +391,15 @@ How were the containers isolated within the host?
 Docker uses network namespaces that creates a separate namespace for each container. It then uses virtual Ethernet pairs to connect containers together.
 
 Obs: Bind mount shouldn't be used in Production!
+###### <span style="color:#98971a">Multi-app images</span>
+
+use an entrypoint script that execute other program in the background, then run with `docker run --init` --> configurdd the container to run th entrypont script whithin a process supervisor called tini --> watchs every process runnign in the container and makes sure that signal are passed coreeclty to them.
+
+install and configure systemd in the image
+
+use amore sophiscated process supervisor, like s6-overlay --> it does the same job as Tini, but it also allows users to express multiple service in convenient directory structure. 
+
+docker run -e APP_USER=Guilherme --rm test=app
 ##### <span style="color: #689d6a">Docker CLI</span>
 
 The `--help` flag works with every Docker command, which shows information about a command and how to use it.
@@ -440,7 +449,7 @@ To <strong style="color: #b16286">see the logs</strong> of a container:
 docker logs container_id # can be the image's name as well
 ```
 
-<strong>Obs:</strong> The <code>-f</code> can be used to keep listening the container.
+<strong>Obs:</strong> The <code>-f</code> flag can be used to keep listening the container.
 
 An option to the `logs` command is to start the container and "attach" the terminal to the container's output:
 
@@ -480,6 +489,24 @@ Short way to enter commands:
 docker exec -i -t d90d bash # or -it
 ```
 
+To <strong style="color: #b16286">get a snapshot </strong>of the container's performance:
+
+```shell
+docker stats [container_name]
+```
+
+To <strong style="color: #b16286">show information</strong> about a container:
+
+```shell
+docker inspect [container_name] # shows info in JSON format
+```
+
+To <strong style="color: #b16286">debug</strong> a slow container:
+
+```shell
+docker top [container_name]
+```
+
 To <strong style="color: #b16286">stop</strong> a container:
 
 ```shell
@@ -508,7 +535,13 @@ The `rm` command doesn't stop containers that are running, to do this use the `-
 docker container rm -f [container_id]
 ```
 
-To <strong style="color: #b16286">remove an image</strong>:
+To <strong style="color: #b16286">list all</strong> available images:
+
+```shell
+docker image ls
+```
+
+To <strong style="color: #b16286">remove</strong> an image:
 
 ```shell
 docker image rm [container_name]
@@ -518,6 +551,11 @@ docker image rm [container_name]
 docker rmi [image_id] # old syntax
 ```
 
+To <strong style="color: #b16286">remove</strong> useless data:
+
+```shell
+docker system prune
+```
 
 ##### <span style="color: #689d6a">Dockerfile</span>
 
@@ -1203,10 +1241,6 @@ image: "mysql:?Ooops TAG is a required"
 	- <code style="color:#689d6a">--link</code> <span style="color: #3588E9">--></span> option which can be used to link to containers together.
 		- it creates an entry into the etc/hosts file on the voting app container, adding an entry with the host name redis with the internal IP of the redis container.
 		- Ex: <code style="color:#689d6a">docker run -d --name=vote -p 500:80 --link redis:redis voting:app</code>
-- To <strong style="color: #b16286">inspect</strong> a container <span style="color: #3588E9">--></span> <code style="color:#689d6a">docker inspect [name]</code>
-	- it returns all details of a container in a JSON format
-- To <strong style="color: #b16286">list all</strong> available images <span style="color: #3588E9">--></span> <code style="color:#689d6a">docker images</code>
-	- <code style="color:#689d6a">docker image ls</code> <span style="color: #3588E9">--></span> new syntax
 - To <strong style="color: #b16286">download</strong> the image <span style="color: #3588E9">--></span> <code style="color:#689d6a">docker pull nginx</code>
 	- it pulls the image and stores on the host, it doesn't run the container.
 - To <strong style="color: #b16286">upload</strong> an image <span style="color: #3588E9">--></span> <code style="color:#689d6a">docker push</code>
