@@ -165,91 +165,114 @@ docker run --rm -it --user raziel image:v1.0.1
 
 A Docker image is a read-only template/blueprint with instructions for creating Docker container. Multiple containers can be created based on the same image.
 
-<span style="color:#98971a">Docker images</span> consist on multiple layers, which are <strong>Read-Only</strong>, and each of these layers has an unique ID.
+Obs: an image is not the container itself, it only serves a template for the container to run, in other words, the container is based on an image.
 
-Every image has its own internal file system which is totally detached from the file system on the machine that docker is running. It's hidden away inside the Docker container. 
+Docker caches every instruction result and when the image is rebuilt it will use these cached result --> layer based architecture.
 
-the image should be the template for the container.The image is not what you run in the end, you run a container based on an image.
+<span style="color:#98971a">Docker images</span> consist on multiple layers (1 instruction = 1 layer), which are <strong>Read-Only</strong>, and each of these layers has an unique ID. The layer optimize build speed (caching) and re-usability. 
 
-Docker caches every instruction result,
-and when you then rebuild an image,
-it will use these cached results
-if there is no need to run an instruction again.
-And this is called a layer based architecture.
+Each <span style="color: #d65d0e">layer</span> is only a set of differences from the layer before it, the layers are stacked on top of each other. When an image is run as a container a new <span style="color: #d65d0e">writable layer</span> (container layer) is added, which allows to make changes to the container. The last layer is an image usually, but not always, contains instructions for configuring the container.
 
-within the are one or more layers, each container snippets of the container's filesystem. layers are compressed archive that container set of files that make uo the containeer's file system along with some data about itself. These files are combined together to make up the folder that the container is given for its root file system,
-
-images contain multiples laywers (1 insturctions = 1 layer) to optimze build spped (caching) and re-usability.
-
-<span style="color: #d65d0e">Layers</span> are saved on disk only once and can be shared between images, which saves disk space and network bandwidth.
-
-Each <span style="color: #d65d0e">layer</span> is only a set of differences from the layer before it, the layers are stacked on top of each other. When an image is run as a container a new <span style="color: #d65d0e">writable layer</span> (container layer) is added, which allows to make changes to the container.
-
-the last layer is an image usually, but not always, contains instructions for configuring the container.
-
-Each image will container a manifest at the root levels that provide more information about itself, including the relationship between its layers.
-the container runtime uses manifests as guides for layers should be extracted and their containers configured.
-
-Multiple containers are typically based on the same image, called <span style="color: #d65d0e">base image</span>. Changes made to the base image are actually stored in a new layer and don't the base layer.
-
-images are either downloaded (docker pull) or created with a DOckerfile and docker build.
+>[!info]
+>Multiple containers are typically based on the same image, called <span style="color: #d65d0e">base image</span>. Changes made to the base image are actually stored in a new layer and don't the base layer.
 
 All changes made to the running container, are written to the container layer. But the files won't be persistent after the container is deleted. To write data in the writable layer of the container, Docker uses <span style="color: #d65d0e">storage drivers</span>.
 
-Naming a Docker image: 
-- <code style="color:#689d6a">[registry]/[repository]:[tag]</code> <span style="color: #3588E9">--></span> <code style="color:#689d6a">docker.io/ubuntu:18.04</code>
+Docker uses storage drivers to enable layered architecture. Some of the common storage drivers are: AUFS, ZFS, BTRFS, Device Mapper, Overlay, Overlay2. The selection of the storage driver depends on the underlying OS.
+
+>[!info]
+>Docker will choose the best storage driver available automatically based on the operating system.
+
+<span style="color: #d65d0e">Layers</span> are saved on disk only once and can be shared between images, which saves disk space and network bandwidth.
+
+Every image has its own internal file system which is totally detached from the file system on the machine that docker is running. It's hidden away inside the Docker container. 
+
+Each image will contain a manifest at the root levels that provide more information about itself, including the relationship between its layers. The container runtime uses manifests as guides for layers that should be extracted and their containers configured.
+
+To <strong style="color: #b16286">inspect</strong> an image:
+
+```shell
+docker image inspect [image_id]
+```
+
+To view each layer of an image the <span style="color:#98971a">dive</span> tool is a good choice. It extracts the image from the Docker Engine and it show in the terminal a detailed information about each layer of container image. 
+
+```shell
+dive [image_name]
+```
 
 <span style="color: #d65d0e">Tags</span> are essentially <strong>aliases</strong>, an image can have multiple tags, but all points to the same source image. The tag <code style="color:#689d6a">latest</code> is a tag associated to the latest version of a software, which is governed by the authors of that software.
 
 >[!note]
 > Each version of the software can have multiple short and long tags associated with it
 
-`docker build -t goals:latest .`
+To <strong style="color: #b16286">name and tag</strong> an image:
 
-tha image name defines a grouo pf possible psefializaed, images. Example: node
+```shell
+docker build -t [image_name]:[image_tag] .
+```
+
+```shell
+docker build -t app:latest .
+```
+
+<span style="color: #d65d0e">Dangling images</span> are <strong>layers that have no relationship</strong> to any tagged images.
 
 A <span style="color: #d65d0e">Docker repository</span> within a registry is a collection of related Docker images with the same name but different tags. Each image is stored as a tag that can refer to different variations of an image.
 
 >[!note]
 >many companies choose to run their own registry within their own company to ensure that their data stays safe and private
 
-<span style="color: #d65d0e">Dangling images</span> are <strong>layers that have no relationship</strong> to any tagged images.
+Naming a Docker image: 
+- <code style="color:#689d6a">[registry]/[repository]:[tag]</code> <span style="color: #3588E9">--></span> <code style="color:#689d6a">docker.io/ubuntu:18.04</code>
 
-To modify the <span style="color: #d65d0e">entrypoint</span> during runtime: 
-- <code style="color:#689d6a">docker run --entrypoint sleep2.0 ubuntu-sleeper 10</code>
+To pull (download) an image:
 
-`docker image inspect ID` to inspect an image
+```shell
+docker pull [image_name]
+```
 
-to push image:
-`docker push IMAGE_NAME`
+To push an image:
 
-to pull images:
-`docker pull IMAGE_NAME`
+```shell
+docker push [image_name]
+```
 
-naming and tagging a container
-`docker run -p 3000:80 -d --rm --name goalsapp goals:latest`
+To tag the image with the private registry URL:
 
-depending on the storage layer, in soem cases it mays run out of layers. some storage have a limited naumber of layers.
+```shell
+docker image tag my-image localhost:500/my-image
+```
 
-To run a container using an image from a private registry, first log in to the private registry
-- `docker login private-registry.io`
+To push the image to the local private registry:
 
->[!example] <strong style="color: #b16286">Deploy</strong> private registry:
->```shell
->docker run -d -p 5000:5000 --name registry registry:2
->
-># tag the image with the private registry URL
->docker image tag my-image localhost:500/my-image
->
-># push the image to the local private registry
->docker push localhost:5000/my-image
->
-># pull the image from the localhost
->docker pull localhost:5000/my-image
->
-># pull the image using the IP
->docker pull 192.168.56.100:5000/my-image
->```
+```shell
+docker push localhost:5000/my-image
+```
+
+To pull the image from the localhost:
+
+```shell
+docker pull localhost:5000/my-image
+```
+
+The image can also be pulled using the IP address
+
+```shell
+docker pull 192.168.56.100:5000/my-image
+```
+
+To run a container using an image from a private registry, it's necessary to log into the private registry.
+
+```shell
+docker login private-registry.io
+```
+
+To run the container from the private registry:
+
+```shell
+docker run -d -p 5000:5000 --name registry registry:2
+```
 ###### <span style="color:#98971a">Network</span>
 
 network are used for the isolated container communication.
@@ -377,11 +400,6 @@ by default volumes are read write, --> the container is able to read data from t
 to ensures that docker will now not be able to write into this folder or any of its sub-folders.
 
 `docker run -d -p 3000:80 --rm --name feedback-app -v feedback:app/feedback -v "home/user/guilherme/dev:/app:ro" -v feddback-note:volumes`
-
-Docker uses storage drivers to enable layered architecture. Some of the common storage drivers are: AUFS, ZFS, BTRFS, Device Mapper, Overlay, Overlay2. The selection of the storage driver depends on the underlying OS.
-
->[!info]
->Docker will choose the best storage driver available automatically based on the operating system.
 
 How can I get my web server to access the database on the database container?
 
@@ -557,6 +575,11 @@ To <strong style="color: #b16286">remove</strong> useless data:
 docker system prune
 ```
 
+To <strong style="color: #b16286">modify</strong> the entry point during runtime: 
+
+```shell
+docker run --entrypoint sleep2.0 ubuntu-sleeper 10
+```
 ##### <span style="color: #689d6a">Dockerfile</span>
 
 The Dockerfile is a language for creating and describing docker container images. Dockerfile is the name of the language, as well as the default name of the file that Docker looks for when creating container images. 
