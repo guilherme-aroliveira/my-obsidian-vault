@@ -357,11 +357,15 @@ volume mounting --> feature allows Docker to map a folder from the host machine 
 docker run --rm -v [/host]:[/container]
 ```
 
-```shell
-docker run --rm --entrypoint sh -v /tmp/container:/tmp ubuntu -c "echo 'Hello World.' > /tmp/file && cat /tmp/file"
-```
-
-
+>[!example] Example - volume mounting
+>Example 1
+>```shell
+>docker run --rm --entrypoint sh -v /tmp/container:/tmp ubuntu -c "echo 'Hello World.' > /tmp/file && cat /tmp/file"
+>```
+>Example 2
+>```shell
+>docker run --name website -v $PWD/Documents/website:/usr/share/nginx/html -p 8080:80 --rm nginx
+>```
 
 Docker uses volumes and bind mounts to persist data even after a container stops
 built int feature, 
@@ -603,6 +607,8 @@ docker image rm [container_name]
 ```shell
 docker rmi [image_id] # old syntax
 ```
+
+When removing an image if the `-f` flag is used, it will force the image to be removed even if it's attached to a running container.
 
 To <strong style="color: #b16286">remove</strong> useless data:
 
@@ -1207,7 +1213,7 @@ port --> to expose a port that maps from the host machine to the Docker containe
 >services:
 >  bookstack_db: 
 >    ports:
->      - "3136":"3136" # from port to port
+>      - "3136:3136" # from port to port
 >```
 >It's recommend to put the mapping in quotes but not required unless the port number is below 60.
 
@@ -1220,7 +1226,7 @@ Compose provides utilities to enforce startup order automatically using the `dep
 >  phpmyadmin:
 >    image: phpmyadmin:5.2.2
 >    ports:
->      - "8080":"80"
+>      - "8080:80"
 >    depends_on:
 >      - bookstack_db
 >```

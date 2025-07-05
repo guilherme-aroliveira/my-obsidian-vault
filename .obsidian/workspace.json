@@ -148,7 +148,7 @@
             }
           }
         ],
-        "currentTab": 6
+        "currentTab": 9
       }
     ],
     "direction": "vertical"
@@ -278,13 +278,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Computer Science/DevOps/Containers/Docker.md",
+                "file": "Computer Science/DevOps/CI/Jenkins.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of Docker"
+              "title": "Outline of Jenkins"
             }
           },
           {
@@ -321,11 +321,12 @@
       "vscode-editor:Create Code File": false
     }
   },
-  "active": "5eb5605f8644a8ed",
+  "active": "3f918f48a3753279",
   "lastOpenFiles": [
+    "Computer Science/DevOps/Containers/Docker.md",
+    "Computer Science/DevOps/CI/Jenkins.md",
     "Computer Science/DevOps/Containers/Orchestration/Docker Swarm.md",
     "Computer Science/DevOps/IaC/Terraform.md",
-    "Computer Science/DevOps/Containers/Docker.md",
     "Computer Science/DevOps/IaC/Ansible.md",
     "Computer Science/DevOps.md",
     "Computer Science/Software Engineering.md",
@@ -342,7 +343,6 @@
     "Computer Science/DevOps/Containers/Docker Compose.md",
     "Computer Science/DevOps/Containers/Orchestration/Kubernetes.md",
     "Computer Science/Cloud Providers/AWS/EKS.md",
-    "Computer Science/DevOps/CI/Jenkins.md",
     "Computer Science/DevOps/CI/ArgoCD.md",
     "Computer Science/Cloud Providers/AWS/Lambda.md",
     "Computer Science/Cloud Providers/AWS/VPC.md",

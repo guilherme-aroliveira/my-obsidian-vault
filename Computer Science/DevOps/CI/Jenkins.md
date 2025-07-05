@@ -1,29 +1,32 @@
-Is an <strong style="color: #b16286">open-source web based application for CI/CD pipelines</strong>, that is installed on server where the central build takes place, and can be installed on any number of systems. Jenkins is one of the oldest, most popular, and the most complex of all the CI/Cd tools. Written in Java, it <strong style="color: #b16286">describes CI pipeline using "Groovy" language</strong> in a <strong style="color: #d79921">Jenkinsfile</strong>. It aims to automate processes, tied to the build, test, release and deploy stages.
+Is an <strong style="color: #b16286">open-source web based application for CI/CD pipelines</strong>, that is installed on server where the central build takes place, and can be installed on any number of systems. 
 
-> Note: Jenkins is not ideal for CD, it does not provides visibility into the pipeline process and requires a lot of setup and maintenance.
+Jenkins is one of the oldest, most popular, and the most complex of all the CI/Cd tools. Written in Java, it <strong style="color: #b16286">describes CI pipeline using "Groovy" language</strong> in a <strong style="color: #d79921">Jenkinsfile</strong>. It aims to automate processes, tied to the build, test, release and deploy stages.
 
-install jenkins
-wget -q -0 - https://
-sudo apt ket-a add -
-sudo sh -c
-sudo systemclt start jenkins
-sudo cat /var/lib/jenkins/secrets/initialAdmin
+>[!note]
+>Jenkins is not ideal for CD, it does not provides visibility into the pipeline process and requires a lot of setup and maintenance.
 
-jenkins can be installed as a container or as application on the operating system.
+Jenkins can be installed in two ways: 
+1. As an application on the local system (Java is required)
+2. As a Docker container (Java is not required)
+
+Jenkins uses a Plugin Model to add or remove functionality, any feature that are available for Jenkins is provided as a plugin to be installed. So plugins are a way to connect with Jenkins to other systems (services). 
+
+>[!note]
+>Obs: Jenkins is a platform that must be managed, because there is a system underneath. There are updates and patches that needs to be done.
+
+Plugins on Jenkins can also be installed manually by just downloading the plugins at the Jenkins Plugin Portal and saving them in: `/var/lib/jenkins/plugins/`.
+
+When creating Jobs on Jenkins is a good practice to keep spaces out of the job names. Job names with spaces makes things more difficult when working with the job in other ways, like from the command line or from an API.
+
+<strong>Job Types:</strong>
+- Free Style --> 
 
 
-plugins are a way to connect with Jenkins to other systems (services). 
-install plugins with the plugins index
-Jenkins isn't those platforms that you can just put and walk away and not touch it for ten years. It must be managed, because there is a system underneath. There are update and patches that needs to be done.
 `$JENKIN_HOME` --> primary place that has configuration files
 XML is the configutaton of Jenkins --. how it is setup inside the environment
 `jobs folder` --> all of the pipelines must backed up
 way to backup: filesystem snapshots (not recommend for a long term solution, plugins for backup, shell scripts that backup the Jenkins instance
 pluings --> set up the backup directory and define the access permissions
-
-
-
-<span style="color: #3588E9">--></span> Jenkins can be installed on the local system or in a container, which requires a container runtime and Java isn't required to be installed on the local system.
 
 Job in Jenkins is any runnable task this it controlled by Jenkins
 
