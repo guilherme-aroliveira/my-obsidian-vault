@@ -168,7 +168,7 @@
               "type": "file-explorer",
               "state": {
                 "sortOrder": "alphabetical",
-                "autoReveal": false
+                "autoReveal": true
               },
               "icon": "lucide-folder-closed",
               "title": "Files"
@@ -323,15 +323,15 @@
   },
   "active": "3f918f48a3753279",
   "lastOpenFiles": [
+    "Computer Science/DevOps/Containers/Docker.md",
+    "Computer Science/DevOps/CI/Jenkins.md",
+    "Computer Science/DevOps.md",
+    "Computer Science/Software Engineering.md",
     "Computer Science/DevOps/IaC/Terraform.md",
     "Computer Science/DevOps/Containers/Orchestration/Docker Swarm.md",
     "Computer Science/DevOps/Containers/Orchestration/Kubernetes.md",
-    "Computer Science/DevOps/Containers/Docker.md",
-    "Computer Science/DevOps/CI/Jenkins.md",
     "Computer Science/Cloud Providers/AWS/Lambda.md",
     "Computer Science/DevOps/IaC/Ansible.md",
-    "Computer Science/DevOps.md",
-    "Computer Science/Software Engineering.md",
     "Information Security/Cyber Security.md",
     "Computer Science/Programming/Ruby.md",
     "Computer Science/Programming/Python.md",

@@ -216,7 +216,13 @@ docker image tag [source_image]:[tag] target_image:[tag]
 docker image tag my-webapp:v1 my-webapp:nginx
 ```
 
-<span style="color: #d65d0e">Dangling images</span> are <strong>layers that have no relationship</strong> to any tagged images.
+<span style="color: #d65d0e">Dangling images</span> are images that are not tagged and are not referenced by any container.
+
+To <strong style="color: #b16286">remove</strong> dangling images:
+
+```shell
+docker image prune
+```
 
 A <span style="color: #d65d0e">Docker repository</span> within a registry is a collection of related Docker images with the same name but different tags. Each image is stored as a tag that can refer to different variations of an image.
 
@@ -351,11 +357,41 @@ Docker also supports these alternative drivers - though you will use the "bridge
 - **Third-party plugins**: You can install third-party plugins which then may add all kinds of behaviors and functionalities
 ###### <span style="color:#98971a">Storage</span>
 
-volume mounting --> feature allows Docker to map a folder from the host machine to a folder in the container. This can be done by using the `--volume` or `-v` option.
+A volume is a directory on the host machine that is accessible to a container. When a Docker volume is used, the data inside it is not stored in the container's file system, but in the host machine's file system --> the data in a volume persists even if the container is deleted or recreated.
+
+A volume and be created using the `docker volume create` command.
+
+>[!example] Example - docker volume
+>```shell
+>docker volume create d_volume
+>```
+>Obs: creates a folder called d_volume under the `/var/lib/docker/volumes` directory.
+
+To list all available volumes:
 
 ```shell
-docker run --rm -v [/host]:[/container]
+docker volumes ls
 ```
+
+To inspect a volume:
+
+```shell
+docker volumes inspect [volume_name]
+```
+
+To attach a volume to a container, use the `-v` or `--volume` option:
+
+```shell
+docker run --rm -v [/host_path]:[/container_path]
+```
+
+Volumes are a good option for persisting data across different container. Volumes can be used to store data from a database outside the container.
+
+While volume and bind mount can be used to share data between the host machine and a container, they work differently and have different use cases.
+
+Unlike Docker volume, the data inside a bind mount is not stored outside the container. If the container is removed, the data will be lost.
+
+volume mounting --> feature allows Docker to map a folder from the host machine to a folder in the container. This can be done by using the `--volume` or `-v` option.
 
 >[!example] Example - volume mounting
 >Example 1
@@ -370,6 +406,7 @@ docker run --rm -v [/host]:[/container]
 Docker uses volumes and bind mounts to persist data even after a container stops
 built int feature, 
 it helps with persistent data 
+
 values are folders on the host machine hard drive with are mounted ("mapped") into containers. values persist if a container shuts down. If a container (re)-stars and mounts a volume, anu data inside of the volume is available in the container. 
 A container can write data into a volume and read data from it.
 
@@ -385,15 +422,6 @@ with the `--rm` option container are remove automatically when a container is re
 docker sets ups a folder / path on the host machine, the exact location in unknown to the user. and it's managed by the `docker volumes` command. 
 
 Docker stores all its data by default on this location: `/var/lib/docker`
-
-<code style="color:#689d6a">docker volume create</code> <span style="color: #3588E9">--></span> docker command to create a volume
-docker volumes ls --> list all volumes managed
-
->[!example] example - docker volume create
->```shell
->docker volume create d_volume
->```
->creates a folder called d_volume under the `/var/lib/docker/volumes` directory.
 
 To persist data, it's necessary to mount a volume or map a directory outside the container on the docker host or host to a directory inside the container.
 
@@ -423,9 +451,13 @@ The are two types of mounts:
 
 >[!example] --mount option
 >```shell
->docker run \ --mount type,source=/data/mysql,target=var/lib/mysql mysql
+>docker run -it -d -p 5000:5000 --mount type=bind,source="${PWD}/test",target=/app/test big-star-collection:v2
 >```
 >The source is the location on the host and the target is the location on the container.
+
+mounts are useful when you need to share code or configurations files between the host machine and the container during development or testing.
+
+with the `--mount` flag if a directory specified does not exist on the host, it will return an error, but `-v` flag will create it.
 
 We use this bind Mount during development to reflect changes in our code, into running container instantly. Because if the container is running in production on a server, there is no connected source code, which updates while it's running.
 
@@ -448,6 +480,9 @@ How were the containers isolated within the host?
 Docker uses network namespaces that creates a separate namespace for each container. It then uses virtual Ethernet pairs to connect containers together.
 
 Obs: Bind mount shouldn't be used in Production!
+
+to remove all volumes with prune:
+`docker system prune --volumes -f`
 ###### <span style="color:#98971a">Multi-app images</span>
 
 use an entrypoint script that execute other program in the background, then run with `docker run --init` --> configurdd the container to run th entrypont script whithin a process supervisor called tini --> watchs every process runnign in the container and makes sure that signal are passed coreeclty to them.
@@ -570,6 +605,12 @@ To <strong style="color: #b16286">stop</strong> a container:
 docker stop fd69 # can be the container name as well
 ```
 
+```shell
+docker kill container_name
+```
+
+The `kill` command sends the kill signal which can not be blocked or handled. The killed child process doesn't notify its parent that it received the kill signal, which can cause errors.
+
 To <strong style="color: #b16286">force the stop</strong> of a container: 
 
 ```shell
@@ -615,6 +656,8 @@ To <strong style="color: #b16286">remove</strong> useless data:
 ```shell
 docker system prune
 ```
+
+The `system prune` command, prunes all unused images, containers and networks.
 
 To <strong style="color: #b16286">modify</strong> the entry point during runtime: 
 
