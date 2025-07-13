@@ -1,4 +1,4 @@
-Flask is a [[Python]] <strong style="color: #d79921">web micro-framework</strong> with minimal to no dependence on external libraries that can create web applications. Flask is a very light framework, while Django is a full-stack framework.
+Flask is a [[Computer Science/Programming/Python]] <strong style="color: #d79921">web micro-framework</strong> with minimal to no dependence on external libraries that can create web applications. Flask is a very light framework, while Django is a full-stack framework.
 
 It was created in 2004 by Armin Ronacher as an April fool's joke.
 

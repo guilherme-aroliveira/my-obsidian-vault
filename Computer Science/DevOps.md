@@ -2493,9 +2493,9 @@ Cloud observability tools
 	- AWS CloudWatch
 		- a monitoring service provided by Amazon Web Services (AWS)
 		- provides metrics on resources and applications running on AWS
-	- Google Cloud Monitoring
-		- a monitoring service provided by Google Cloud Platform (GCP)
-		- provides visibility into infrastructure and applications performance across GCP services
+- Google Cloud Monitoring
+	- a monitoring service provided by Google Cloud Platform (GCP)
+	- provides visibility into infrastructure and applications performance across GCP services
 
 Benefits:
 - Detect and fix issues efficiently
