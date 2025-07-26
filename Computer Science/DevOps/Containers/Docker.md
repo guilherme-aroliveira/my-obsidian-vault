@@ -492,6 +492,100 @@ install and configure systemd in the image
 use amore sophiscated process supervisor, like s6-overlay --> it does the same job as Tini, but it also allows users to express multiple service in convenient directory structure. 
 
 docker run -e APP_USER=Guilherme --rm test=app
+###### <span style="color:#98971a">Registry</span>
+
+The image registry is a web server that serves container images. The difference between a regular web server from an image registry is how the images are laid out.  
+
+Registries use a particular folder structure to make it easy fro docker to find images and verify that hey are who they claim to be.
+
+The Image Registry works seamlessly with Docker pull.
+
+Ways to create a registry:
+- run the registry as a container from Docker's official image
+- front the registry with a reverse proxy
+
+Using the Docker's official image:
+
+create the container that will run the registry
+
+```shell
+docker run --rm --name registry -p 5000:5000 -d registry:2
+```
+
+push the image into the registry
+
+docker tag my-image:latest localhost:5000/my-image:latest
+localhost:5000 --> DNS Label of the registry
+docker push localhost:5000/my-image:latest --> tells Docker to upload the image into the registry
+
+create the manifest list:
+
+docker manifest create --insecure localhost:500 /my-image --amend localhost:5000/my-image:latest
+
+image digest is created by the registry when images are pushed up to it.
+the `manifest create` command will query the registry for the digest for the images added to the list with the `--amend` flag.
+
+confirm if the digest matches the image:
+
+```shell
+docker images --digests localhost:5000/my-image
+```
+
+push the manifest list up into the registry:
+
+```shell
+docker manifest push localhost:5000/my-image
+```
+
+delete all images
+
+```shell
+docker images | grep my-image | awk '{print $3}' | xargs docker rmi -f 
+```
+
+`awk '{print $3}'` --> display the third column
+`xargs` --> it takes each line and feed it to the next command
+
+multi-platform images are manifest list to contain different image digests for different processor platforms --> allows to create an image that works on ARM processors as well as X86 processors.
+
+simple registries are limited:
+they are insecure
+the only speak HTTP
+they are not very configurable
+
+a reverse proxy in front of the registry solves those issues
+reverse proxy is a web server that internally intercepts and forwards traffic it receives, to a destination that's usually an internal device. 
+a reverse proxy will usually forward the request to some other address. 
+
+using nginx:
+create a docker network for the registry
+create a self-signed certificate and private key
+create an authentication files to use credentials
+recreate the registry
+create an nginx web server as a reverse proxy in front of the registry
+
+Obs: manifest list do not work with local secure registries.
+
+`docker network create registry`
+
+`./create_unsigned_certs.sh` --> run a program called Open SSL within the container a container that will generate the self-signed certs. 
+
+add the `cert.pem` into the virtual machines list of root certificate authorities
+`sudo cp ./certs/cert.pem /usr/local/shre/ca-certificates/registry.crt`
+`sduo update-ca-cerficiates` --> script that update the root certificates
+
+configure the web server with the credentials
+`docker run --entrypoint htpasswd httpd:2 -Bbn admin supersecret > ./htpasswd`
+`htpasswd` --> tool that creates file that configure basic authentication on web servers.
+
+`docker run --rm --name registry-backend --network registry -d registry:2`
+
+`docker run --rm -v $PWD/nginx.conf:/etc/nginx/nginx.conf -v $PWD/htpasswd:/auth/htpasswd -v $PWD/certs:/certs --network registry -p 5000:5000 -d nginx`
+
+log into the local registry:
+`docker login localhost:5000`
+
+certificate root authorities are special certificates used by just about every app that talks HTTPS, for verifying client and service certificates.
 ##### <span style="color: #689d6a">Docker CLI</span>
 
 The `--help` flag works with every Docker command, which shows information about a command and how to use it.
@@ -833,7 +927,7 @@ specify which folders and files, should not be copied by a copy instruction. jus
 
 container created by docker run are non interactive by default --> contaienrs are not configured to not accept input like keystrokes. 
 
-<code style="color: #689d6a">RUN</code> --> executes commands within temporary containers. 
+<code style="color: #689d6a">RUN</code> <span style="color: #3588E9">--></span> executes commands within temporary containers. 
 
 >[!example] Ways to use RUN command
 >Shell form
@@ -848,28 +942,106 @@ container created by docker run are non interactive by default --> contaienrs ar
 >
 >Commands written in exec from are run directly within the container without a shell --> any input sent to the container will go directly to the app.
 
-<code style="color: #689d6a">ENTRYPOINT</code> <span style="color: #3588E9">--></span> configures the container image to run an application when a container is created from it. It takes two forms, just like the RUN command. the form affects how the application behaves. 
-- If the entrypoint uses the shell form: Apps runs as a child of `/bin/sh` or cmd; any signa sent oto the app are caught by the shell, not the program. any code in the app trhat relies on signal wil not run. argument snt ot contianer will ge passed itno the shell, not the program. Environmant variables, pipels or anu shell featurs can eb leveraged, but an entrypoint scrit is much reliable
+<code style="color: #689d6a">ENTRYPOINT</code> <span style="color: #3588E9">--></span> configures the container image to run an application when a container is created from it. It takes two forms, just like the RUN command. But the form affects how the application behaves. 
 
-```dockerfile
-ENTRYPONT ["/app/entrypoint.sh"]
+Shell Form:
+- App runs as a child of /bin/sh or cmd
+- Any signal sent to the app are caught by the shell, not the program
+- Any code in the app that relies on signals will not run
+- Arguments sento to containers will get passed into the shell, not the program
+- Environment variables, pipes, or any shell feature can be leveraged, but an entrypoint script is much more reliable.
 
-SOME_VAR=$SOME_VALUE_FROM_DOCKER;
-[ "$SOME_VAR" == "foo" ] && /app/app.sh --foo || /app/app.sh --bar
+>[!note]
+>In case of a started containerized app from an image in Docker Hub and it won't forcefully stop with control Z, it most likely because of entrypoint.
 
-# the script is invoked by the exec form
-```
-entrypoint scrit makes the Dockerfile easier to read and debug without removing control from te app like the shell form does.
+The `entrypoint` script pattern simply takes all of the logic in a Dockerfile in shell form and put it into its own script that is invoked with exec form.
 
-exec form: 
-- app runs aas the top-level process within the container (as PID 1)
-- any signal sento the app are sent to the progrtam
-- arguments snrt oto contaienr will get passed in the program
+>[!example] ENTRYPOINT command:
+>```dockerfile
+>RUN apt -y update && apt - install curl
+>ENTRYPOINT [ "/app/app.sh" ]
+>
+># /app/entrypoint.sh
+>#! /usr/bin/env bash
+>SOME_VAR=$SOME_VALUE_FROM_DOCKER;
+>[ "$SOME_VAR" == "foo" ] && /app/app.sh --foo || /app/app.sh --bar
+>```
+>entrypoint scripts makes the Dockerfile easier to read and debug without removing control from the app like the shell form does.
+
+Exec form: 
+- App runs as the top-level process within the container (as PID 1)
+- Any signal sent to the app are sent to the program
+- Arguments sent to the container will get passed in the program
 
 <code style="color: #689d6a">CMD</code> <span style="color: #3588E9">--></span> stands for command. Sim,ilvar o entrypoint, it configures tcontainer to run an application on startup. It dependes wheter an Entryint is provided or not, and wheter CMD is writtent in sheel or exec form. is best suited from providingf default argument to an Etntrypoint.
 
->[!example]
+The are four types of combinations with CMD and ENTRYPOINT:
+- ENTRYPOINT missing, CMD provided  <span style="color: #3588E9">--></span> `/app/app.sh` is run as PID 1. Arguments provided to it are sent to `/app/app.sh`.
+- ENTRYPOINT provided, CMD provided
+- ENTRYPOINT provided, CMD missing  <span style="color: #3588E9">--></span> `/app/app.sh` is run as PID 1. Additional arguments provided to it are sent to `/app/app.sh`.
+- ENTRYPOINT missing, CMD missing  <span style="color: #3588E9">--></span> CMD or ENTRYPOINT is inherited from base image, or `/bin/sh -c` or `cmd /S /C` is used as default ENTRYPOINT.
+
+>[!example] CMD command:
+>Option 2
+>```dockerfile
+>FROM ubuntu
+>COPY ./app
+>RUN apt -y update && apt -y install curl
+>ENTRYPOINT [ "/app/app.sh" ]
+>CMD [ "--argument" ]
+>```
+>`--argument` is provided as an argument to `/app/app.sh`. Additional arguments provided to it, are sent to `/app/app.sh`
 >
+>Option 3
+>```dockerfile
+>ENTRYPOINT [ "/app/app.sh" , "--argument" ]
+>```
+>The argument is part of the app, so it can't be override it. Any argument typed with `docker run` will be appended into the program.
+
+ARG --> defines build arguments, which are variables provided at build time.
+
+>[!example] ARG command:
+>```dockerfile
+>FROM ubuntu
+>ARG curl_bin=curl
+>COPY . /app
+>RUN apt -y update && apt -y install "$curl_bin"
+>CMD [ "--argument" ]
+>ENTRYPOINT [ "/app/app.sh" ]
+>```
+>Obs: The `--build-arg` flag must be used during 'docker build' to set variables defined with the ARG command.
+>```shell
+>docker build \ 
+>  --build-arg curl_bin="curl=7.81.0" \
+>  -t my-image \
+>  .
+>```
+
+>[!note]
+>If the `--build-arg` is not used the image might not behave the way it was expected to, event if the build was successful.
+
+ENV --> defines environment variables that containers started from an image should receive. 
+
+>[!example] ENV command:
+>```dockerfile
+>FROM ubuntu
+>ENV curl_bin="curl=7.85.0"
+>COPY . /app
+>RUN apt -y update && apt -y install "$curl_bin"
+>CMD [ "--argument" ]
+>ENTRYPOINT [ "/app/app.sh" ]
+>```
+
+>[!info]
+>ENV variables are great for providing default configuration for apps while still allowing users to change them when they start containers with 'docker run'
+
+Differences between  ENV and ARG
+- ENV variables are defined for every container started from an image; ARG variables are only used during runtime.
+- ARGs are set at build time, ENVs are set at run time --> it can't be override through docker build, environment variables can only be override is by using the `-e` or `--env` flag with docker run. 
+
+Similarities between  ENV and ARG
+- Both ENV and ARG can only be expanded within Run commands
+- ENVs and ARGs used by RUN commands must precede the RUN commands that reference them
 
 LABEL --> allows to document the images by adding metadata to them. Accepts a key-value pair. The most popular LABEL in Docker image is the maintainer.
 

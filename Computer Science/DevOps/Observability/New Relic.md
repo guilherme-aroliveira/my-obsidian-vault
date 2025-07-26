@@ -67,6 +67,8 @@ users can filter teh service map by health statud, entity type or relation depth
 As entering further at the network of entities, new relic will only display entities that are displaying issues. 
 
 Distributed tracing --> tracks and observers sercies requests and transaatciosn as they flow trhow distribute systems. request can pass to vary inf areas to a service to reach completion. and when you can see the path other reeuqets across diferentes sercice you can easily pin point failura and perofrmance issues.
+It shows the path a request take across muliple services
+
 
 Grouoping entities in New Relci can be done by using Tags wich are key value pairs added to monitor entities, or to doashbold or workloads. It can be used as filters, when searching for an entity, or dashboard or workloads in the All entity page. Example: `team=ecommerce`.
 

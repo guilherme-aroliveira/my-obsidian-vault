@@ -176,7 +176,7 @@
             }
           }
         ],
-        "currentTab": 10
+        "currentTab": 6
       }
     ],
     "direction": "vertical"
@@ -306,13 +306,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Computer Science/DevOps/Observability/New Relic.md",
+                "file": "Computer Science/DevOps/Containers/Docker.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of New Relic"
+              "title": "Outline of Docker"
             }
           },
           {
@@ -349,16 +349,19 @@
       "vscode-editor:Create Code File": false
     }
   },
-  "active": "1fb9e9b7e87dff73",
+  "active": "5eb5605f8644a8ed",
   "lastOpenFiles": [
-    "Computer Science/DevOps/Containers/Docker.md",
-    "Computer Science/DevOps/Containers/Orchestration/Docker Swarm.md",
     "Computer Science/DevOps/IaC/Terraform.md",
+    "Computer Science/DevOps/Containers/Docker.md",
+    "Computer Science/DevOps/Containers/Orchestration/Kubernetes.md",
+    "Computer Science/Cloud Providers/AWS/EKS.md",
+    "Computer Science/DevOps/CI/Jenkins.md",
     "Computer Science/DevOps/Observability/New Relic.md",
     "Computer Science/DevOps.md",
     "Computer Science/Software Engineering.md",
+    "Computer Science/DevOps/CI/GitHub Actions.md",
+    "Computer Science/DevOps/Containers/Orchestration/Docker Swarm.md",
     "Computer Science/DevOps/Languages/Ruby.md",
-    "Computer Science/DevOps/CI/Jenkins.md",
     "Computer Science/DevOps/Monitoring/Prometheus.md",
     "Computer Science/DevOps/Monitoring",
     "Computer Science/DevOps/Untitled.md",
@@ -368,7 +371,6 @@
     "Computer Science/Programming/Python.md",
     "Computer Science/DevOps/Languages",
     "Computer Science/DevOps/Observability",
-    "Computer Science/DevOps/Containers/Orchestration/Kubernetes.md",
     "Computer Science/Cloud Providers/AWS/Lambda.md",
     "Computer Science/DevOps/IaC/Ansible.md",
     "Information Security/Cyber Security.md",
@@ -379,8 +381,6 @@
     "Computer Science/DevOps/SysAdmin/Nginx.md",
     "Computer Science/DevOps/Tools/Git.md",
     "Computer Science/DevOps/Containers/Orchestration/Openshift.md",
-    "Computer Science/DevOps/Containers/Docker Compose.md",
-    "Computer Science/Cloud Providers/AWS/EKS.md",
     "Computer Science/Cloud Providers/Azure",
     "Computer Science/DevOps/Tools",
     "Computer Science/DevOps/Containers/Orchestration",
