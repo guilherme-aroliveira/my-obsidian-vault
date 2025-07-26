@@ -351,8 +351,8 @@
   },
   "active": "5eb5605f8644a8ed",
   "lastOpenFiles": [
-    "Computer Science/DevOps/IaC/Terraform.md",
     "Computer Science/DevOps/Containers/Docker.md",
+    "Computer Science/DevOps/IaC/Terraform.md",
     "Computer Science/DevOps/Containers/Orchestration/Kubernetes.md",
     "Computer Science/Cloud Providers/AWS/EKS.md",
     "Computer Science/DevOps/CI/Jenkins.md",
