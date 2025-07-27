@@ -2,6 +2,12 @@ Available since 2013, Docker is an open platform (engine) written in Go, that al
 
 Docker isolates applications from infrastructure, including the hardware, operating systems and the container runtime. It uses the namespaces technology to provide an isolated workspace called "container" (containers are isolated from each other).
 
+In container runtime, namespaces can be used to resrct what apps can do by adding or removing Linux capabilitires from it.
+
+capabilities -- linux kernel feature to restrict the set of system calls processes within the namespace can make. 
+groups of privileges that can be bestowed onto applications 
+allows apps to receive or not admin powers
+
 Docker creates a set of namespaces for every container and each aspect runs in a separate namespace with access limited to that namespace.
 
 >[!info]
@@ -33,6 +39,21 @@ To limit memory usage:
 
 ```shell
 docker run --memory=100m ubuntu
+```
+
+docker does not shows debug level jobs by default.
+
+enable debug logging:
+in docker desktop
+`docker run -it --rm --privileged --pid=host guilhermeoliveira` to enter the terminal
+
+sudo sh -c 'echo "{\"debug\": true}" > /etc/docker/daemon.json'
+sudo service docker restart
+
+To debug docker in real-time:
+
+```shell
+sudo journalctl -f -u docker
 ```
 
 Docker requires that virtualization to be enabled in the Bios, <span style="color: #d65d0e">VT-X</span> or <span style="color: #d65d0e">AMD-V</span>.
@@ -113,6 +134,8 @@ The two main Docker components, Client and Server (host), communicate via socket
 UCP include centralized policy management for all containers centralized role-based access control, user management, application cluster management and the ability to organize the container as services and stacks.
 
 DTR is an on-site, on-premises registry for centralized storage for all the containers images. It can also include secure image scanning and continuous monitoring of the images in the registry.
+
+Leases are used within Container D to manage how the image used within the Docker daemon.
 ###### <span style="color:#98971a">Container</span>
 
 A Docker container is a runnable instance of an image, it encapsulates everything an application needs to run. It can be created, stopped, started or deleted using the Docker API or the Docker CLI.
@@ -161,6 +184,37 @@ To <strong style="color: #b16286">use a non-root user</strong> to run a containe
 ```shell
 docker run --rm -it --user raziel image:v1.0.1
 ```
+
+docker container have a minimal default set of capabilities. but container's capabilities can be changed with the `docker run` command.
+
+create a container that creates a file and changes its ownership 
+
+`docker run --entrypoint sh --rm alpine -c 'touch .tmp/file && chown 1001:1001 /tmp/file && echi "Fiel permission changed" ' `
+
+disable the capability from the container 
+
+`docker run --entrypoint sh --cap-drop --rm alpine -c 'touch .tmp/file && chown 1001:1001 /tmp/file && echi "Fiel permission changed" ' `
+
+`--cap-drop` --> informs docker to remove a capability from a container
+
+The capability that allows to change file ownership is called `CAP_CHOWN`. 
+
+To add a capability: `--cap-add`
+
+container can be assigned with multiple capabilities
+
+`docker run --entrypoint sh --cap-add CHOWN --cap-add CAP_LEASE --rm alpine -c 'touch .tmp/file && chown 1001:1001 /tmp/file && echi "Fiel permission changed"' `
+
+to inform docker to add or remove all capabilities for a container. `cap-add` takes prececdence over `cap-drop`. use cap-drop all and then add capabilities back with cap-add
+
+`docker run --entrypoint sh --cap-add CHOWN --cap-drop ALL --rm alpine -c 'touch .tmp/file && chown 1001:1001 /tmp/file && echi "Fiel permission changed"' `
+
+to give contaier direct access to specied devices on the system:
+
+`docker run --device` mostly useful if a container needs to use USB devices or GPU cards without granting it a full suite of other privileges.
+
+`--privileged` this flag tell docker to treat a container as if it's a ral process in teh system 
+
 ###### <span style="color:#98971a">Image</span>
 
 A Docker image is a read-only template/blueprint with instructions for creating Docker container. Multiple containers can be created based on the same image.
@@ -179,6 +233,12 @@ Each <span style="color: #d65d0e">layer</span> is only a set of differences from
 All changes made to the running container, are written to the container layer. But the files won't be persistent after the container is deleted. To write data in the writable layer of the container, Docker uses <span style="color: #d65d0e">storage drivers</span>.
 
 Docker uses storage drivers to enable layered architecture. Some of the common storage drivers are: AUFS, ZFS, BTRFS, Device Mapper, Overlay, Overlay2. The selection of the storage driver depends on the underlying OS.
+
+storage drivers define how layers are stored on disk and represented to containers. In other words, storage drivers are responsible for decompressing layers into a directory structure, and presenting them to a container as a fake route directory. 
+
+Some container run times refer to storage drivers as graph drivers or snapchatters.
+
+overlway2 is the most popular storage driver. 
 
 >[!info]
 >Docker will choose the best storage driver available automatically based on the operating system.
