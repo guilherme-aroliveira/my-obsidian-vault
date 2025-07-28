@@ -2,11 +2,9 @@ Available since 2013, Docker is an open platform (engine) written in Go, that al
 
 Docker isolates applications from infrastructure, including the hardware, operating systems and the container runtime. It uses the namespaces technology to provide an isolated workspace called "container" (containers are isolated from each other).
 
-In container runtime, namespaces can be used to resrct what apps can do by adding or removing Linux capabilitires from it.
+In container runtime, namespaces can be used to restrict what apps can do by adding or removing Linux capabilities from it.
 
-capabilities -- linux kernel feature to restrict the set of system calls processes within the namespace can make. 
-groups of privileges that can be bestowed onto applications 
-allows apps to receive or not admin powers
+Capabilities is a linux kernel feature that allows for fine-grained control over the privileges granted to processes and executable files. It allows applications to receive or not admin powers.
 
 Docker creates a set of namespaces for every container and each aspect runs in a separate namespace with access limited to that namespace.
 
@@ -24,38 +22,6 @@ Docker uses <span style="color: #d65d0e">cgroups</span> (control groups) to:
 2. Monitor and restrict network and disk bandwidth
 3. Monitor and restrict memory consumption (more common)
 
->[!info]
->The usage of Control Groups makes easier to prevent busier, or larger containers from eating up all the system's resources and slowing other container down without having to carve up significant amount of memory like virtual machine do.
-
-Obs: Control Group can not be used to assign dick quotas to containers.
-
-To limit CPU usage:
-
-```shell
-docker run --cpus=.5 ubuntu
-```
-
-To limit memory usage:
-
-```shell
-docker run --memory=100m ubuntu
-```
-
-docker does not shows debug level jobs by default.
-
-enable debug logging:
-in docker desktop
-`docker run -it --rm --privileged --pid=host guilhermeoliveira` to enter the terminal
-
-sudo sh -c 'echo "{\"debug\": true}" > /etc/docker/daemon.json'
-sudo service docker restart
-
-To debug docker in real-time:
-
-```shell
-sudo journalctl -f -u docker
-```
-
 Docker requires that virtualization to be enabled in the Bios, <span style="color: #d65d0e">VT-X</span> or <span style="color: #d65d0e">AMD-V</span>.
 
 >[!note]
@@ -69,7 +35,51 @@ Docker requires that virtualization to be enabled in the Bios, <span style="colo
 <strong style="color: white">Limitations:</strong>
 - Native only runs on Linux
 - Container images are bound to their parent operating systems (tied to the Kernel)
+###### <span style="color:#98971a">Logging</span>
 
+docker does not shows debug level jobs by default.
+
+To return a full log of a container
+
+```shell
+grep -i docker /var/log/syslog
+```
+
+To change de default logging driver
+
+```shell
+sudo sh -c 'echo "{\"debug\": true}" > /etc/docker/daemon.json'
+```
+
+enable debug logging:
+in docker desktop
+`docker run -it --rm --privileged --pid=host guilhermeoliveira` to enter the terminal
+
+sudo service docker restart
+
+To debug docker in real-time:
+
+```shell
+sudo journalctl -f -u docker
+```
+###### <span style="color:#98971a">Control Groups</span>
+
+>[!info]
+>The usage of Control Groups makes easier to prevent busier, or larger containers from eating up all the system's resources and slowing other container down without having to carve up significant amount of memory like virtual machine do.
+
+To limit CPU usage:
+
+```shell
+docker run --cpus=.5 ubuntu
+```
+
+To limit memory usage:
+
+```shell
+docker run --memory=100m ubuntu
+```
+###### <span style="color:#98971a">Portainer</span>
+ 
 The <span style="color:#98971a">portainer</span> is a tool that allows to view and manage in the browser all docker containers. To use it just run it as a docker container, by default it runs on port 9443.
 
 >[!example] Example - portainer
@@ -133,6 +143,8 @@ UCP include centralized policy management for all containers centralized role-ba
 DTR is an on-site, on-premises registry for centralized storage for all the containers images. It can also include secure image scanning and continuous monitoring of the images in the registry.
 
 Leases are used within Container D to manage how the image used within the Docker daemon.
+
+Docker stores all its data by default on this location: `/var/lib/docker`
 ###### <span style="color:#98971a">Container</span>
 
 A Docker container is a runnable instance of an image, it encapsulates everything an application needs to run. It can be created, stopped, started or deleted using the Docker API or the Docker CLI.
@@ -421,9 +433,22 @@ Docker also supports these alternative drivers - though you will use the "bridge
 - **Third-party plugins**: You can install third-party plugins which then may add all kinds of behaviors and functionalities
 ###### <span style="color:#98971a">Storage</span>
 
+Volumes allows to safely handle data coming into and out of containers.
+
+The file systems represented to containers are actually unified sets of folders behind the scenes. Volumes works similarly, when a volume is mounted into a container, Docker maps a folder into a mount point within the container. 
+
+Volumes present folders, shares, or block devices to container through volume drives. Volume drivers define how volumes are created and managed by containers.
+
+Docker uses the local volume driver by default. The local driver simply creates a directory within Docker system directory, and mounts it in the container like a virtual disk or sorts.
+
+>[!info]
+>The local driver supports NFS, CIFS, and block devices. Volumes drivers can be installed to create many different kinds of volumes.
+
 A volume is a directory on the host machine that is accessible to a container. When a Docker volume is used, the data inside it is not stored in the container's file system, but in the host machine's file system --> the data in a volume persists even if the container is deleted or recreated.
 
-A volume and be created using the `docker volume create` command.
+Volumes are a good option for persisting data across different container. Volumes can be used to store data from a database outside the container. A container can write data into a volume and read data from it.
+
+Volumes are created using the `docker volume create` command. And the driver can be changed with the `-d` option. The `-o` flag specifies additional configuration options to the volume driver.
 
 >[!example] Example - docker volume
 >```shell
@@ -431,33 +456,41 @@ A volume and be created using the `docker volume create` command.
 >```
 >Obs: creates a folder called d_volume under the `/var/lib/docker/volumes` directory.
 
-To list all available volumes:
+volume mounting --> feature allows Docker to map a folder from the host machine to a folder in the container. 
 
-```shell
-docker volumes ls
-```
+To mount a volume to a container:
+- Short way --> `docker run --volume` or `docker run -v`
+- Long way --> `docker run --mount`
 
-To inspect a volume:
+mounts are useful when you need to share code or configurations files between the host machine and the container during development or testing.
 
-```shell
-docker volumes inspect [volume_name]
-```
+The `--mount` allows to specify exactly how Docker should mount the volume. it does so by accepting five key values pairs separated by commas. 
 
-To attach a volume to a container, use the `-v` or `--volume` option:
+>[!example] Volumes - long way
+>```shell
+>docker run --mount "type=TYPE, source=DIR, destination=dir, readonly, volume-opt"
+>```
+>Example
+>```shell
+>docker run -i -t --rm --mount 'type,source=test,destination=/test' alpine
+>```
+>type --> specifies the type of volume. Docker supports 3 types: bind, tnpfs, and volume.
+source --> specifies the name of the volume that is being mounted into the container.
+destination --> the folder within the container to mount the volume 
+readonly --> marks a volume as read only
+volume-opt --> options to provide the volume driver with
 
-```shell
-docker run --rm -v [/host_path]:[/container_path]
-```
+>[!info]
+>The `volume-opt` key can be specified more than once, and the values provided can vary from driver to driver. The values: `type`, `source`, and `destinaion` are mandatory when using mouny. 
 
-Volumes are a good option for persisting data across different container. Volumes can be used to store data from a database outside the container.
+The `-v` option takes three arguments separated by colons. The name of the value, or source, the folder into which the volume will be mounted within the container, or the destination, and the ro/readonly and volume-opt options.
 
-While volume and bind mount can be used to share data between the host machine and a container, they work differently and have different use cases.
-
-Unlike Docker volume, the data inside a bind mount is not stored outside the container. If the container is removed, the data will be lost.
-
-volume mounting --> feature allows Docker to map a folder from the host machine to a folder in the container. This can be done by using the `--volume` or `-v` option.
-
->[!example] Example - volume mounting
+>[!example] Volumes - short way
+>```shell
+>docker run --rm -v "source:destination:[ro]"
+>```
+>The `-v` form is used to mount volumes as it is much easier to write.
+>
 >Example 1
 >```shell
 >docker run --rm --entrypoint sh -v /tmp/container:/tmp ubuntu -c "echo 'Hello World.' > /tmp/file && cat /tmp/file"
@@ -467,12 +500,25 @@ volume mounting --> feature allows Docker to map a folder from the host machine 
 >docker run --name website -v $PWD/Documents/website:/usr/share/nginx/html -p 8080:80 --rm nginx
 >```
 
+To list all available volumes:
+
+```shell
+docker volume ls
+```
+
+To inspect a volume:
+
+```shell
+docker volume inspect [volume_name]
+```
+
+While volume and bind mount can be used to share data between the host machine and a container, they work differently and have different use cases.
+
+Unlike Docker volume, the data inside a bind mount is not stored outside the container. If the container is removed, the data will be lost.
+
 Docker uses volumes and bind mounts to persist data even after a container stops
 built int feature, 
 it helps with persistent data 
-
-values are folders on the host machine hard drive with are mounted ("mapped") into containers. values persist if a container shuts down. If a container (re)-stars and mounts a volume, anu data inside of the volume is available in the container. 
-A container can write data into a volume and read data from it.
 
 A defined path in the container is mapped to the create volume / mount.
 
@@ -485,8 +531,6 @@ with the `--rm` option container are remove automatically when a container is re
 
 docker sets ups a folder / path on the host machine, the exact location in unknown to the user. and it's managed by the `docker volumes` command. 
 
-Docker stores all its data by default on this location: `/var/lib/docker`
-
 To persist data, it's necessary to mount a volume or map a directory outside the container on the docker host or host to a directory inside the container.
 
 `docker run -v /app/data/ ...` --> creates an anonymous volume
@@ -494,15 +538,6 @@ To persist data, it's necessary to mount a volume or map a directory outside the
 `docker rum -v /path/to/code:/app/code ...` --> creates a bind mount
 
 `docker volume rm VOL_NAME` or `docker volume prune` to remove **unused anonymous volumes**
-
->[!example] mount volume
->```shell
-># volume mouting
->docker run -v data_volume:/var/lib/mysql myql
->```
->A new container is created and mount the data volume into the /lib/mysql folder inside the container. All the data will now be stored in the external volume, and will remain even if the Docker container is deleted.
->
->The <code style="color:#689d6a">-v</code> option on the <code>docker run</code> command, Docker will automatically create a volume automatically.
 
 The are two types of mounts:
 - <span style="color:#98971a">volume mounting</span> <span style="color: #3588E9">--></span>  mounts a volume from the volumes directory
@@ -512,16 +547,6 @@ The are two types of mounts:
 >```shell
 >docker run -v /data/mysql:var/lib/mysql mysql
 >```
-
->[!example] --mount option
->```shell
->docker run -it -d -p 5000:5000 --mount type=bind,source="${PWD}/test",target=/app/test big-star-collection:v2
->```
->The source is the location on the host and the target is the location on the container.
-
-mounts are useful when you need to share code or configurations files between the host machine and the container during development or testing.
-
-with the `--mount` flag if a directory specified does not exist on the host, it will return an error, but `-v` flag will create it.
 
 We use this bind Mount during development to reflect changes in our code, into running container instantly. Because if the container is running in production on a server, there is no connected source code, which updates while it's running.
 
