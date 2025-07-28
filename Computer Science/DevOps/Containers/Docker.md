@@ -13,7 +13,7 @@ Docker creates a set of namespaces for every container and each aspect runs in a
 >[!info]
 ><span style="color: #d65d0e">namespaces</span> is a <strong>feature of the Linux kernel</strong> that allows to provide complete network isolation to different processes on the system. It's similar in concept to what a <span style="color: #d65d0e">Hypervisor</span> does to provide the virtual resources to the Virtual Machine.
 
-Namespaces keep containers isolated until docker administrator allows containers to communicate over docker virtual network on the same host. 
+Namespaces keep containers isolated until docker administrator allows containers to communicate over docker virtual network on the same host. It specifies the resources that containers can see or access on a system.
 
 The processes running inside the container are in fact processes running on the underlying host. With process ID namespaces, each process can have multiple process IDs associated with it.
 
@@ -101,9 +101,6 @@ To use Docker CLI to work with remote docker engine, simply use `-h` option on t
 Obs: the <span style="color:#98971a">docker daemon</span> can also communicate with other daemons to manage Docker services.
 
 The Docker engine uses namespaces to isolate what's happening in a  running container from the Operating System that hey are running. With namespaces, the Kernel resources, such as process ID, users ID, network, storage, can all be virtualized and share between the host Operating System and the container running on top of it.
-
->[!note]
->Namespace is similar in concept to what a hypervisor does to provide virtual machine to the VM. They keep containers isolated until docker administrator allows containers to communicate over docker virtual network on the same host. 
 ##### <span style="color: #689d6a">Docker Architecture</span>
 
 Docker is based on client-server architecture which provides a complete application environment. Docker components includes the client, the host, and the registry.
@@ -213,8 +210,11 @@ to give contaier direct access to specied devices on the system:
 
 `docker run --device` mostly useful if a container needs to use USB devices or GPU cards without granting it a full suite of other privileges.
 
-`--privileged` this flag tell docker to treat a container as if it's a ral process in teh system 
+`--privileged` this flag tell docker to treat a container as if it's a real process in the system. It can do everything and access anything.
 
+`docker run --entrypoint sh -it --privileged alpine`
+
+run docker in rootless mode, configures the docker engine so that it runs as a user other than root, this allows container to become root without being able to become root on the system.
 ###### <span style="color:#98971a">Image</span>
 
 A Docker image is a read-only template/blueprint with instructions for creating Docker container. Multiple containers can be created based on the same image.
@@ -353,6 +353,10 @@ To run the container from the private registry:
 docker run -d -p 5000:5000 --name registry registry:2
 ```
 ###### <span style="color:#98971a">Network</span>
+
+Almost every container engine's networking model is based on plug-ins. These plug-ins describe how these packets get routed to containers. Some plug-ins will sen thse packates to containers trhough  virtual newtwork card in the local machine. Other plug-ins mitgh give container "real network cards" that work with the network card on the local machine to receive packtrs appropirately.
+
+Every container uses the bridge docker network by default. It connect docker containers to a virtual bridhe network insalled on the host machine. 
 
 Docker provides the ability to access network port within the container with port binding --> feature that allows to take a port of the host machine and map to a port within the container. 
 
@@ -1244,6 +1248,62 @@ Stages can also be used as many times as is necessary. Each stage descends from 
 - Produces significantly smaller final images
 - Can be much faster than builder pattern while being less fragile
 - Can produce extremely secure images by discarding unnecessary dependencies. 
+##### <span style="color: #689d6a">Docker in Docker</span>
+
+if the app needs to interact wit hthe Docker engine itslef 
+running containerized test suites
+creating or managing containers fro mtithin containerized apps
+emulating entire platforms as contaienrs
+
+Docker in docker ins managing container created by Docker within a docker container 
+
+two ways to create a container that will create other containers:
+ - install Docker engine within the container 
+    issues: cgroup mounting
+			- overlay filesystem incompatibilities
+			- containers inscessible outside of parent container 
+ - mount Docker's UNIX docket on the contaner to a file whitin a container and isntall just a Docker client
+ 
+ configurahe containe to communicate with the exixtign DOcker engine and create containers from it. this is done by mouting 
+ the UNIX socket use by teh DOcker eingine to the container --> it will create contianer directly from wheve the Docker engine is running.
+ 
+To do pure Docker "in" Docker, is best to do with sysbox
+sysbox is container runtime that makes it realyy easy to run Docker whithin Docker.
+it does this through a special runtime that hanldes all of the details of creating
+and managing contaienr within a container.
+
+Create the container 
+docker run --rm -v /var/run/docker.sock:/var/run/docker.sock --entrypoint bash -i -t my-image
+
+Check the communication with docker engine
+curl --unix-socket /var/run/docker.sock http://anything/containers/json
+
+install docker client
+curl -L get.docker.io | bash
+
+create a new container
+docker run --rm my-image
+
+limitations
+ One disadvantage of this approach is that we can see other containers, volumes, networks and other resources managed by the Docker engine we're sharing. We can also use those resources from within this container.
+ 
+ However, the much bigger limitation that you'll run into more often is with mounted volumes
+ 
+ Docker assumes that any file that is bind mounted that doesn't exist on the host gets created as a directory on the host because we're sharing the Docker engine's Unix socket with this container, it's using the context of the machine that's running the Docker engine, not the context of our container.
+ 
+ the workarond docker volumes
+ 
+ create the volume
+  docker volume create temp
+ 
+ create child container 
+  docker container create -v temp:/tmp alpine
+ 
+ copy the directory /app into the volume
+	docker cp /app ID:/tmp/app
+	
+ start the child container
+	docker run --rm -it -v temp:/tmp alpine
 ##### <span style="color: #689d6a">Docker Compose</span>
 
 Docker compose is a tool for defining and running multi-container Docker applications. It allows to define an entire stack, including services, networks, and volumes with a single configuration file and then a set of orchestration commands to start all those services.
@@ -1282,6 +1342,8 @@ Obs: It's not designed for distributed system and has no tooling for containers 
 
 Normal Workflow:
 - Dockerfile ---> Docker Build Command ---> Docker Image
+
+
 ###### <span style="color:#98971a">Compose Commands</span>
 
 To build the services:
