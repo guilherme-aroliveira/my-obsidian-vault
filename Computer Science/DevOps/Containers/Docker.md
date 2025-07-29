@@ -446,7 +446,7 @@ Docker uses the local volume driver by default. The local driver simply creates 
 
 A volume is a directory on the host machine that is accessible to a container. When a Docker volume is used, the data inside it is not stored in the container's file system, but in the host machine's file system --> the data in a volume persists even if the container is deleted or recreated.
 
-Volumes are a good option for persisting data across different container. Volumes can be used to store data from a database outside the container. A container can write data into a volume and read data from it.
+Volumes are a good option for persisting data across different container. Volumes can be used to store data from a database outside the container. A container can write data into a volume and read data from it. by default volumes are read write, --> the container is able to read data from there and write data to them.
 
 Volumes are created using the `docker volume create` command. And the driver can be changed with the `-d` option. The `-o` flag specifies additional configuration options to the volume driver.
 
@@ -475,10 +475,14 @@ The `--mount` allows to specify exactly how Docker should mount the volume. it d
 >docker run -i -t --rm --mount 'type,source=test,destination=/test' alpine
 >```
 >type --> specifies the type of volume. Docker supports 3 types: bind, tnpfs, and volume.
-source --> specifies the name of the volume that is being mounted into the container.
-destination --> the folder within the container to mount the volume 
-readonly --> marks a volume as read only
-volume-opt --> options to provide the volume driver with
+>
+>source --> specifies the name of the volume that is being mounted into the container.
+>
+>destination --> the folder within the container to mount the volume 
+>
+>readonly --> marks a volume as read only
+>
+>volume-opt --> options to provide the volume driver with
 
 >[!info]
 >The `volume-opt` key can be specified more than once, and the values provided can vary from driver to driver. The values: `type`, `source`, and `destinaion` are mandatory when using mouny. 
@@ -512,6 +516,34 @@ To inspect a volume:
 docker volume inspect [volume_name]
 ```
 
+Another way to persist data in Docker is by using bind mounts, which map directories on the host machine (any location) to directories in a container. It's good for persistent and editable data.
+
+Bind Mount Uses Cases
+- Hot reloading an application within a container while changing code from outside of it
+- Backing up and restoring Docker volumes
+- Faster one-off containers (from con jobs or other scheduled tasks)
+
+Just like regular volumes, bind mount can be in the long way or short way, with `docker run --mount` or `docker run -v`.
+
+>[!example] Bind mount - long way
+>```shell
+>docker run --mount "type=bind, source=DIR, destination=dir, readonly, [advanced]" ...
+>```
+>type: will always be bind
+>source: directory on the computer to mount
+>destination: directory within the container to map source directory to
+>
+
+Bind mounts accept two advanced configuration parameters: `bind-propagation` and `selinux-label`.
+- bind-propagation: configures how sub-mount are presented
+- selinux-label: configures whether mount can be shared with other containers
+
+>[!example] Bind mount - short way
+>```shell
+>docker run -v "source:destination:[ro]" ...
+>```
+>On some systems `source` might need to be an absolute directory (full path). Destination will be created as a directory if it doesn't exist!
+
 While volume and bind mount can be used to share data between the host machine and a container, they work differently and have different use cases.
 
 Unlike Docker volume, the data inside a bind mount is not stored outside the container. If the container is removed, the data will be lost.
@@ -529,10 +561,6 @@ volumes --> managed by docker
 anonymous volumes are **removed automatically**, when a container is removed
 with the `--rm` option container are remove automatically when a container is removed. If you start a container **without that option**, the anonymous volume would **NOT be removed ** even if you remove the container (with `docker rm ...`).
 
-docker sets ups a folder / path on the host machine, the exact location in unknown to the user. and it's managed by the `docker volumes` command. 
-
-To persist data, it's necessary to mount a volume or map a directory outside the container on the docker host or host to a directory inside the container.
-
 `docker run -v /app/data/ ...` --> creates an anonymous volume
 `docker run -v data:/app/data ...` --> creates a named volume
 `docker rum -v /path/to/code:/app/code ...` --> creates a bind mount
@@ -541,7 +569,7 @@ To persist data, it's necessary to mount a volume or map a directory outside the
 
 The are two types of mounts:
 - <span style="color:#98971a">volume mounting</span> <span style="color: #3588E9">--></span>  mounts a volume from the volumes directory
-- <span style="color:#98971a">bind mounting</span> <span style="color: #3588E9">--></span> mounts a directory from any location on the Docker host (host machine) . good for persistent, editable data.
+- <span style="color:#98971a">bind mounting</span> <span style="color: #3588E9">--></span> mounts a directory from any location on the Docker host (host machine) . 
 
 >[!example] bind mount
 >```shell
@@ -555,18 +583,9 @@ bind mount:
 
 `-v $(pwd):/app`
 
-by default volumes are read write, --> the container is able to read data from there and write data to them.
-
 to ensures that docker will now not be able to write into this folder or any of its sub-folders.
 
 `docker run -d -p 3000:80 --rm --name feedback-app -v feedback:app/feedback -v "home/user/guilherme/dev:/app:ro" -v feddback-note:volumes`
-
-How can I get my web server to access the database on the database container?
-
-The right way to do it is to use the container name. All containers in a docker host can resolve each other with the name of the container. Docker has a built in DNS server that helps the containers to resolve each other using the container name.
-
-How were the containers isolated within the host?
-Docker uses network namespaces that creates a separate namespace for each container. It then uses virtual Ethernet pairs to connect containers together.
 
 Obs: Bind mount shouldn't be used in Production!
 
