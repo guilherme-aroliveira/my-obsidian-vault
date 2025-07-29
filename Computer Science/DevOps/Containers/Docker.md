@@ -2,6 +2,8 @@ Available since 2013, Docker is an open platform (engine) written in Go, that al
 
 Docker isolates applications from infrastructure, including the hardware, operating systems and the container runtime. It uses the namespaces technology to provide an isolated workspace called "container" (containers are isolated from each other).
 
+In container runtime, containers are compose of namespaces and control groups. Namespaces specify the resources that containers can see or access on a system. Whereas control groups specify how much of those resources containers can consume.
+
 In container runtime, namespaces can be used to restrict what apps can do by adding or removing Linux capabilities from it.
 
 Capabilities is a linux kernel feature that allows for fine-grained control over the privileges granted to processes and executable files. It allows applications to receive or not admin powers.
@@ -64,8 +66,9 @@ sudo journalctl -f -u docker
 ```
 ###### <span style="color:#98971a">Control Groups</span>
 
->[!info]
->The usage of Control Groups makes easier to prevent busier, or larger containers from eating up all the system's resources and slowing other container down without having to carve up significant amount of memory like virtual machine do.
+The usage of Control Groups makes easier to prevent busier, or larger containers from eating up all the system's resources and slowing other container down without having to carve up significant amount of memory like virtual machine do.
+
+
 
 To limit CPU usage:
 
