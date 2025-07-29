@@ -495,13 +495,9 @@ The `-v` option takes three arguments separated by colons. The name of the value
 >```
 >The `-v` form is used to mount volumes as it is much easier to write.
 >
->Example 1
+>Example
 >```shell
->docker run --rm --entrypoint sh -v /tmp/container:/tmp ubuntu -c "echo 'Hello World.' > /tmp/file && cat /tmp/file"
->```
->Example 2
->```shell
->docker run --name website -v $PWD/Documents/website:/usr/share/nginx/html -p 8080:80 --rm nginx
+>docker run --rm -v super-dir:/app alpine
 >```
 
 To list all available volumes:
@@ -514,6 +510,18 @@ To inspect a volume:
 
 ```shell
 docker volume inspect [volume_name]
+```
+
+To remove a volume:
+
+```shell
+docker volume rm [volume_name] # or docker volume prune
+```
+
+To remove all volumes:
+
+```shell
+docker system prune --volumes -f
 ```
 
 Another way to persist data in Docker is by using bind mounts, which map directories on the host machine (any location) to directories in a container. It's good for persistent and editable data.
@@ -543,14 +551,49 @@ Bind mounts accept two advanced configuration parameters: `bind-propagation` and
 >docker run -v "source:destination:[ro]" ...
 >```
 >On some systems `source` might need to be an absolute directory (full path). Destination will be created as a directory if it doesn't exist!
+>
+>Example
+>```shell
+>docker run --rm -v $PWD/stuff:/stuff alpine
+>```
+>There are two way to deal with the absolute path: use the `$PWD` or use the tool realpath.
+
+To ensure that docker will now not be able to write into the folder or any of its sub-folders.
+
+```shell
+docker run -d -p 3000:80 --rm --name feedback-app -v feedback:app/feedback -v "home/user/guilherme/dev:/app:ro" -v feddback-note:volumes
+```
+
+To backup the volume:
+
+>[!example] Volume - backup
+>```shell
+>docker run --rm -v $PWD:/target -v dir-important:/backup alpine tar cvzf /target/backup.tar -C /backup .
+>```
+>The first `-v` bind mount the current directory inside the container, and the second `-v` mount the volume to backup.
+
+After creating the `.tar` compressed file it's important to confirm the backups. The best way is to extract the file and compose a file check sums, to ensure that the data hasn't been modified or corrupted.
+
+To restore the backup:
+
+>[!example] Volume - restore
+>```shell
+>docker volume create dir-restore
+>
+>docker run --rm -v $PWD:/target -v dir-restore:/restore alpine tar xvf /target/backup.tar -C /restore .
+>
+># Confirm the restore 
+>docker run --rm -v dir-restore:/restore alpine cat /restore/README
+>```
 
 While volume and bind mount can be used to share data between the host machine and a container, they work differently and have different use cases.
 
-Unlike Docker volume, the data inside a bind mount is not stored outside the container. If the container is removed, the data will be lost.
+We use this bind Mount during development to reflect changes in our code, into running container instantly. Because if the container is running in production on a server, there is no connected source code, which updates while it's running.
 
-Docker uses volumes and bind mounts to persist data even after a container stops
-built int feature, 
-it helps with persistent data 
+When working with large file bind mount is slower, 
+if docker is running on linux of the app isn't very data intensive, bind mount are great, otherwise it's recommended copying data into volumes or rebuilding the container image on save.
+
+Unlike Docker volume, the data inside a bind mount is not stored outside the container. If the container is removed, the data will be lost.
 
 A defined path in the container is mapped to the create volume / mount.
 
@@ -565,32 +608,9 @@ with the `--rm` option container are remove automatically when a container is re
 `docker run -v data:/app/data ...` --> creates a named volume
 `docker rum -v /path/to/code:/app/code ...` --> creates a bind mount
 
-`docker volume rm VOL_NAME` or `docker volume prune` to remove **unused anonymous volumes**
+To meet a compliance requirement, you are being asked to store folders created for local volumes in /opt/third-party/docker/volumes. Docker volumes must not live at /var/lib/docker/volumes. Which of these solutions will enable Docker to do this?
 
-The are two types of mounts:
-- <span style="color:#98971a">volume mounting</span> <span style="color: #3588E9">--></span>  mounts a volume from the volumes directory
-- <span style="color:#98971a">bind mounting</span> <span style="color: #3588E9">--></span> mounts a directory from any location on the Docker host (host machine) . 
-
->[!example] bind mount
->```shell
->docker run -v /data/mysql:var/lib/mysql mysql
->```
-
-We use this bind Mount during development to reflect changes in our code, into running container instantly. Because if the container is running in production on a server, there is no connected source code, which updates while it's running.
-
-bind mount:
-`docker run -d -p 3000:80 --rm --name feedback-app -v feedback:app/feedback -v "home/user/guilherme/dev:/app" -v feddback-note:volumes`
-
-`-v $(pwd):/app`
-
-to ensures that docker will now not be able to write into this folder or any of its sub-folders.
-
-`docker run -d -p 3000:80 --rm --name feedback-app -v feedback:app/feedback -v "home/user/guilherme/dev:/app:ro" -v feddback-note:volumes`
-
-Obs: Bind mount shouldn't be used in Production!
-
-to remove all volumes with prune:
-`docker system prune --volumes -f`
+Create a new dockerd config file, set --data-root to /opt/third-party/docker/volumes within it, then configure dockerd to use this config file with the --config flag.
 ###### <span style="color:#98971a">Multi-app images</span>
 
 use an entrypoint script that execute other program in the background, then run with `docker run --init` --> configurdd the container to run th entrypont script whithin a process supervisor called tini --> watchs every process runnign in the container and makes sure that signal are passed coreeclty to them.
