@@ -59,10 +59,63 @@ in docker desktop
 
 sudo service docker restart
 
+The logging component of systemd is called journald, and it can be used for troubleshooting purposes. 
+
 To debug docker in real-time:
 
 ```shell
 sudo journalctl -f -u docker
+```
+
+To limit the last entries:
+
+```shell
+sudo journalctl -n 25
+```
+
+To show the output without a pager:
+
+```shell
+sudo journalctl --no-pager -u docker.service -n 25
+```
+
+When an applications is running inside of a container, Docker uses logging drivers to capture data sent to streams (stdout, stderr, stdin). 
+
+Logging drivers are program that forward data sent to standard out or standard error streams to somewhere else, like a folder on the disk or an online log-aggregation platform.
+
+There are two rough which logging drivers can be configured:
+- `--log-driver` --> flag that specifies the logging driver to use
+- `--log-opts` --> flag that provides options for the logging driver.
+
+To return information about the logging driver:
+
+```shell
+docker info | grep 'Logging Driver'
+```
+
+By default, retrieving logs from containers is a blocking operation --> the container and any applications within it will pause while the logging driver retrieve the logs. 
+
+To avoid blocking operation:
+
+```shell
+--log-opts mode=nonblocking
+```
+
+>[!note]
+>The `nonblocking` mode might cause data loss if containers exceed the space they've been given for log storage.
+
+Obs: by default the default logging driver stores logs on disk. Docker uses the json-file logging driver by default.
+
+To disable logging:
+
+```shell
+docker run --name test-container --log-driver none my-image
+```
+
+To change the logging driver:
+
+```shell
+docker run --log-driver syslog --log-opt alpine
 ```
 ###### <span style="color:#98971a">Control Groups</span>
 
@@ -99,9 +152,58 @@ Docker consist of multiple tools that are grouped together like <span style="col
 
 The <span style="color: #d65d0e">Docker Engine</span> which is the <strong style="color: #d79921">heart of Docker</strong>, is comprised of runtime and packing tools, and is required to be installed on the host that runs Docker. It's <strong>designed as client-server application</strong>, and it has these components: <span style="color:#98971a">Docker CLI</span> (docker client), <span style="color:#98971a">Dockerd</span> (docker daemon), <span style="color:#98971a">REST APIs</span>.
 
-<span style="color:#98971a">Dockerd</span> <span style="color: #3588E9">--></span> it's the docker host server itself. The daemon listens for Docker API request or commands such as "docker run" and processes those commands. The daemon, is responsible for: build, run and distributes containers to the registry. Docker host includes and manages: images, containers, namespaces, networks, storage, plugins and add-on.
+The configuration options that determine how Docker behave:
+- `/var/run/docker.sock` <span style="color: #3588E9">--></span> pipe between the Docker client and Docker Engine
+- `/etc/docker/daemon.json` <span style="color: #3588E9">--></span> Docker Engine configuration (default)
+
+The Docker engine uses namespaces to isolate what's happening in a  running container from the Operating System that hey are running. 
+
+With namespaces, the Kernel resources, such as process ID, users ID, network, storage, can all be virtualized and share between the host Operating System and the container running on top of it.
+
+The <span style="color:#98971a">Dockerd</span> it's the docker host server itself. The daemon listens for Docker API request or commands such as "docker run" and processes those commands.
+
+The daemon, is responsible for: build, run and distributes containers to the registry. Docker host includes and manages: images, containers, namespaces, networks, storage, plugins and add-on.
+
+To verify the daemon:
+
+```shell
+ps -ef | grep docker
+```
+
+Obs: the <span style="color:#98971a">docker daemon</span> can also communicate with other daemons to manage Docker services.
+
+To show the <span style="color:#98971a">dockerd</span> documentation:
+
+```shell
+dockerd --help
+```
+
+Configuration options for dockerd:
+- `--config` <span style="color: #3588E9">--></span> Docker configuration file
+- `--data-root` <span style="color: #3588E9">--></span> Folder to place all Docker objects into
+- `--debug` <span style="color: #3588E9">--></span> Enables debug output in Docker Engine logs
+- `--default-runtime` <span style="color: #3588E9">--></span> Default container runtime to use
+- `--log-level` <span style="color: #3588E9">--></span> Configures the types of logs shown by Docker Engine
+- `--insecure-registry` <span style="color: #3588E9">--></span> Image registries to connect insecurely to
+- `--add-runtime` <span style="color: #3588E9">--></span> Add additional container runtimes, like crun
+
+The configurations options can be stored in a JSON file (`daemon.json`)
+
+>[!example] Example - Daemon configuration
+>```json
+>{
+>  "insecure-registry": ["my-registry:5000", "another-registry"]
+>  "log-level": "warn"
+>}
+>```
 
 <span style="color:#98971a">Docker CLI</span> <span style="color: #3588E9">--></span> send instructions/commands to the Docker host server via command line interface (CLI) or through REST APIs. The Docker CLI can be used to communicate with local and remote host. The Docker CLI and the <span style="color:#98971a">Dockerd</span> can run on the same system or connect the client to a remote docker daemon.
+
+By default the Docker client works in the root mode, to use as a normal user, the user needs to be added to the docker group.
+
+```shell
+sudo usermod -aG docker $USER
+```
 
 To use Docker CLI to work with remote docker engine, simply use `-h` option on the Docker command and specify the remote Docker engine address and a port.
 
@@ -110,10 +212,6 @@ To use Docker CLI to work with remote docker engine, simply use `-h` option on t
 >docker -H=10.123.2.1:2375 run nginx
 >```
 >`docker -H=[remote-docer-engine]:[port]`
-
-Obs: the <span style="color:#98971a">docker daemon</span> can also communicate with other daemons to manage Docker services.
-
-The Docker engine uses namespaces to isolate what's happening in a  running container from the Operating System that hey are running. With namespaces, the Kernel resources, such as process ID, users ID, network, storage, can all be virtualized and share between the host Operating System and the container running on top of it.
 ##### <span style="color: #689d6a">Docker Architecture</span>
 
 Docker is based on client-server architecture which provides a complete application environment. Docker components includes the client, the host, and the registry.
@@ -817,6 +915,14 @@ To <strong style="color: #b16286">show information</strong> about a container:
 ```shell
 docker inspect [container_name] # shows info in JSON format
 ```
+
+To <strong style="color: #b16286">format</strong> the output:
+
+```shell
+docker inspect test-container --format '{{.ID}}'
+```
+
+The use of `--format` flag when inspecting any container it's interesting, because it can be used with identifiers to minimize the information returned.  
 
 To <strong style="color: #b16286">debug</strong> a slow container:
 
