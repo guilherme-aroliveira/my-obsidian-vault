@@ -4,16 +4,16 @@ Docker isolates applications from infrastructure, including the hardware, operat
 
 In container runtime, containers are compose of namespaces and control groups. Namespaces specify the resources that containers can see or access on a system. Whereas control groups specify how much of those resources containers can consume.
 
-In container runtime, namespaces can be used to restrict what apps can do by adding or removing Linux capabilities from it.
+In container runtime, <span style="color: #d65d0e">namespaces</span> <strong style="color: #b16286">can be used to restrict what apps can do</strong> by adding or removing Linux capabilities from it.
 
-Capabilities is a linux kernel feature that allows for fine-grained control over the privileges granted to processes and executable files. It allows applications to receive or not admin powers.
+<span style="color: #d65d0e">Capabilities</span> is a <strong style="color: #d79921">Linux Kernel feature</strong> that allows for fine-grained control over the privileges granted to processes and executable files. It allows applications to receive or not admin powers.
 
 Docker creates a set of namespaces for every container and each aspect runs in a separate namespace with access limited to that namespace.
 
 >[!info]
-><span style="color: #d65d0e">namespaces</span> is a <strong>feature of the Linux kernel</strong> that allows to provide complete network isolation to different processes on the system. It's similar in concept to what a <span style="color: #d65d0e">Hypervisor</span> does to provide the virtual resources to the Virtual Machine.
+><span style="color: #d65d0e">Namespaces</span> is a <strong style="color: #d79921">feature of the Linux kernel</strong> that allows to provide complete network isolation to different processes on the system. It's similar in concept to what a <span style="color: #d65d0e">Hypervisor</span> does to provide the virtual resources to the Virtual Machine.
 
-Namespaces keep containers isolated until docker administrator allows containers to communicate over docker virtual network on the same host. It specifies the resources that containers can see or access on a system.
+<strong style="color: #b16286">Namespaces keep containers isolated</strong> until docker administrator allows containers to communicate over docker virtual network on the same host. It specifies the resources that containers can see or access on a system.
 
 The processes running inside the container are in fact processes running on the underlying host. With process ID namespaces, each process can have multiple process IDs associated with it.
 
@@ -39,63 +39,65 @@ Docker requires that virtualization to be enabled in the Bios, <span style="colo
 - Container images are bound to their parent operating systems (tied to the Kernel)
 ###### <span style="color:#98971a">Logging</span>
 
-docker does not shows debug level jobs by default.
+By default Docker does not shows debug level jobs, but that can be changed by editing the docker daemon configuration. 
 
-To return a full log of a container
-
-```shell
-grep -i docker /var/log/syslog
-```
-
-To change de default logging driver
+To <strong style="color: #b16286">enable</strong> debug:
 
 ```shell
 sudo sh -c 'echo "{\"debug\": true}" > /etc/docker/daemon.json'
 ```
 
-enable debug logging:
-in docker desktop
-`docker run -it --rm --privileged --pid=host guilhermeoliveira` to enter the terminal
+Obs: restart the service after any changes on dockerd.
 
-sudo service docker restart
+In case of Docker desktop, just type on the terminal
+
+```shell
+docker run -it --rm --privileged --pid=host guilhermeoliveira`
+```
+
+To <strong style="color: #b16286">return a full log</strong> of a container:
+
+```shell
+grep -i docker /var/log/syslog
+```
 
 The logging component of systemd is called journald, and it can be used for troubleshooting purposes. 
 
-To debug docker in real-time:
+To <strong style="color: #b16286">debug</strong> docker in real-time:
 
 ```shell
 sudo journalctl -f -u docker
 ```
 
-To limit the last entries:
+To <strong style="color: #b16286">limit</strong> the last entries:
 
 ```shell
 sudo journalctl -n 25
 ```
 
-To show the output without a pager:
+To <strong style="color: #b16286">show the output</strong> without a pager:
 
 ```shell
 sudo journalctl --no-pager -u docker.service -n 25
 ```
 
-When an applications is running inside of a container, Docker uses logging drivers to capture data sent to streams (stdout, stderr, stdin). 
+When an application is running inside of a container, Docker uses logging drivers to capture data sent to streams (stdout, stderr, stdin). 
 
-Logging drivers are program that forward data sent to standard out or standard error streams to somewhere else, like a folder on the disk or an online log-aggregation platform.
+<span style="color: #d65d0e">Logging drivers</span> are <strong style="color: #b16286">program that forward data sent to standard out or standard error streams</strong> to somewhere else, like a folder on the disk or an online log-aggregation platform.
 
-There are two rough which logging drivers can be configured:
-- `--log-driver` --> flag that specifies the logging driver to use
-- `--log-opts` --> flag that provides options for the logging driver.
+There are <strong style="color: #d79921">two ways</strong> trough which logging drivers can be configured:
+- `--log-driver` <span style="color: #3588E9">--></span> flag that specifies the logging driver to use
+- `--log-opts` <span style="color: #3588E9">--></span> flag that provides options for the logging driver.
 
-To return information about the logging driver:
+To <strong style="color: #b16286">return information</strong> about the logging driver:
 
 ```shell
 docker info | grep 'Logging Driver'
 ```
 
-By default, retrieving logs from containers is a blocking operation --> the container and any applications within it will pause while the logging driver retrieve the logs. 
+By default, retrieving logs from containers is a <strong style="color: #d79921">blocking operation</strong> <span style="color: #3588E9">--></span> the container and any applications within it will pause while the logging driver retrieve the logs. 
 
-To avoid blocking operation:
+To <strong style="color: #b16286">avoid</strong> blocking operation:
 
 ```shell
 --log-opts mode=nonblocking
@@ -104,15 +106,15 @@ To avoid blocking operation:
 >[!note]
 >The `nonblocking` mode might cause data loss if containers exceed the space they've been given for log storage.
 
-Obs: by default the default logging driver stores logs on disk. Docker uses the json-file logging driver by default.
+<strong style="color:#c6554f">Obs:</strong> by default the default logging driver stores logs on disk. Docker uses the json-file logging driver by default.
 
-To disable logging:
+To <strong style="color: #b16286">disable</strong> logging:
 
 ```shell
 docker run --name test-container --log-driver none my-image
 ```
 
-To change the logging driver:
+To <strong style="color: #b16286">change</strong> the logging driver:
 
 ```shell
 docker run --log-driver syslog --log-opt alpine
@@ -121,18 +123,33 @@ docker run --log-driver syslog --log-opt alpine
 
 The usage of Control Groups makes easier to prevent busier, or larger containers from eating up all the system's resources and slowing other container down without having to carve up significant amount of memory like virtual machine do.
 
+Control Groups allows to define rules like, this app can only use two CPUs, or this app can use no more than 128 megabytes of memory.
 
+Most popular options for settings limits:
+- `--cpus` <span style="color: #3588E9">--></span> sets maximum processor time
+- `--memory` <span style="color: #3588E9">--></span> sets maximum amount of memory (in bytes)
 
-To limit CPU usage:
+These options use the CPU and memory control groups on the host system to enforce these limits.
+
+Docker sets a default CPU period of 100 milliseconds, which is the same as setting the CPU period to 100.000, and CPU quota 140.000 in the processor.
+
+>[!info]
+>CPU control group allows the user to specify the maximum amount of processor time, a process within it can consume.
+
+The `--cpus` is a permutation of:
+- `--cpu-period` <span style="color: #3588E9">--></span> defines a period of time the operating system kernel should wait before giving the container processing time in microseconds.
+- `--cpu-quota` <span style="color: #3588E9">--></span> defines the amount of processing time a container should have across all the CPUs on the system. 
+
+To <strong style="color: #b16286">limit</strong> CPU usage:
 
 ```shell
-docker run --cpus=.5 ubuntu
+docker run --rm --cpus 1.6 ubuntu --cpu 4 --timeout 5
 ```
 
-To limit memory usage:
+To <strong style="color: #b16286">limit</strong> memory usage:
 
 ```shell
-docker run --memory=100m ubuntu
+docker run --memory 2G --rm ubuntu
 ```
 ###### <span style="color:#98971a">Portainer</span>
  
@@ -164,7 +181,7 @@ The <span style="color:#98971a">Dockerd</span> it's the docker host server itsel
 
 The daemon, is responsible for: build, run and distributes containers to the registry. Docker host includes and manages: images, containers, namespaces, networks, storage, plugins and add-on.
 
-To verify the daemon:
+To <strong style="color: #b16286">verify</strong> the daemon:
 
 ```shell
 ps -ef | grep docker
@@ -172,20 +189,20 @@ ps -ef | grep docker
 
 Obs: the <span style="color:#98971a">docker daemon</span> can also communicate with other daemons to manage Docker services.
 
-To show the <span style="color:#98971a">dockerd</span> documentation:
+To <strong style="color: #b16286">show</strong> the <span style="color:#98971a">dockerd</span> documentation:
 
 ```shell
 dockerd --help
 ```
 
-Configuration options for dockerd:
+Configuration options for <span style="color:#98971a">Dockerd</span>:
 - `--config` <span style="color: #3588E9">--></span> Docker configuration file
 - `--data-root` <span style="color: #3588E9">--></span> Folder to place all Docker objects into
 - `--debug` <span style="color: #3588E9">--></span> Enables debug output in Docker Engine logs
 - `--default-runtime` <span style="color: #3588E9">--></span> Default container runtime to use
 - `--log-level` <span style="color: #3588E9">--></span> Configures the types of logs shown by Docker Engine
 - `--insecure-registry` <span style="color: #3588E9">--></span> Image registries to connect insecurely to
-- `--add-runtime` <span style="color: #3588E9">--></span> Add additional container runtimes, like crun
+- `--add-runtime` <span style="color: #3588E9">--></span> Add additional container runtimes, like <span style="color:#98971a">crun</span>
 
 The configurations options can be stored in a JSON file (`daemon.json`)
 
@@ -197,7 +214,7 @@ The configurations options can be stored in a JSON file (`daemon.json`)
 >}
 >```
 
-<span style="color:#98971a">Docker CLI</span> <span style="color: #3588E9">--></span> send instructions/commands to the Docker host server via command line interface (CLI) or through REST APIs. The Docker CLI can be used to communicate with local and remote host. The Docker CLI and the <span style="color:#98971a">Dockerd</span> can run on the same system or connect the client to a remote docker daemon.
+The <span style="color:#98971a">docker cli</span> sends instructions/commands to the Docker host server via command line interface (CLI) or through REST APIs. The Docker CLI can be used to communicate with local and remote host. The Docker CLI and the <span style="color:#98971a">Dockerd</span> can run on the same system or connect the client to a remote docker daemon.
 
 By default the Docker client works in the root mode, to use as a normal user, the user needs to be added to the docker group.
 
@@ -207,16 +224,14 @@ sudo usermod -aG docker $USER
 
 To use Docker CLI to work with remote docker engine, simply use `-h` option on the Docker command and specify the remote Docker engine address and a port.
 
->[!example] Docker CLI
->```shell
->docker -H=10.123.2.1:2375 run nginx
->```
->`docker -H=[remote-docer-engine]:[port]`
+```shell
+docker -H=10.123.2.1:2375 run nginx
+```
 ##### <span style="color: #689d6a">Docker Architecture</span>
 
-Docker is based on client-server architecture which provides a complete application environment. Docker components includes the client, the host, and the registry.
+Docker is <strong style="color: #b16286">based on client-server architecture</strong> which provides a complete application environment. Docker components includes the client, the host, and the registry.
 
-Docker hosts are also called nodes, and they also include and manage: Images, Containers, Namespaces, Networks, Storage, Plugins and add-ons.
+<span style="color: #d65d0e">Docker hosts</span> are also called <strong style="color: #d79921">nodes</strong>, and they also include and manage: Images, Containers, Namespaces, Networks, Storage, Plugins and add-ons.
 
 Docker stores and distributes images in a <span style="color:#98971a">Registry</span> (stateless and high scalable application) <span style="color: #3588E9">--></span> the access is public or private, such as <span style="color:#98971a">Docker Hub</span> (default public registry which is cloud-based), Private (implemented for security).
 
@@ -399,6 +414,8 @@ docker image prune
 
 A <span style="color: #d65d0e">Docker repository</span> within a registry is a collection of related Docker images with the same name but different tags. Each image is stored as a tag that can refer to different variations of an image.
 
+Whenever a new image is created or an existing image is updated, it's pushed to the registry and every time anyone deploys this application, it is pulled from that registry.
+
 >[!note]
 >many companies choose to run their own registry within their own company to ensure that their data stays safe and private
 
@@ -467,52 +484,95 @@ docker run -d -p 5000:5000 --name registry registry:2
 ```
 ###### <span style="color:#98971a">Network</span>
 
-Almost every container engine's networking model is based on plug-ins. These plug-ins describe how these packets get routed to containers. Some plug-ins will sen thse packates to containers trhough  virtual newtwork card in the local machine. Other plug-ins mitgh give container "real network cards" that work with the network card on the local machine to receive packtrs appropirately.
-
-Every container uses the bridge docker network by default. It connect docker containers to a virtual bridhe network insalled on the host machine. 
-
-Docker provides the ability to access network port within the container with port binding --> feature that allows to take a port of the host machine and map to a port within the container. 
+Docker providers the ability to access network ports within the container with something called port biding --> allows Docker to take a port on the host machine, and map it to a port within the container. 
 
 To map ports for the container:
 
+>[!example] Example - port biding
+>```shell
+>docker run -d --name jenkins-server -p 8080:80 jenkins
+>```
+>`[outside:inside]` --> outside of the container, and inside of container
+>
+>`8080:80` --> the traffic on the the `8080` port of the Docker host will be routed to the `80` port inside the container
+
+Obs: The same port can't be mapped on the Docker host more than once.
+
+Almost every container engine's networking model is based on plug-ins. These plug-ins describe how these packets get routed to containers. Some plug-ins will sen thse packates to containers trhough virtual newtwork card in the local machine. Other plug-ins mitgh give container "real network cards" that work with the network card on the local machine to receive packtrs appropirately.
+
+Every container uses the bridge docker network by default. It connects docker containers to a virtual bridge network installed on the host machine. 
+
+>[!info]
+>A bridge network is a virtual network device that connects multiple networks together into a single network. Bridge networks are useful for taking traffic fro ma real network adapter and forwarding it to virtual network adapters.
+
+Bridge drivers isolate through network namespace unsharing and iptables.
+
+The network namespace allows container within it to get their very own network stack that's isolated from the network stack on the host system, including network adapters.
+
+Additionally, docker uses IP tables rules to ensure that bridges are isolated from each other.
+
+>[!note]
+>When Docker is installed, it creates three networks automatically: Bridge, None, Host. Bridge is the default network a container gets attached to.
+
+Sub command for working with networks:
+
 ```shell
-docker run -d --name my-server -p 5001:5000 my-server
+docker network
 ```
 
+To create an internal network:
 
+```shell
+docker network create [network_name]
+```
+
+The `--net` option allows to join a container to a different network.
+
+```shell
+docker container create -it --name container-a --entrypoint sh     --net network-a curlimages/curl
+```
+
+By default containers in different bridge networks cannot talk to each other. To change it is by joining one of the containers to the containers network. 
+
+Another way to communicate containers is by publishing a port of the container and map it to a port on the host machine.
+
+Port publishing uses IP tables, a rules engine for filtering linux packets to "rewrite" packets destined for a container's IP address and a port on the host machine. This allows to connect a container trough the container's bridge network gateway on the host machine.
+
+The `--publish` option allows port publishing:
+
+```shell
+docker contaienr create -it --name container-a --entrypoint sh --net network-a --publish 8080:80 curlimages/curl
+```
+
+Every docker container gets an IP assigned by default, but it's an internal IP
+
+All containers attached to this network by default, and they get an internal IP address usually in the range 172.17.0.0 series. The containers can access each other using this internal IP if required
 
 network are used for the isolated container communication.
 
-When Docker is installed, it creates three networks automatically: Bridge, None, Host. Bridge is the default network a container gets attached to. docker run Uuntu --network=host --> to associate the container with any other network
-
-The Bridge Network is a private internal network created by Docker on the host.
+docker run Uuntu --network=host --> to associate the container with any other network
 
 Another way to access the containers externally is to associate the container to the host network. This takes out any network isolation between the Docker host and the Docker container.
 
 With the non network. The containers are not attached to any network and doesn't have any access to the external network or other containers. They run in an isolated network.
 
-By default, Docker only creates one internal bridge network.
+The null network drives is used to create containers without any external networking capabilities. These containers will not be able to communicate with other container or any network or with the outside world.
 
-All containers attached to this network by default, and they get an internal IP address usually in the range 172.17.0.0 series. The containers can access each other using this internal IP if required
+Containers connected to a network backed with a null driver will get a loop back interface, so that it can connect to itself trough the special 127.0.0.1 IP address and localhost DNS label. The null network is provided by default.
 
-Every docker container gets an IP assigned by default, but it's an internal IP
+```shell
+doker run --rm --net=none --entrypoint sh curlimages/curl 
+```
 
-<code style="color:#689d6a">docker run -p 8283:8080 nginx</code> <span style="color: #3588E9">--></span> traffic on port 8283 docker host will get routed to port 8080 inside the container
-
-The same port can't be mapped on the Docker host more than once.
-
-Meaning if you were to run a web server on Port 5000 in a web app container, it is automatically as accessible on the same port externally without requiring any port mapping as the web container uses the host's network. This would also mean that unlike before, you will now not be able to run multiple web containers on the same host on the same port as the ports are now common to all containers in the host network.
+>[!note]
+>The null network driver doesn't disable networking entirely. It only disables external networking outside of the container. 
 
 We could create our own internal network using the Command Docker network, create and specify the driver, which is bridge in this case and the subnet for that network, followed by the custom isolated network name run.
-
-The docker network ls command to list all networks.
 
 multiple containers can be added into the same network, by using the `--network` option. on the `docker run` command. 
 
 Within a Docker network, all containers can communicate with each other and IPs are automatically resolved.
 
-`docker network create ` --> create a docker internal network
-`docker network create favorites-net`
 `docker run -d --name mongodb --network favorites-net mongo`
 `docker run --name favorites --network favorites-net -f --rm -p 3000:3000 favorites-node`
 
@@ -522,17 +582,28 @@ Docker Networks actually support different kinds of "**Drivers**" which influen
 The driver can be set when a Network is created, simply by adding the `--driver` option. `docker network create --driver bridge my-net`
 
 Docker also supports these alternative drivers - though you will use the "bridge" driver in most cases:
+- macvlan --> give containers real IP addresses on the network. Useful for containers running applications that need to discover other devices on the network, like music servers or home automation software, or secure high performance applications that needs yo bypass a network bridge without having access to all of te host's network interface.
+- ipvlan --> 
+
+Both drives work by binding containers  to specific network card on the host running docker engine. 
+differences: macvlan networks five container individual MAC addresses, which can lead to a network degradation; ipvlan gives containers the same MAC address and using a network driver on the host to handle traffic.
 
 - **host**: For standalone containers, isolation between container and host system is removed (i.e. they share localhost as a network)
     
 - **overlay**: Multiple Docker daemons (i.e. Docker running on different machines) are able to connect with each other. Only works in "Swarm" mode which is a dated / almost deprecated way of connecting multiple containers
     
-- **macvlan**: You can set a custom MAC address to a container - this address can then be used for communication with that container
-    
-- **none**: All networking is disabled.
-    
 - **Third-party plugins**: You can install third-party plugins which then may add all kinds of behaviors and functionalities
 ###### <span style="color:#98971a">Storage</span>
+
+Everything you create within a container stays within the container. Once the container stops, the data gets deleted with it.
+
+We can use the volume mounting feature to work around this. this allows Docker to map a folder on our computer to a folder in the container. 
+This can be done with the -v or --volume switches.
+outside is the folder on our machine that we want to use, and inside is the folder within the container to map it to.
+
+`docker run --rm --entrypoint sh-v /tmp/container:/tmp ubuntu -c "echo 'Hello there.' > /tmp/file && /tmp/file"`
+
+If we try to map a file on our computer that does not exist, it will be mapped as a directory within the container.
 
 Volumes allows to safely handle data coming into and out of containers.
 
@@ -864,7 +935,7 @@ To <strong style="color: #b16286">see the logs</strong> of a container:
 docker logs container_id # can be the image's name as well
 ```
 
-<strong>Obs:</strong> The <code>-f</code> flag can be used to keep listening the container.
+<strong style="color:#c6554f">Obs:</strong> The `-f` flag can be used to keep listening the container.
 
 An option to the `logs` command is to start the container and "attach" the terminal to the container's output:
 
@@ -885,6 +956,20 @@ The <code style="color:#689d6a">-d</code> option for detach mode, runs the in th
 ```shell
 docker run -d my-server
 ```
+
+The <code style="color:#689d6a">-e</code> option allows to add environment variables to a container:
+
+```shell
+docker run -e APP_COLOR=pink webapp
+```
+
+The <code style="color:#689d6a">--link</code> option can be used to link to containers together.
+
+```shell
+docker run -d --name-vote -p 5000:80 --link redis:redis voting-app
+```
+
+On the example above, the `--link` option creates an entrypoint on ETcd host file on the voting app container, adding and entry with the host name redis with the internal IP of the redis container.
 
 To  <strong style="color: #b16286">execute a command</strong> on a container:
 
@@ -1084,6 +1169,30 @@ To run a container based on a Dockerfile:
 ```dockerfile
 docker run container_id -p 3000:80
 ```
+
+If the build output shows a warning saying that "legacy build is deprecated", consider using BuildKit, Docker's improved image builder. 
+
+BuildKit provides improved performance and additional helpful features over the legacy builder that ships with Docker.
+
+To use BuildKit:
+
+```shell
+docker buildx build [options]
+```
+
+docker build use Buildket underneath the hood for version of Docker Desktop published after 2023.
+
+Docker Builds gives to the user more options with what can be done with images that it provides. 
+
+```shell
+docker buildx build -t my-image --load .
+```
+
+The `--load` is a shortcut that tells BuildKit to build the image and load it into Docker when it's done.
+
+Obs: buildx creates build container or builders when it's run for the first time
+
+One of BuildKit's features is that is uses something called exportes to give the user more control over the image that it produces. BuildKit cab automacaillt push images into image regitries after they are done building or it can save them into the host mamchine as tarball files.
 ###### <span style="color:#98971a">Dockerfile Commands</span>
 
 <code style="color: #689d6a">FROM</code> <span style="color: #3588E9">--></span> defines the "base" image that the Dockerfile's image will be created from. It links the current image to the new image.
@@ -1483,43 +1592,30 @@ Docker compose is a tool for defining and running multi-container Docker applica
 
 Docker Compose can document a system as a runnable configuration file --> compose manifest. It does not add any functionality do the docker ecosystem, but it does make the existing functionality significantly easier to use. Docker Compose works together with Dockerfiles.
 
->[!example] Example - compose manifest
->```yaml
->services:
->  bookstack:
->    image: lscr.io/linuxserver/bookstack:version-
->    container_name: bookstack
->    # environment:
->      # - DB_USERNAME=bookstack
->      # - DB_PASSWORD=
->    env_file: 
->      - ./env/mongo.env
->    volumes:
->      - ./app_data:/config
->    networks:
->      - bookstack
->    ports: 
->     - 6875:80
->
->networks:
->  bookstack:
->    name: bookstack 
->```
+Normal Workflow:
+- Dockerfile ---> Docker Build Command ---> Docker Image
 
-Compose is a declarative tool, and it's self-document. It was designed as a tool for a single hosted server. It's well suited for local  development, staging server, continuous integration testing environment, and it's great for managing multiple containers on the same host.
-
-Obs: It's not designed for distributed system and has no tooling for containers across multiple hosts. Compose was designed for non-production environments only. 
+To get started using Docker Compose, the first step is to create a configuration file (compose manifest) inside the application directory. 
 
 >[!note]
 >Every docker compose configuration must be in a yaml file, and be saved under the file name "docker-compose.yaml"
 
-Normal Workflow:
-- Dockerfile ---> Docker Build Command ---> Docker Image
+>[!example] Example - compose manifest
+>```yaml
+>services:  # specify all the containers for the app
+>  bookstack: # service name (can be any name)
+>    image: lscr.io/linuxserver/bookstack:version-
+>    container_name: bookstack
+>```
 
+Most common commands for managing the lifecycle of Docker services: up, down, stop, restart.
 
+Compose is a declarative tool, and it's self-document. It was designed as a tool for a single hosted server. It's well suited for local  development, staging server, continuous integration testing environment, and it's great for managing multiple containers on the same host.
+
+Obs: It's not designed for distributed system and has no tooling for containers across multiple hosts. Compose was designed for non-production environments only. 
 ###### <span style="color:#98971a">Compose Commands</span>
 
-To build the services:
+To build each defined services:
 
 ```shell
 docker compose up
@@ -1593,7 +1689,7 @@ services --> defines the various containers (services) that make up the applicat
 >  bookstack_db:
 >    ...
 
-Obs: Docker Compose ser vices can be named anything. They are intended to be human readable and ideally should be meaningful. 
+Obs: Docker Compose services can be named anything. They are intended to be human readable and ideally should be meaningful. 
 
 image --> defines the value to be used for the service, it also overrides the image name specified in the Dockerfile.
 
@@ -1636,7 +1732,7 @@ dockerfile --> specifies an altervative Dockerfile for the build
 
 Environment variables at docker are visible from inside the running container. The most common and simple use case a Docker environmenr vairnale if for specifying thing like a curret runtime configuration such as dev or prod.
 
-Build arguments are a type ofr environment variable that are available to dockder ony at build ime, bit not inside the contianer. They are useful for specifying a version for a certain build tool or cloud platform configuration.
+Build arguments are a type of environment variable that are available to docker only at build time, but not inside the container. They are useful for specifying a version for a certain build tool or cloud platform configuration.
 
 >[!example] Example - build argument
 >```yaml
@@ -1652,6 +1748,9 @@ Build arguments are a type ofr environment variable that are available to dockde
 >args --> attribute to pass build arguments to the build context. Useful for dynamically setting values during the build. 
 >
 >environment --> to set environment variables for the service. Useful for configuring the applications dynamically
+
+>[!info]
+>The most common use for docker environment variable is for specifying things like a current runtime configuration, such as dev or test.
 
 Running `export runtime_env=dev` on the host machine and leaving the value out from the Docker Compose configuration will have the same effect as specifying inside the file. 
 
@@ -1804,14 +1903,14 @@ Obs: Any file paths reference in the override file must be relative to the prima
 
 The override file can be a partial or incomplete configuration. It can contain snippets of configurations specific only to what is being overwritten. One Docker Compose configuration can be easily shared between multiple project or repositories. It's also possible to have multiple override file in the same repository. Example: `docker-compose.local.yaml` and `docker-compose.staging.yaml`.
 
-To run confirmation override files the `-f` flag must be used:
+The `-f` or `--file` flag are used to run configuration files overrides, it stands for file.
 
-```shel
+```shell
 docker compose -f [primary file] -f [override file] [command]
 ```
 
-```shel
-docker compose -f docker-compose.yaml -f docker-compose.local.yaml up
+```shell
+docker compose -f docker-compose.yaml up
 ```
 
 If the Docker Compose configuration needs to have different behaviors in different environments, but it won't support configuration overrides  for every environment, a good alternative is using environment variables. 
@@ -1846,43 +1945,3 @@ To require that an environment variable is present:
 ```yaml
 image: "mysql:?Ooops TAG is a required"
 ```
-##### <span style="color: #689d6a">Docker Commands</span>
-
-- To <strong style="color: #b16286">run/start</strong> a container from an image <span style="color: #3588E9">--></span> <code style="color:#689d6a">docker run nginx</code>   
-	- <code style="color:#689d6a">docker run redis:40</code> <span style="color: #3588E9">--></span> specifying a tag
-	- <code style="color:#689d6a">-e</code> <span style="color: #3588E9">--></span> for environment variables
-		- Ex: <code style="color:#689d6a">docker run -e APP_COLOR=pink webapp</code>
-	- <code style="color:#689d6a">--link</code> <span style="color: #3588E9">--></span> option which can be used to link to containers together.
-		- it creates an entry into the etc/hosts file on the voting app container, adding an entry with the host name redis with the internal IP of the redis container.
-		- Ex: <code style="color:#689d6a">docker run -d --name=vote -p 500:80 --link redis:redis voting:app</code>
-- To <strong style="color: #b16286">download</strong> the image <span style="color: #3588E9">--></span> <code style="color:#689d6a">docker pull nginx</code>
-	- it pulls the image and stores on the host, it doesn't run the container.
-- To <strong style="color: #b16286">upload</strong> an image <span style="color: #3588E9">--></span> <code style="color:#689d6a">docker push</code>
-	- it sends a docker image to a public or private registry
-- To <strong style="color: #b16286">attach back</strong> to the running container <span style="color: #3588E9">--></span> <code style="color:#689d6a">docker attach [id]</code>
-- To <strong style="color: #b16286">create</strong> an image <span style="color: #3588E9">--></span> <code style="color:#689d6a">docker build -t webapp-color .</code>
-	- <code style="color:#689d6a">-t</code> <span style="color: #3588E9">--></span> add a tag
-	- <code style="color:#689d6a">.</code> <span style="color: #3588E9">--></span> indicates the current directory
-
-Whenever a new image is created or an existing image is updated, it's pushed to the registry and every time anyone deploys this application, it is pulled from that registry.
-
-Link is a command line option which can be used to link to container together
-
-docker build -t image .
-
-`docker run -d --name-vote -p 5000:80 --link redis:redis voting-app`
-it creates an entrypoint on ETcd host file one the voting app container, adding and entry with the host name redis whot the internal IP of the redis container.
-
-to attach the container 
-`docker attach container_name`
-
-`docker start -a container_name` --> to start in the attach mode
-
-`docker run --name mycontainer myimage`
-
-to remove a container automatically:
-`docker run -p 3000:80 -d --rm ID`
-Being able to run a container with the --rm flag
-to automatically remove it when it's been stopped.
-
-`docker exec -it contaier_name npm init`
