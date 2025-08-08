@@ -47,7 +47,7 @@ To <strong style="color: #b16286">enable</strong> debug:
 sudo sh -c 'echo "{\"debug\": true}" > /etc/docker/daemon.json'
 ```
 
-Obs: restart the service after any changes on dockerd.
+<strong style="color:#c6554f">Obs:</strong> restart the service after any changes on <span style="color:#98971a">dockerd</span>.
 
 In case of Docker desktop, just type on the terminal
 
@@ -61,7 +61,7 @@ To <strong style="color: #b16286">return a full log</strong> of a container:
 grep -i docker /var/log/syslog
 ```
 
-The logging component of systemd is called journald, and it can be used for troubleshooting purposes. 
+The logging component of <span style="color:#98971a">systemd</span> is called <span style="color:#98971a">journald</span>, and it can be used for troubleshooting purposes. 
 
 To <strong style="color: #b16286">debug</strong> docker in real-time:
 
@@ -263,9 +263,9 @@ Leases are used within Container D to manage how the image used within the Docke
 Docker stores all its data by default on this location: `/var/lib/docker`
 ###### <span style="color:#98971a">Container</span>
 
-A Docker container is a runnable instance of an image, it encapsulates everything an application needs to run. It can be created, stopped, started or deleted using the Docker API or the Docker CLI.
+A Docker container <strong style="color: #b16286">is a runnable instance of an image</strong>, it encapsulates everything an application needs to run. It can be created, stopped, started or deleted using the Docker API or the Docker CLI.
 
-All Docker container are nothing more than a process, looked from the perspective of the operating systems. When it starts the container automatically gets a random ID and a name created for it by Docker.
+<strong style="color: #b16286">All</strong> Docker container <strong style="color: #d79921">are nothing more than a process</strong>, looked from the perspective of the operating systems. When it starts the container automatically gets a random ID and a name created for it by Docker.
 
 To <strong style="color: #b16286">add a name</strong> to the container:
 
@@ -286,7 +286,7 @@ When running a container it's a good strategy to remove the container as soon th
 docker run --rm -it --name app_container [image_name]
 ```
 
-Containers are independent of the storage containers. Depending on the storage layer, in some cases it may run out of layers. Some storage have a limited number of layers.
+<strong style="color: #d79921">Containers are independent of the storage containers</strong>. Depending on the storage layer, in some cases it may run out of layers. Some storage have a limited number of layers.
 
 To <strong style="color: #b16286">copy a file</strong> to a container:
 
@@ -310,39 +310,49 @@ To <strong style="color: #b16286">use a non-root user</strong> to run a containe
 docker run --rm -it --user raziel image:v1.0.1
 ```
 
-docker container have a minimal default set of capabilities. but container's capabilities can be changed with the `docker run` command.
+Docker container have a minimal default set of capabilities, which can be changed with the `docker run` command.
 
-create a container that creates a file and changes its ownership 
+Create a container that creates a file and changes its ownership:
 
-`docker run --entrypoint sh --rm alpine -c 'touch .tmp/file && chown 1001:1001 /tmp/file && echi "Fiel permission changed" ' `
+```shell
+docker run --entrypoint sh --rm alpine -c 'touch .tmp/file && chown 1001:1001 /tmp/file && echi "File permission changed" '
+```
 
-disable the capability from the container 
+The `--cap-drop` option informs allow to remove a capability:
 
-`docker run --entrypoint sh --cap-drop --rm alpine -c 'touch .tmp/file && chown 1001:1001 /tmp/file && echi "Fiel permission changed" ' `
-
-`--cap-drop` --> informs docker to remove a capability from a container
+```shell
+docker run --entrypoint sh --cap-drop --rm alpine -c 'touch .tmp/file && chown 1001:1001 /tmp/file && echi "Fiel permission changed" '
+```
 
 The capability that allows to change file ownership is called `CAP_CHOWN`. 
 
-To add a capability: `--cap-add`
+The `--cap-add` adds a capability: 
 
-container can be assigned with multiple capabilities
+```shell
+docker run --entrypoint sh --cap-add CHOWN --cap-add CAP_LEASE --rm alpine -c 'touch .tmp/file && chown 1001:1001 /tmp/file && echo "File permission changed"'
+```
 
-`docker run --entrypoint sh --cap-add CHOWN --cap-add CAP_LEASE --rm alpine -c 'touch .tmp/file && chown 1001:1001 /tmp/file && echi "Fiel permission changed"' `
+Obs: container can be assigned with multiple capabilities
 
-to inform docker to add or remove all capabilities for a container. `cap-add` takes prececdence over `cap-drop`. use cap-drop all and then add capabilities back with cap-add
+>[!note]
+>The `cap-add` option takes precedence over `cap-drop` option. 
 
-`docker run --entrypoint sh --cap-add CHOWN --cap-drop ALL --rm alpine -c 'touch .tmp/file && chown 1001:1001 /tmp/file && echi "Fiel permission changed"' `
+To remove and then add capabilities:
 
-to give contaier direct access to specied devices on the system:
+```shell
+docker run --entrypoint sh --cap-add CHOWN --cap-drop ALL --rm alpine -c 'touch .tmp/file && chown 1001:1001 /tmp/file && echo "File permission changed"'
+```
 
-`docker run --device` mostly useful if a container needs to use USB devices or GPU cards without granting it a full suite of other privileges.
+The `--device` flag is used to give containers direct access to specific devices on the system. It's mostly useful if a container needs to use USB devices or GPU cards without granting it a full suite of other privileges.
 
-`--privileged` this flag tell docker to treat a container as if it's a real process in the system. It can do everything and access anything.
+The `--privileged` flag informs docker to treat a container as if it's a real process in the system. It can do everything and access anything.
 
-`docker run --entrypoint sh -it --privileged alpine`
+```shell
+docker run --entrypoint sh -it --privileged alpine
+```
 
-run docker in rootless mode, configures the docker engine so that it runs as a user other than root, this allows container to become root without being able to become root on the system.
+>[!info]
+>To run docker in rootless mode, configures the docker engine so that it runs as a user other than root, this allows container to become root without being able to become root on the system.
 ###### <span style="color:#98971a">Image</span>
 
 A Docker image is a read-only template/blueprint with instructions for creating Docker container. Multiple containers can be created based on the same image.
@@ -362,7 +372,7 @@ All changes made to the running container, are written to the container layer. B
 
 Docker uses storage drivers to enable layered architecture. Some of the common storage drivers are: AUFS, ZFS, BTRFS, Device Mapper, Overlay, Overlay2. The selection of the storage driver depends on the underlying OS.
 
-storage drivers define how layers are stored on disk and represented to containers. In other words, storage drivers are responsible for decompressing layers into a directory structure, and presenting them to a container as a fake route directory. 
+<span style="color: #d65d0e">Storage drivers</span> define how layers are stored on disk and represented to containers. In other words, storage drivers are responsible for decompressing layers into a directory structure, and presenting them to a container as a fake route directory. 
 
 Some container run times refer to storage drivers as graph drivers or snapchatters.
 
@@ -417,36 +427,36 @@ A <span style="color: #d65d0e">Docker repository</span> within a registry is a c
 Whenever a new image is created or an existing image is updated, it's pushed to the registry and every time anyone deploys this application, it is pulled from that registry.
 
 >[!note]
->many companies choose to run their own registry within their own company to ensure that their data stays safe and private
+>Many companies choose to run their own registry within their own company to ensure that their data stays safe and private
 
 Naming a Docker image: 
 - <code style="color:#689d6a">[registry]/[repository]:[tag]</code> <span style="color: #3588E9">--></span> <code style="color:#689d6a">docker.io/ubuntu:18.04</code>
 
-To pull (download) an image:
+To <strong style="color: #b16286">pull</strong> (download) an image:
 
 ```shell
 docker pull [image_name]
 ```
 
-To push an image:
+To <strong style="color: #b16286">push</strong> an image:
 
 ```shell
 docker push [image_name]
 ```
 
-To search for images in Docker Hub:
+To <strong style="color: #b16286">search</strong> for images in Docker Hub:
 
 ```shell
 docker search python
 ```
 
-The `--filter` option allows to filter search results:
+The `--filter` option allows to <strong style="color: #b16286">filter</strong> search results:
 
 ```shell
 docker search --filter is-official=true python
 ```
 
-To log into Docker Hub:
+To <strong style="color: #b16286">log</strong> into Docker Hub:
 
 ```shell
 docker login
@@ -455,7 +465,7 @@ docker login
 >[!info]
 >Docker saves the credentials for Docker Hub in the home directory, so that it can easily login in the feature.
 
-To push the image into a registry:
+To <strong style="color: #b16286">push</strong> the image into a registry:
 
 ```shell
 docker image tag my-server username/my-server:0.0.1
@@ -465,7 +475,7 @@ docker image tag my-server username/my-server:0.0.1
 docker push username/my-server:0.0.1
 ```
 
-To pull the image from registry:
+To <strong style="color: #b16286">pull</strong> the image from registry:
 
 ```shell
 docker pull username/my-server:0.0.1
@@ -477,35 +487,62 @@ The image can also be pulled using the IP address
 docker pull 192.168.56.100:5000/my-server
 ```
 
-To run the container from the private registry:
+To <strong style="color: #b16286">run</strong> the container from the private registry:
 
 ```shell
 docker run -d -p 5000:5000 --name registry registry:2
 ```
 ###### <span style="color:#98971a">Network</span>
 
-Docker providers the ability to access network ports within the container with something called port biding --> allows Docker to take a port on the host machine, and map it to a port within the container. 
+Docker provides the ability to <strong style="color: #b16286">access network ports within the container</strong> with something called <strong style="color: #d79921">port biding</strong> <span style="color: #3588E9">--></span> allows Docker to take a port on the host machine, and map it to a port within the container. 
 
-To map ports for the container:
+To <strong style="color: #b16286">map ports</strong> for the container:
 
 >[!example] Example - port biding
 >```shell
 >docker run -d --name jenkins-server -p 8080:80 jenkins
 >```
->`[outside:inside]` --> outside of the container, and inside of container
+>`[outside:inside]` <span style="color: #3588E9">--></span> outside of the container, and inside of container
 >
->`8080:80` --> the traffic on the the `8080` port of the Docker host will be routed to the `80` port inside the container
+>`8080:80` <span style="color: #3588E9">--></span> the traffic on the the `8080` port of the Docker host will be routed to the `80` port inside the container
 
-Obs: The same port can't be mapped on the Docker host more than once.
+<strong style="color:#c6554f">Obs:</strong> The same port can't be mapped on the Docker host more than once.
 
-Almost every container engine's networking model is based on plug-ins. These plug-ins describe how these packets get routed to containers. Some plug-ins will sen thse packates to containers trhough virtual newtwork card in the local machine. Other plug-ins mitgh give container "real network cards" that work with the network card on the local machine to receive packtrs appropirately.
+network are used for the isolated container communication.
+Within a Docker network, all containers can communicate with each other and IPs are automatically resolved.
 
-Every container uses the bridge docker network by default. It connects docker containers to a virtual bridge network installed on the host machine. 
+All containers attached to this network by default, and they get an internal IP address usually in the range 172.17.0.0 series. The containers can access each other using this internal IP if required
 
 >[!info]
->A bridge network is a virtual network device that connects multiple networks together into a single network. Bridge networks are useful for taking traffic fro ma real network adapter and forwarding it to virtual network adapters.
+>Every docker container gets an IP assigned by default, but it's an internal IP.
 
-Bridge drivers isolate through network namespace unsharing and iptables.
+To <strong style="color: #b16286">associate</strong> a container with any network:
+
+```shell
+docker run ubuntu --network=host
+```
+
+The `network` flag can also be used to add multiple containers into the same network.
+
+>[!example] Example - Docker network
+>```shell
+>docker run -d --name mongodb --network favorites-net mongo
+>
+>docker run --name favorites --network favorites-net -f --rm -p 3000:3000 favorites-node
+>```
+
+To allow communication between the applications running in a container to the host achine machine just use the address `host.docker.internal`.
+
+Almost every <strong style="color: #d79921">container engine's networking model is based</strong> on plug-ins. These plug-ins describe how these packets get routed to containers. 
+
+Some plug-ins will send these packets to containers through virtual network card in the local machine. Other plug-ins might give container "real network cards" that work with the network card on the local machine to receive packets appropriately.
+
+<strong style="color: #b16286">Every container</strong> <strong style="color: #d79921">uses the bridge docker network</strong> by default. It connects docker containers to a virtual bridge network installed on the host machine.
+
+>[!info]
+>A <strong style="color: #d65d0e">bridge network</strong> is a <strong style="color: #d79921">virtual network device</strong> that <strong style="color: #b16286">connects multiple networks together</strong> into a single network. Bridge networks are useful for taking traffic from a real network adapter and forwarding it to virtual network adapters.
+
+<span style="color: #d65d0e">Bridge drivers</span> isolate through network namespace unsharing and iptables.
 
 The network namespace allows container within it to get their very own network stack that's isolated from the network stack on the host system, including network adapters.
 
@@ -520,10 +557,16 @@ Sub command for working with networks:
 docker network
 ```
 
-To create an internal network:
+To <strong style="color: #b16286">create</strong> an internal network:
 
 ```shell
 docker network create [network_name]
+```
+
+To <strong style="color: #b16286">set</strong> the network driver:
+
+```shell
+docker network create --driver bridge [network]
 ```
 
 The `--net` option allows to join a container to a different network.
@@ -532,31 +575,21 @@ The `--net` option allows to join a container to a different network.
 docker container create -it --name container-a --entrypoint sh     --net network-a curlimages/curl
 ```
 
-By default containers in different bridge networks cannot talk to each other. To change it is by joining one of the containers to the containers network. 
+<strong style="color: #b16286">By default</strong> containers in different bridge networks <strong style="color: #b16286">cannot</strong> talk to each other. To change it is by joining one of the containers to the containers network. 
 
 Another way to communicate containers is by publishing a port of the container and map it to a port on the host machine.
 
-Port publishing uses IP tables, a rules engine for filtering linux packets to "rewrite" packets destined for a container's IP address and a port on the host machine. This allows to connect a container trough the container's bridge network gateway on the host machine.
+<strong style="color: #d79921">Port publishing</strong> uses IP tables, a rules engine for filtering linux packets to "rewrite" packets destined for a container's IP address and a port on the host machine. This allows to connect a container trough the container's bridge network gateway on the host machine.
 
 The `--publish` option allows port publishing:
 
 ```shell
-docker contaienr create -it --name container-a --entrypoint sh --net network-a --publish 8080:80 curlimages/curl
+docker container create -it --name container-a --entrypoint sh --net network-a --publish 8080:80 curlimages/curl
 ```
 
-Every docker container gets an IP assigned by default, but it's an internal IP
+Another way to access the containers externally is to associate the container to the <strong style="color: #d65d0e">host network</strong>. This takes out any network isolation between the Docker host and the Docker container.
 
-All containers attached to this network by default, and they get an internal IP address usually in the range 172.17.0.0 series. The containers can access each other using this internal IP if required
-
-network are used for the isolated container communication.
-
-docker run Uuntu --network=host --> to associate the container with any other network
-
-Another way to access the containers externally is to associate the container to the host network. This takes out any network isolation between the Docker host and the Docker container.
-
-With the non network. The containers are not attached to any network and doesn't have any access to the external network or other containers. They run in an isolated network.
-
-The null network drives is used to create containers without any external networking capabilities. These containers will not be able to communicate with other container or any network or with the outside world.
+The <strong style="color: #d65d0e">null network</strong> drives is used to create containers without any external networking capabilities. These containers will not be able to communicate with other container or any network or with the outside world <span style="color: #3588E9">--></span> <strong style="color: #b16286">isolated network</strong>.
 
 Containers connected to a network backed with a null driver will get a loop back interface, so that it can connect to itself trough the special 127.0.0.1 IP address and localhost DNS label. The null network is provided by default.
 
@@ -566,20 +599,6 @@ doker run --rm --net=none --entrypoint sh curlimages/curl
 
 >[!note]
 >The null network driver doesn't disable networking entirely. It only disables external networking outside of the container. 
-
-We could create our own internal network using the Command Docker network, create and specify the driver, which is bridge in this case and the subnet for that network, followed by the custom isolated network name run.
-
-multiple containers can be added into the same network, by using the `--network` option. on the `docker run` command. 
-
-Within a Docker network, all containers can communicate with each other and IPs are automatically resolved.
-
-`docker run -d --name mongodb --network favorites-net mongo`
-`docker run --name favorites --network favorites-net -f --rm -p 3000:3000 favorites-node`
-
-to allow communication between the applications running in a container to the host achine machine just use the address `host.docker.internal`
-
-Docker Networks actually support different kinds of "**Drivers**" which influence the behavior of the Network. The default driver is the "**bridge**" driver
-The driver can be set when a Network is created, simply by adding the `--driver` option. `docker network create --driver bridge my-net`
 
 Docker also supports these alternative drivers - though you will use the "bridge" driver in most cases:
 - macvlan --> give containers real IP addresses on the network. Useful for containers running applications that need to discover other devices on the network, like music servers or home automation software, or secure high performance applications that needs yo bypass a network bridge without having access to all of te host's network interface.
