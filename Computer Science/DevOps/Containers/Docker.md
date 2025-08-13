@@ -856,16 +856,23 @@ A defined path in the container is mapped to the create volume / mount.
 
 ---
 
-Types of volumes: 
-- anonymous volumes  --> created specifically for a single container, attach to a container, can be used to save (temporary) data inside the container
-- named volumes --> volumes persist even if the container is shut down, as the folders in the hard drive. good for data which should be persistent but which it doesn't need to be edit directly. 
+<strong style="color: white">Types</strong> of volumes: 
+- <strong style="color: #d65d0e">anonymous volumes</strong>  <span style="color: #3588E9">--></span> created specifically for a single container, attach to a container, can be used to save (temporary) data inside the container
+- <strong style="color: #d65d0e">named volumes</strong> <span style="color: #3588E9">--></span> volumes persist even if the container is shut down, as the folders in the hard drive. good for data which should be persistent but which it doesn't need to be edit directly. 
 
-anonymous volumes are **removed automatically**, when a container is removed
-with the `--rm` option container are remove automatically when a container is removed. If you start a container **without that option**, the anonymous volume would **NOT be removed ** even if you remove the container (with `docker rm ...`).
+To automatically remove an <strong style="color: #d65d0e">anonymous volumes</strong> it must use the `--rm` option during the start of a container. If the container is started without that option, the anonymous volume would **NOT be removed ** even if you remove the container (with `docker rm ...`). 
 
-`docker run -v /app/data/ ...` --> creates an anonymous volume
-`docker run -v data:/app/data ...` --> creates a named volume
-`docker rum -v /path/to/code:/app/code ...` --> creates a bind mount
+To <strong style="color: #b16286">create</strong> an anonymous volume:
+
+```shell
+docker run -v /app/data/ ...
+```
+
+To <strong style="color: #b16286">create</strong> a named volume:
+
+```shell
+docker run -v data:/app/data
+```
 
 To meet a compliance requirement, you are being asked to store folders created for local volumes in /opt/third-party/docker/volumes. Docker volumes must not live at /var/lib/docker/volumes. Which of these solutions will enable Docker to do this?
 
