@@ -696,145 +696,141 @@ Once it arrives there, the original packet is retrieved from the bigger packet a
 Technologies that overlay uses to establish the secure tunnel, <span style="color:#98971a">Virtual Extensible LAN</span> or <span style="color:#98971a">vxlan</span>, and <span style="color:#98971a">Wire Guard</span> are the most popular choices.
 ###### <span style="color:#98971a">Storage</span>
 
-Everything you create within a container stays within the container. Once the container stops, the data gets deleted with it.
+<strong style="color: #b16286">Everything</strong> created within a container <strong style="color: #d79921">stays within the container</strong>. Once the container stops, the data gets deleted with it.
 
-We can use the volume mounting feature to work around this. this allows Docker to map a folder on our computer to a folder in the container. 
-This can be done with the -v or --volume switches.
-outside is the folder on our machine that we want to use, and inside is the folder within the container to map it to.
-
-`docker run --rm --entrypoint sh-v /tmp/container:/tmp ubuntu -c "echo 'Hello there.' > /tmp/file && /tmp/file"`
-
-If we try to map a file on our computer that does not exist, it will be mapped as a directory within the container.
-
-Volumes allows to safely handle data coming into and out of containers.
-
-The file systems represented to containers are actually unified sets of folders behind the scenes. Volumes works similarly, when a volume is mounted into a container, Docker maps a folder into a mount point within the container. 
-
-Volumes present folders, shares, or block devices to container through volume drives. Volume drivers define how volumes are created and managed by containers.
-
-Docker uses the local volume driver by default. The local driver simply creates a directory within Docker system directory, and mounts it in the container like a virtual disk or sorts.
+The <strong style="color: #d65d0e">volume mounting</strong> feature can be used to solve the issue related to data persistence. Docker allows to <strong style="color: #b16286">map</strong> a <strong style="color: #d79921">folder on the host machine to a folder in the container</strong>, which is called a <strong style="color: #d65d0e">bind mount</strong>.
 
 >[!info]
->The local driver supports NFS, CIFS, and block devices. Volumes drivers can be installed to create many different kinds of volumes.
+>The data inside a bind mount is not stored outside the container, if the container is removed, the data will be lost.
 
-A volume is a directory on the host machine that is accessible to a container. When a Docker volume is used, the data inside it is not stored in the container's file system, but in the host machine's file system --> the data in a volume persists even if the container is deleted or recreated.
+A mount is useful to share code or configurations files between the host machine and the container during development or testing.
 
-Volumes are a good option for persisting data across different container. Volumes can be used to store data from a database outside the container. A container can write data into a volume and read data from it. by default volumes are read write, --> the container is able to read data from there and write data to them.
-
-Volumes are created using the `docker volume create` command. And the driver can be changed with the `-d` option. The `-o` flag specifies additional configuration options to the volume driver.
-
->[!example] Example - docker volume
->```shell
->docker volume create d_volume
->```
->Obs: creates a folder called d_volume under the `/var/lib/docker/volumes` directory.
-
-volume mounting --> feature allows Docker to map a folder from the host machine to a folder in the container. 
-
-To mount a volume to a container:
-- Short way --> `docker run --volume` or `docker run -v`
-- Long way --> `docker run --mount`
-
-mounts are useful when you need to share code or configurations files between the host machine and the container during development or testing.
-
-The `--mount` allows to specify exactly how Docker should mount the volume. it does so by accepting five key values pairs separated by commas. 
-
->[!example] Volumes - long way
->```shell
->docker run --mount "type=TYPE, source=DIR, destination=dir, readonly, volume-opt"
->```
->Example
->```shell
->docker run -i -t --rm --mount 'type,source=test,destination=/test' alpine
->```
->type --> specifies the type of volume. Docker supports 3 types: bind, tnpfs, and volume.
->
->source --> specifies the name of the volume that is being mounted into the container.
->
->destination --> the folder within the container to mount the volume 
->
->readonly --> marks a volume as read only
->
->volume-opt --> options to provide the volume driver with
-
->[!info]
->The `volume-opt` key can be specified more than once, and the values provided can vary from driver to driver. The values: `type`, `source`, and `destinaion` are mandatory when using mouny. 
-
-The `-v` option takes three arguments separated by colons. The name of the value, or source, the folder into which the volume will be mounted within the container, or the destination, and the ro/readonly and volume-opt options.
-
->[!example] Volumes - short way
->```shell
->docker run --rm -v "source:destination:[ro]"
->```
->The `-v` form is used to mount volumes as it is much easier to write.
->
->Example
->```shell
->docker run --rm -v super-dir:/app alpine
->```
-
-To list all available volumes:
+The `-v` or `--volume` option allows to map a folder. 
 
 ```shell
-docker volume ls
+docker run --rm -v "source:destination:[ro]"
 ```
 
-To inspect a volume:
+<strong style="color:#c6554f">Obs:</strong> outside is the folder on the host machine to be used, and inside is the folder within the container to map it to. The `ro` indicate the file access permissions, which in this case is readonly.
+
+>[!example] Example - volume mounting
+>```shell
+>docker run --rm --entrypoint sh-v /tmp/container:/tmp ubuntu -c "echo 'Hello there.' > /tmp/file && /tmp/file"
+>```
+
+>[!note]
+>If a file mapped in the host machine (source) does not exist, it will be mapped as a directory within the container.
+
+In some system the <strong style="color: #d79921">source</strong> might need to be an absolute directory (full path). <strong style="color: #d79921">Destination</strong> will be created as a directory if it doesn't exist!
+
+Ways of deal with the full (absolute) path:  `$PWD` or `realpath` tool.
+
+To <strong style="color: #b16286">use</strong> `$PWD` way:
 
 ```shell
-docker volume inspect [volume_name]
+docker run --rm -v $PWD/stuff:/stuff alpine
 ```
-
-To remove a volume:
-
-```shell
-docker volume rm [volume_name] # or docker volume prune
-```
-
-To remove all volumes:
-
-```shell
-docker system prune --volumes -f
-```
-
-Another way to persist data in Docker is by using bind mounts, which map directories on the host machine (any location) to directories in a container. It's good for persistent and editable data.
-
-Bind Mount Uses Cases
-- Hot reloading an application within a container while changing code from outside of it
-- Backing up and restoring Docker volumes
-- Faster one-off containers (from con jobs or other scheduled tasks)
-
-Just like regular volumes, bind mount can be in the long way or short way, with `docker run --mount` or `docker run -v`.
-
->[!example] Bind mount - long way
->```shell
->docker run --mount "type=bind, source=DIR, destination=dir, readonly, [advanced]" ...
->```
->type: will always be bind
->source: directory on the computer to mount
->destination: directory within the container to map source directory to
->
-
-Bind mounts accept two advanced configuration parameters: `bind-propagation` and `selinux-label`.
-- bind-propagation: configures how sub-mount are presented
-- selinux-label: configures whether mount can be shared with other containers
-
->[!example] Bind mount - short way
->```shell
->docker run -v "source:destination:[ro]" ...
->```
->On some systems `source` might need to be an absolute directory (full path). Destination will be created as a directory if it doesn't exist!
->
->Example
->```shell
->docker run --rm -v $PWD/stuff:/stuff alpine
->```
->There are two way to deal with the absolute path: use the `$PWD` or use the tool realpath.
 
 To ensure that docker will now not be able to write into the folder or any of its sub-folders.
 
 ```shell
 docker run -d -p 3000:80 --rm --name feedback-app -v feedback:app/feedback -v "home/user/guilherme/dev:/app:ro" -v feddback-note:volumes
+```
+
+Another way to mount is by using the `--mount` option:
+
+```shell
+docker run --mount "type=bind,src=<volume-name>,dst=<mount-path>,readonly,volume-opt"
+```
+
+The `--mount` allows to specify exactly how Docker should mount the volume. it does so by accepting five key values pairs separated by commas. 
+
+>[!example] Example - mount option
+>```shell
+>docker run -i -t --rm --mount 'type=volume,source=test,destination=/test' alpine
+>```
+>type <span style="color: #3588E9">--></span> specifies the type of volume, that can be bind, tnpfs, or volume.
+
+>[!info]
+>The `volume-opt` key can be specified more than once, and the values provided can vary from driver to driver. The values: `type`, `source`, and `destinaion` are mandatory when using mount. 
+
+Bind mount two advanced configuration parameters: `bind-propagation` and `selinux-label`. 
+- `bind-propagation`: configures how sub-mount are presented
+- `selinux-label`: configures whether mount can be shared with other containers
+
+<strong style="color: #d65d0e">Bind mount</strong> is used during development to reflect changes in the code, into running container instantly. Because if the container is running in production on a server, there is no connected source code, which updates while it's running.
+
+<strong style="color: white">Uses Cases</strong> - <strong style="color: #d65d0e">bind mount</strong>:
+- Hot reloading an application within a container while changing code from outside of it
+- Backing up and restoring Docker volumes
+- Faster one-off containers (from con jobs or other scheduled tasks)
+
+---
+
+The file systems represented to containers are actually unified sets of folders behind the scenes. Volumes works similarly, when a volume is mounted into a container, Docker maps a folder into a mount point within the container. 
+
+By contrast, when you use a volume, a new directory is created within Docker's storage directory on the host machine, and Docker manages that directory's contents.
+
+<strong style="color: #d65d0e">Volumes</strong> allows to safely handle data coming into and out of containers. A volume is a <strong style="color: #d79921">directory on the host machine that is accessible to a container</strong>. 
+
+<strong style="color: #d65d0e">Volumes</strong> are a good option for persisting data across different container, which can be used to store data from a database outside the container.  
+
+When a Docker volume is used, the data inside it is not stored in the container's file system, but in the host machine's file system <span style="color: #3588E9">--></span> the data in a volume persists even if the container is deleted or recreated.
+
+While volume and bind mount can be used to share data between the host machine and a container, they work differently and have different use cases.
+
+When working with large file bind mount is slower, 
+if docker is running on linux of the app isn't very data intensive, bind mount are great, otherwise it's recommended copying data into volumes or rebuilding the container image on save.
+
+`docker run --mount type=bind,src=/dev/noexist,dst=/mnt/foo alpine`
+
+`docker run --volume <volume-name>:<mount-path>`
+
+When you create a volume, it's stored within a directory on the Docker host.
+When you mount the volume into a container, this directory is what's mounted into the container
+
+A volume's contents exist outside the lifecycle of a given container. When a container is destroyed, the writable layer is destroyed with it. Using a volume ensures that the data is persisted even if the container using it is removed.
+
+To mount a volume with the docker run command, you can use either the `--mount or --volume flag`.
+
+`docker run --mount type=volume,src=<volume-name>,dst=<mount-path>v`
+`docker run --volume <volume-name>:<mount-path>`
+
+A container can write data into a volume and read data from it. By default, volumes are <strong style="color: #b16286">read write</strong> <span style="color: #3588E9">--></span> the container is able to read data from there and write data to them.
+
+To <strong style="color: #b16286">create</strong> a volume:
+
+```shell
+docker volume create [volume_name]
+```
+
+The `-d` flag can be used to change the volume driver and the `-o` flag to specify additional configuration options to the volume driver.
+
+>[!note]
+>Obs: By default when a volume is created, docker will store the volume at `/var/lib/docker/volumes`
+
+To <strong style="color: #b16286">list</strong> all available volumes:
+
+```shell
+docker volume ls
+```
+
+To <strong style="color: #b16286">inspect</strong> a volume:
+
+```shell
+docker volume inspect [volume_name]
+```
+
+To <strong style="color: #b16286">remove</strong> a volume:
+
+```shell
+docker volume rm [volume_name] # or docker volume prune
+```
+
+To <strong style="color: #b16286">remove</strong> all volumes:
+
+```shell
+docker system prune --volumes -f
 ```
 
 To backup the volume:
@@ -859,15 +855,6 @@ To restore the backup:
 >docker run --rm -v dir-restore:/restore alpine cat /restore/README
 >```
 
-While volume and bind mount can be used to share data between the host machine and a container, they work differently and have different use cases.
-
-We use this bind Mount during development to reflect changes in our code, into running container instantly. Because if the container is running in production on a server, there is no connected source code, which updates while it's running.
-
-When working with large file bind mount is slower, 
-if docker is running on linux of the app isn't very data intensive, bind mount are great, otherwise it's recommended copying data into volumes or rebuilding the container image on save.
-
-Unlike Docker volume, the data inside a bind mount is not stored outside the container. If the container is removed, the data will be lost.
-
 A defined path in the container is mapped to the create volume / mount.
 
 volumes --> managed by docker
@@ -884,6 +871,15 @@ with the `--rm` option container are remove automatically when a container is re
 To meet a compliance requirement, you are being asked to store folders created for local volumes in /opt/third-party/docker/volumes. Docker volumes must not live at /var/lib/docker/volumes. Which of these solutions will enable Docker to do this?
 
 Create a new dockerd config file, set --data-root to /opt/third-party/docker/volumes within it, then configure dockerd to use this config file with the --config flag.
+
+---
+
+Volumes present folders, shares, or block devices to container through volume drives. <strong style="color: #d65d0e">Volume drivers</strong> define <strong style="color: #d79921">how volumes are created and managed by containers</strong>.
+
+Docker uses the local volume driver by default. The local driver simply creates a directory within Docker system directory, and mounts it in the container like a virtual disk or sorts.
+
+>[!info]
+>The local driver supports NFS, CIFS, and block devices. Volumes drivers can be installed to create many different kinds of volumes.
 ###### <span style="color:#98971a">Multi-app images</span>
 
 use an entrypoint script that execute other program in the background, then run with `docker run --init` --> configurdd the container to run th entrypont script whithin a process supervisor called tini --> watchs every process runnign in the container and makes sure that signal are passed coreeclty to them.
