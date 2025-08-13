@@ -1373,20 +1373,20 @@ The `init` is also going to connect to the backend.
 >[!note] 
 >plugins are downloaded into a hidden directory called `.terraform` in the working directory
 
-To load the backend configuration from a configuration file:
+To <strong style="color: #b16286">load</strong> the backend configuration from a configuration file:
 
 ```shell
 terraform --backend-config=aws.conf
 ```
 
-To modify the version of the provider to be used: 
+To <strong style="color: #b16286">modify</strong> the version of the provider to be used: 
 
 ```shell
 # Downloads the newest provider version
 terraform init -upgrade
 ```
 
-To restore the current configuration to the same remote state:
+To <strong style="color: #b16286">restore</strong> the current configuration to the same remote state:
 
 ```shel
 terraform init -reconfigure
@@ -1488,19 +1488,19 @@ terraform workspace show
 
 The `-help option` shows a list of the option within the `worksapce` command
 
-To create a new workspace:
+To <strong style="color: #b16286">create</strong> a new workspace:
 
 ```shell
 terraform workspace new development
 ```
 
-To list all the workspaces:
+To <strong style="color: #b16286">list</strong> all the workspaces:
 
 ```shell
 terraform workspace list
 ```
 
-To move between terraform workspaces:
+To <strong style="color: #b16286">move</strong> between terraform workspaces:
 
 ```shell
 terraform workspace select default
@@ -1510,9 +1510,11 @@ terraform workspace select default
 >Workspaces isolate their state, if `terraform plan` is executed, Terraform will not see any existing state for this configuration.
 ##### <span style="color: #689d6a">Terraform State</span>
 
-Terraform stores and operates on the state of the managed infrastructure. Terraform uses this <span style="color: #d65d0e">state</span> on each execution to make plan and make changes. This state must be stored and maintained on each execution so future operations can be performed correctly.
+Terraform stores and operates on the state of the managed infrastructure. Terraform uses this <strong style="color: #d65d0e">state</strong> on each execution <strong style="color: #d79921">to make plan and make changes</strong>. This state must be stored and maintained on each execution so future operations can be performed correctly.
 
-The location and method of operation of Terraform's state is determined by the Terraform <span style="color: #d65d0e">backend</span>. By default Terraform uses a local backend, where state information is stored and acted upon locally within the working directory in local file name `terraform.tfstate`.
+The <strong style="color: #d79921">location and method of operation</strong> of Terraform's state is determined by the Terraform <strong style="color: #d65d0e">backend</strong>. 
+
+<strong style="color: #b16286">By default</strong> Terraform uses a <strong style="color: #d79921">local backend</strong>, where state information is stored and acted upon locally within the working directory in local file name `terraform.tfstate`.
 
 >[!note]
 >The <span style="color: #d65d0e">local state</span> file is indexed in JSON format and stored on disk, even though the local state file is editable, <strong style="color: #d79921">direct file editing is not recommended</strong>. It's meant for internal use within Terraform. 
@@ -1534,31 +1536,31 @@ To `state` command is used for advanced state management, which is the recommend
 terraform state
 ```
 
-To show an json output of the `.tfsate` file:
+To <strong style="color: #b16286">show</strong> an json output of the `.tfsate` file:
 
 ```shell
 terraform show state
 ```
 
-To show an specific resource:
+To <strong style="color: #b16286">show</strong> an specific resource:
 
 ```shell
 terraform state show aws_instance.web_server
 ```
 
-To list all resource on the `.tfsate` file:
+To <strong style="color: #b16286">list</strong> all resource on the `.tfsate` file:
 
 ```shell
 terraform state list
 ```
 
-To rename a resource:
+To <strong style="color: #b16286">rename</strong> a resource:
 
 ```shell
 terraform state mv aws_instance.server aws_instance.web_server
 ```
 
-To stop managing a resource without destroying it:
+To <strong style="color: #b16286">stop</strong> managing a resource without destroying it:
 
 ```shell
 terraform state rm <resource_name>
@@ -1577,9 +1579,9 @@ The `terraform refresh` command reads the current settings from all managed remo
 - it's useful to determine what action to take during the next apply. It won't modify any infrastructure resource, but it will modify the state file
 - It's done automatically as part of the `plan` and `apply` process.
 
-Refreshing state is the first step of the `terraform plan` process: read the current state of any already existing remote objects to make sure that the Terraform state is up-to-date.
+<strong style="color: #d79921">Refreshing state</strong> is the first step of the `terraform plan` process: read the current state of any already existing remote objects to make sure that the Terraform state is up-to-date.
 
-To perform the first part of the `terraform plan`:
+To <strong style="color: #b16286">perform</strong> the first part of the `terraform plan`:
 
 ```shell
 terraform plan -refresh-only
@@ -1838,11 +1840,11 @@ Terraform cloud allows to specify credentials to aws environments through enviro
 
 It stores the state file, and keeps a version history of the state file as it grows and changes over time.
 
-the configuration places a terraform cloud variable as a priority over any over variables that has been set
+The configuration places a terraform cloud variable as a priority over any over variables that has been set.
 
-each workspace has the ability to set variables, which is specific to the configuration that that workspace represents.
+Each workspace has the ability to set variables, which is specific to the configuration that that workspace represents.
 
-variables can be reused across multiple workspaces within the terraform cloud environment --> terraform cloud variables sets
+Variables can be reused across multiple workspaces within the terraform cloud environment <span style="color: #3588E9">--></span> terraform cloud variables sets
 ###### <span style="color: #98971a">Version Control</span>
 
 Terraform Cloud can integrate with the most popular VCS systems, including GitHub, GitLab, Bitbucket and Azure DevOps. And it works actually with the on prem or SAS based versions of these products.
@@ -1904,30 +1906,43 @@ To add the policy set to Terraform Cloud organization:
 - organization settings <span style="color: #3588E9">--></span> policy sets <span style="color: #3588E9">--></span> connect a new policy set
 ##### <span style="color: #689d6a">Terraform CDK</span>
 
-CDKTF is a new way of provisioning suing Terraform --> use a programming language o write the provisioning code
+<strong style="color: #d65d0e">CDKTF</strong> is a new way of provisioning using Terraform <span style="color: #3588E9">--></span> use a <strong style="color: #d79921">programming language</strong> to write the provisioning code
 - supported languages are currently, Typescript, Python, Java, C# and Go
 - it works that just like writing an application code
 - cdktf translate (synthesize) the application code into terraform files that can be deployed by terraform
 
-CDKTF is based in the same technology as the AWS Cloud Development Kit (AWS CDK)
+CDKTF is <strong style="color: #d79921">based in the same technology</strong> as the AWS Cloud Development Kit (AWS CDK)
 
 Both AWS CDK and CDKTF will take the application code and translate it back into infrastructure configuration files the infrastructure (CloudFormation / HCL)
 
-to init the provider
-`cdktf get` --> it'll create the necessary golang library.
-`go mod tidy` --> download the go modules 
+To <strong style="color: #b16286">init</strong> the provider:
 
-to provision the infra: `cdktf deploy`
+```shell
+cdktf get # create the necessary golang library.
+```
+
+```shell
+go mod tidy # download the go modules
+```
+
+To <strong style="color: #b16286">provision</strong> the infra: 
+
+```shell
+cdktf deploy
+```
 ##### <span style="color: #689d6a">Terragrunt</span>
 
 Terragrunt is wrapper built in on top of Terraform.
 
-key features
+<strong style="color:white">Key features:</strong>
 - Hierarchical Configuration: organize code using a direct structure.
 - Remote Management: handle the centralized ad secure storage of state files
 - Modular Variable Definitions: defines variables in a modular way
 - DRY Approach: avoid code duplication.
 
-Use cases:  complex infrasctrucutre projects. management deployetn acroos multipel environments --> simplifies the process of amintaining and scaling infra acroos different environments.
+<strong style="color:white">Use cases:</strong>  
+- complex infrastructure projects. 
+- management deployment across multiple environments --> simplifies the process of maintaining and scaling infra across different environments.
 
-the installed version of terragrunt must aling with the versions of terraform or opentofu
+>[!note]
+>The installed version of terragrunt must align with the versions of terraform or opentofu

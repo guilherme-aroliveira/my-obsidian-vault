@@ -533,9 +533,11 @@ The `network` flag can also be used to add multiple containers into the same net
 
 To allow communication between the applications running in a container to the host achine machine just use the address `host.docker.internal`.
 
-Almost every <strong style="color: #d79921">container engine's networking model is based</strong> on plug-ins. These plug-ins describe how these packets get routed to containers. 
+Almost every <strong style="color: #d79921">container engine's networking model is based</strong> on plug-ins. These plug-ins describe how these packets get routed to containers.  Third party network drivers can be installed through network plugins, which can be found on Docker Hub or through GitHub.
 
 Some plug-ins will send these packets to containers through virtual network card in the local machine. Other plug-ins might give container "real network cards" that work with the network card on the local machine to receive packets appropriately.
+
+<span style="color:#98971a">Weaveworks Weave Net</span> plugin is the most popular network plugin. It allows to create virtual networks for containers that span multiple hosts. It comes with additional features, like service discovery and network policies. 
 
 <strong style="color: #b16286">Every container</strong> <strong style="color: #d79921">uses the bridge docker network</strong> by default. It connects docker containers to a virtual bridge network installed on the host machine.
 
@@ -544,7 +546,7 @@ Some plug-ins will send these packets to containers through virtual network card
 
 <span style="color: #d65d0e">Bridge drivers</span> isolate through network namespace unsharing and iptables.
 
-The network namespace allows container within it to get their very own network stack that's isolated from the network stack on the host system, including network adapters.
+The net namespace allows container within it to get their very own network stack that's isolated from the network stack on the host system, including network adapters.
 
 Additionally, docker uses IP tables rules to ensure that bridges are isolated from each other.
 
@@ -569,11 +571,15 @@ To <strong style="color: #b16286">set</strong> the network driver:
 docker network create --driver bridge [network]
 ```
 
-The `--net` option allows to join a container to a different network.
+The `--network` option allows to join a container to a different network.
 
 ```shell
-docker container create -it --name container-a --entrypoint sh     --net network-a curlimages/curl
+docker container create -it --name container-a --entrypoint sh     --network network-a curlimages/curl
 ```
+
+<strong style="color:#c6554f">Obs:</strong> Container on the default bridge need to know each other IP addresses.
+
+Every bridge network will have a gateway IP address and a subnet expressed in the classless inter domain routing notation or CIDR.
 
 <strong style="color: #b16286">By default</strong> containers in different bridge networks <strong style="color: #b16286">cannot</strong> talk to each other. To change it is by joining one of the containers to the containers network. 
 
@@ -581,37 +587,113 @@ Another way to communicate containers is by publishing a port of the container a
 
 <strong style="color: #d79921">Port publishing</strong> uses IP tables, a rules engine for filtering linux packets to "rewrite" packets destined for a container's IP address and a port on the host machine. This allows to connect a container trough the container's bridge network gateway on the host machine.
 
+Obs: Only ports that are free on the host machine can be mapped.
+
 The `--publish` option allows port publishing:
 
 ```shell
-docker container create -it --name container-a --entrypoint sh --net network-a --publish 8080:80 curlimages/curl
+docker container create -it --name container-a --entrypoint sh     --network network-a --publish 8080:80 curlimages/curl
 ```
+
+Obs: In a Mac or Windows machine the Docker Engine ir running inside of the VM. The ports will be mapped to ports within the VM.
+
+>[!info]
+>Docker Desktop works around this by using a background program called VPNKit to proxy connections between the host and containers within its VM. Lima does the same thing but with SSH tunnels.
 
 Another way to access the containers externally is to associate the container to the <strong style="color: #d65d0e">host network</strong>. This takes out any network isolation between the Docker host and the Docker container.
 
-The <strong style="color: #d65d0e">null network</strong> drives is used to create containers without any external networking capabilities. These containers will not be able to communicate with other container or any network or with the outside world <span style="color: #3588E9">--></span> <strong style="color: #b16286">isolated network</strong>.
+Containers that use the host driver do not get the network namespaces unshared to them. They also do not get allocated virtual network adapters. 
 
-Containers connected to a network backed with a null driver will get a loop back interface, so that it can connect to itself trough the special 127.0.0.1 IP address and localhost DNS label. The null network is provided by default.
+Containers that use host mode networking get their packets like any other process on the system.
+
+<strong style="color: white">Benefits</strong> of <strong style="color: #d65d0e">host network</strong>:
+- slightly faster than bridge networks
+- allows connections to multiple container ports from the outside
+- containers are accessible from the host IP instead "virtual" IP <span style="color: #3588E9">--></span> advantageous for applications that are sensitive to NAT like VPN software
 
 ```shell
-doker run --rm --net=none --entrypoint sh curlimages/curl 
+docker run --rm --network host -it --entrypoint sh curlimage/curl
+```
+
+The <strong style="color: #d65d0e">null network</strong> driver is used to create containers without any external networking capabilities. These containers will not be able to communicate with other container or any network or with the outside world <span style="color: #3588E9">--></span> <strong style="color: #b16286">isolated network</strong>.
+
+Containers connected to a network backed with a null driver will get a loop back interface, so that it can connect to itself trough the special 127.0.0.1 IP address and localhost DNS label. The <strong style="color: #d65d0e">none network</strong> is <strong style="color: #b16286">provided by default</strong>, but the user can create its own none network.
+
+```shell
+docker run --rm --network none --entrypoint sh curlimages/curl 
 ```
 
 >[!note]
->The null network driver doesn't disable networking entirely. It only disables external networking outside of the container. 
+>The <strong style="color: #d79921">null network driver doesn't disable networking entirely</strong>. It only disables external networking outside of the container. Networked applications running within the container will still be able to talk to each other at localhost.
 
-Docker also supports these alternative drivers - though you will use the "bridge" driver in most cases:
-- macvlan --> give containers real IP addresses on the network. Useful for containers running applications that need to discover other devices on the network, like music servers or home automation software, or secure high performance applications that needs yo bypass a network bridge without having access to all of te host's network interface.
-- ipvlan --> 
+<strong style="color: white">Advanced Network Drivers:</strong>
+- <strong style="color: #d65d0e">macvlan</strong> <span style="color: #3588E9">--></span> give containers real IP addresses on the network.
+- <strong style="color: #d65d0e">ipvlan</strong> <span style="color: #3588E9">--></span> give containers real IP addresses on the network.
+- <strong style="color: #d65d0e">overlay</strong> <span style="color: #3588E9">--></span> creates a container network that spans multiple nodes
 
-Both drives work by binding containers  to specific network card on the host running docker engine. 
-differences: macvlan networks five container individual MAC addresses, which can lead to a network degradation; ipvlan gives containers the same MAC address and using a network driver on the host to handle traffic.
+<strong style="color: #d65d0e">macvlan</strong> and  <strong style="color: #d65d0e">ipvlan</strong> are both useful for containers running applications that need to discover other devices on the network, like music servers or home automation software, or secure high performance applications that needs to bypass a network bridge without having access to all of te host's network interface.
 
-- **host**: For standalone containers, isolation between container and host system is removed (i.e. they share localhost as a network)
-    
-- **overlay**: Multiple Docker daemons (i.e. Docker running on different machines) are able to connect with each other. Only works in "Swarm" mode which is a dated / almost deprecated way of connecting multiple containers
-    
-- **Third-party plugins**: You can install third-party plugins which then may add all kinds of behaviors and functionalities
+Both drivers work by binding containers to specific network card on the host running docker engine
+
+>[!note]
+>Docker does nos provides networks that use the macvlan or ipvlan driver by default. 
+
+<strong style="color: white">Differences</strong> between <strong style="color: #d65d0e">macvlan</strong> and <strong style="color: #d65d0e">ipvlan</strong>:
+- macvlan networks give container individual MAC addresses, which can lead to a network degradation
+- ipvlan gives containers the same MAC address and using a network driver on the host to handle traffic
+- ipvlan can operate in L2 and L3 mode, but in L2 mode ipvlan behaves almost exactly like macvlan, except everything going through a single MAC address.
+
+Obs: In L3 all routing is done by the Docker host instead of working through a network interface default gateway.
+
+To create macvlan or ipvlan networks:
+
+```shell
+docker network create -d macvlan --subnet SUBNET -o INTERFACE 
+--gateway GATEWAY
+```
+
+The `-o` option must be used if the macvlan driver is being used or if the ipvlan driver in L2 mode is being used too/.
+
+The `--gateway` option is optional for L3-mode ipvlan networks.
+
+>[!example] Example - macvlan driver
+>```shell
+>docker network create -d macvlan --subnet 192.168.1.0/24 -o eth0   
+>--gateway 192.168.1.1 my-net
+>```
+
+The `--aux-address` option can be use to give Docker a list of IP addresses to exclude from allocation.
+
+The `--ip-range` option allow to specify and IP address range. It informa Docker to allocate IP addresses from a range of addresses. The range must be provided in CIDR format. 
+
+>[!example] Example
+>```shell
+>docker network create -d macvlan --subnet 192.168.1.0/24 -o eth0   
+>--gateway 192.168.1.1 --aux-address "host=192.168.1.2" my-net
+>```
+>```shell
+>docker network create -d macvlan --subnet 192.168.1.0/24 -o eth0 
+>--gateway 192.168.1.1 --ip-range 192.168.1.64/26 my-net
+>```
+>aux can be specified multiple times for every address to be excluded. 
+>
+>Each option requires a label of the host or device being excluded. 
+>
+
+The <strong style="color: #b16286">goal</strong> of an <strong style="color: #d65d0e">overlay</strong> network is to <strong style="color: #d79921">make container running on multiple machines,</strong> and potentially multiple networks, appear as if they are on a single network. 
+
+Most <strong style="color: #d65d0e">overlay</strong> networks use three things:
+- a network tunnel
+- a virtual network interfaces on each node
+- an agent (daemon) running on each node 
+
+The agents are <strong style="color: #b16286">responsible</strong> for <strong style="color: #d79921">sending network packets from containers</strong> through virtual network interfaces installed by the overlay. 
+
+The virtual networks interfaces than wrap each packet into a bigger packet that gets sent through the tunnel to its destination. Usually, the packets are encrypted in transit within the tunnel to prevent outsiders from figuring out what's being sent within it or through it.
+
+Once it arrives there, the original packet is retrieved from the bigger packet and sent to the container through the overlay's virtual network interface.
+
+Technologies that overlay uses to establish the secure tunnel, <span style="color:#98971a">Virtual Extensible LAN</span> or <span style="color:#98971a">vxlan</span>, and <span style="color:#98971a">Wire Guard</span> are the most popular choices.
 ###### <span style="color:#98971a">Storage</span>
 
 Everything you create within a container stays within the container. Once the container stops, the data gets deleted with it.
