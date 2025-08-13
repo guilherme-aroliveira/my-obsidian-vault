@@ -758,7 +758,9 @@ Bind mount two advanced configuration parameters: `bind-propagation` and `selinu
 - `bind-propagation`: configures how sub-mount are presented
 - `selinux-label`: configures whether mount can be shared with other containers
 
-<strong style="color: #d65d0e">Bind mount</strong> is used during development to reflect changes in the code, into running container instantly. Because if the container is running in production on a server, there is no connected source code, which updates while it's running.
+<strong style="color: #d65d0e">Bind mount</strong> is used during development to reflect changes in the code, into running container instantly. Because if the container is running in production on a server, there is no connected source code, which updates while it's running. 
+
+Bind mount is also great if data of an app isn't very intensive.
 
 <strong style="color: white">Uses Cases</strong> - <strong style="color: #d65d0e">bind mount</strong>:
 - Hot reloading an application within a container while changing code from outside of it
@@ -769,32 +771,13 @@ Bind mount two advanced configuration parameters: `bind-propagation` and `selinu
 
 The file systems represented to containers are actually unified sets of folders behind the scenes. Volumes works similarly, when a volume is mounted into a container, Docker maps a folder into a mount point within the container. 
 
-By contrast, when you use a volume, a new directory is created within Docker's storage directory on the host machine, and Docker manages that directory's contents.
-
 <strong style="color: #d65d0e">Volumes</strong> allows to safely handle data coming into and out of containers. A volume is a <strong style="color: #d79921">directory on the host machine that is accessible to a container</strong>. 
 
-<strong style="color: #d65d0e">Volumes</strong> are a good option for persisting data across different container, which can be used to store data from a database outside the container.  
+<strong style="color: #d65d0e">Volumes</strong> are a good option for persisting data across different container, which can be used to store data from a database outside the container. It's recommended using volumes if the container is dealing with large files.
+
+When a volume is used, a new directory is created within Docker's storage directory on the host machine, and Docker manages that directory's contents.
 
 When a Docker volume is used, the data inside it is not stored in the container's file system, but in the host machine's file system <span style="color: #3588E9">--></span> the data in a volume persists even if the container is deleted or recreated.
-
-While volume and bind mount can be used to share data between the host machine and a container, they work differently and have different use cases.
-
-When working with large file bind mount is slower, 
-if docker is running on linux of the app isn't very data intensive, bind mount are great, otherwise it's recommended copying data into volumes or rebuilding the container image on save.
-
-`docker run --mount type=bind,src=/dev/noexist,dst=/mnt/foo alpine`
-
-`docker run --volume <volume-name>:<mount-path>`
-
-When you create a volume, it's stored within a directory on the Docker host.
-When you mount the volume into a container, this directory is what's mounted into the container
-
-A volume's contents exist outside the lifecycle of a given container. When a container is destroyed, the writable layer is destroyed with it. Using a volume ensures that the data is persisted even if the container using it is removed.
-
-To mount a volume with the docker run command, you can use either the `--mount or --volume flag`.
-
-`docker run --mount type=volume,src=<volume-name>,dst=<mount-path>v`
-`docker run --volume <volume-name>:<mount-path>`
 
 A container can write data into a volume and read data from it. By default, volumes are <strong style="color: #b16286">read write</strong> <span style="color: #3588E9">--></span> the container is able to read data from there and write data to them.
 
@@ -803,6 +786,8 @@ To <strong style="color: #b16286">create</strong> a volume:
 ```shell
 docker volume create [volume_name]
 ```
+
+When a volume is created, it's stored within a directory on the Docker host.
 
 The `-d` flag can be used to change the volume driver and the `-o` flag to specify additional configuration options to the volume driver.
 
@@ -820,6 +805,18 @@ To <strong style="color: #b16286">inspect</strong> a volume:
 ```shell
 docker volume inspect [volume_name]
 ```
+
+To <strong style="color: #b16286">mount</strong> a volume:
+
+```shell
+docker run --mount type=volume,src=<volume-name>,dst=<mount-path>
+```
+
+```shell
+docker run --volume <volume-name>:<mount-path>
+```
+
+When a volume is mounted into a container, this directory is what's mounted into the container.
 
 To <strong style="color: #b16286">remove</strong> a volume:
 
@@ -857,7 +854,9 @@ To restore the backup:
 
 A defined path in the container is mapped to the create volume / mount.
 
-volumes --> managed by docker
+---
+
+Types of volumes: 
 - anonymous volumes  --> created specifically for a single container, attach to a container, can be used to save (temporary) data inside the container
 - named volumes --> volumes persist even if the container is shut down, as the folders in the hard drive. good for data which should be persistent but which it doesn't need to be edit directly. 
 
