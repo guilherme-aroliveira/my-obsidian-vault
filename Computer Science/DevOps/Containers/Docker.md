@@ -874,10 +874,6 @@ To <strong style="color: #b16286">create</strong> a named volume:
 docker run -v data:/app/data
 ```
 
-To meet a compliance requirement, you are being asked to store folders created for local volumes in /opt/third-party/docker/volumes. Docker volumes must not live at /var/lib/docker/volumes. Which of these solutions will enable Docker to do this?
-
-Create a new dockerd config file, set --data-root to /opt/third-party/docker/volumes within it, then configure dockerd to use this config file with the --config flag.
-
 ---
 
 Volumes present folders, shares, or block devices to container through volume drives. <strong style="color: #d65d0e">Volume drivers</strong> define <strong style="color: #d79921">how volumes are created and managed by containers</strong>.
@@ -897,7 +893,7 @@ use amore sophiscated process supervisor, like s6-overlay --> it does the same j
 docker run -e APP_USER=Guilherme --rm test=app
 ###### <span style="color:#98971a">Registry</span>
 
-The image registry is a web server that serves container images. The difference between a regular web server from an image registry is how the images are laid out.  
+The <strong style="color: #d65d0e">image registry</strong> is a <strong style="color: #d79921">web server that serves container images</strong>. The difference between a regular web server from an image registry is how the images are laid out.  
 
 Registries use a particular folder structure to make it easy fro docker to find images and verify that hey are who they claim to be.
 
@@ -985,8 +981,11 @@ configure the web server with the credentials
 
 `docker run --rm -v $PWD/nginx.conf:/etc/nginx/nginx.conf -v $PWD/htpasswd:/auth/htpasswd -v $PWD/certs:/certs --network registry -p 5000:5000 -d nginx`
 
-log into the local registry:
-`docker login localhost:5000`
+To log into the local registry:
+
+```shell
+docker login localhost:5000
+```
 
 certificate root authorities are special certificates used by just about every app that talks HTTPS, for verifying client and service certificates.
 ##### <span style="color: #689d6a">Docker CLI</span>
@@ -1185,9 +1184,9 @@ docker run --entrypoint sleep2.0 ubuntu-sleeper 10
 ```
 ##### <span style="color: #689d6a">Dockerfile</span>
 
-The Dockerfile is a language for creating and describing docker container images. Dockerfile is the name of the language, as well as the default name of the file that Docker looks for when creating container images. 
+The <strong style="color: #d65d0e">Dockerfile</strong> is a <strong style="color: #b16286">language</strong> <strong style="color: #d79921">for creating and describing docker container images</strong>. Dockerfile is the name of the language, as well as the default name of the file that Docker looks for when creating container images. 
 
-Every Dockerfile consist of a set of commands (instructions), each on their own line. The instruction is the first word of the statement, every other word after the instruction is provided to is as arguments.
+<strong style="color: #b16286">Every</strong> Dockerfile <strong style="color: #d79921">consist of a set of commands</strong> (instructions), each on their own line. The instruction is the first word of the statement, every other word after the instruction is provided to is as arguments.
 
 >[!example] Example - Dockerfile
 >```dockerfile
@@ -1208,82 +1207,79 @@ Every Dockerfile consist of a set of commands (instructions), each on their own 
 
 The byproduct of the command that ran in the container is saved into a layer. This layer is added to the the new image, which is given to the intermediate container crated by the next command of the Dockerfile. This process repeats until every command in the Dockerfile is processed.
 
-<strong>Obs:</strong> Command like `LABEL`, `EXPOSE` and `ENTRYPOINT` do not run in intermediate containers.
+<strong style="color:#c6554f">Obs:</strong> Command like `LABEL`, `EXPOSE` and `ENTRYPOINT` do not run in intermediate containers.
 
-To build the image from a Dockerfile:
+To <strong style="color: #b16286">build</strong> the image from a Dockerfile:
 
-```dockerfile
+```shell
 docker build .
 ```
 
-In case in the current directory there are more than one Dockerfile, it can be specified using the `--file` or `-f` option.
+To <strong style="color: #b16286">build</strong> from a different Dockerfile:
 
-```dockerfile
-docker build -f server.Dockerfile .
+```shell
+docker build -f server.Dockerfile . # -f or --file option
 ```
 
 The `--force-rm` option allows to remove any intermediate containers that exist, even if the build is unsuccessful.
 
-```dockerfile
+```shell
 docker build --force-rm=true .
 ```
 
 The `--rm=true` option can also be used in case of unsuccessful build. The intermediate container will not be removed. This allows for debugging the last intermediate container or committing it as an intermediate image.
 
-```dockerfile
+```shell
 docker build --rm=true .
 ```
 
 >[!note]
 >The context is simply the folder containing files that Docker will include in the image.
 
-The `--no-cache` option cane be used to skip the cache and rebuilt the entire image. It's useful in case the installation depends on external resources.
+The `--no-cache` option can be used to skip the cache and rebuilt the entire image. It's useful in case the installation depends on external resources.
 
-```dockerfile
+```shell
 docker build --no-cache .
 ```
 
 If the Dockerfile is elsewhere the path to it must be informed:
 
-```dockerfile
+```shell
 docker build ~/Dockerfiles/ubuntu/
 ```
 
-When Docker finishes running the Dockerfile, the resulting image will be on the <span style="color: #d65d0e">local registry</span>.
-
-Each step of running a Dockerfile is cached, Docker skips lines that haven't changed since the last build. dot here, we tell Docker that the Dockerfile will be in the same folder as we're running this command in.
+>[!info]
+>When Docker finishes running the Dockerfile, the resulting image will be on the <strong style="color: #d65d0e">local registry</strong>. And each step of running a Dockerfile is cached, Docker skips lines that haven't changed since the last build
 
 If the name of the source image is defined without a tag, the default tag will be used, which is latest. When there's no tag defined, Docker assumes that the image that's being created is the latest version of the images in the repository.
 
-To build an image with a tag:
+To <strong style="color: #b16286">build</strong> an image with a tag:
 
-```dockerfile
+```shell
 docker build -t my-webapp:v1 .
 ```
 
-When creating a new version of an image, the `build` command must be used to rebuild the image with a new image ID --> good for keeping each version separate.
+When creating a new version of an image, the "build" command must be used to rebuild the image with a new image ID <span style="color: #3588E9">--></span> good for keeping each version separate.
 
-```dockerfile
+```shell
 docker build --no-cache -t my-webapp:v2 .
 ```
 
-To run a container based on a Dockerfile:
+To <strong style="color: #b16286">run</strong> a container based on a Dockerfile:
 
-```dockerfile
+```shell
 docker run container_id -p 3000:80
 ```
 
-If the build output shows a warning saying that "legacy build is deprecated", consider using BuildKit, Docker's improved image builder. 
+In case the build output shows a warning saying that "legacy build is deprecated", consider using BuildKit, Docker's improved image builder. 
 
-BuildKit provides improved performance and additional helpful features over the legacy builder that ships with Docker.
+<strong style="color: #d65d0e">BuildKit</strong> <strong style="color: #b16286">provides</strong> <strong style="color: #d79921">improved performance and additional helpful features</strong> over the legacy builder that ships with Docker. The "build" command use it underneath the hood for version of Docker Desktop published after 2023. 
 
-To use BuildKit:
+To <strong style="color: #b16286">use</strong> BuildKit:
 
 ```shell
 docker buildx build [options]
 ```
-
-docker build use Buildket underneath the hood for version of Docker Desktop published after 2023.
 
 Docker Builds gives to the user more options with what can be done with images that it provides. 
 
@@ -1293,9 +1289,12 @@ docker buildx build -t my-image --load .
 
 The `--load` is a shortcut that tells BuildKit to build the image and load it into Docker when it's done.
 
-Obs: buildx creates build container or builders when it's run for the first time
+<strong style="color:#c6554f">Obs:</strong> the "buildx" command creates build container or builders when it's run for the first time.
 
-One of BuildKit's features is that is uses something called exportes to give the user more control over the image that it produces. BuildKit cab automacaillt push images into image regitries after they are done building or it can save them into the host mamchine as tarball files.
+<strong style="color: white">BuildKit's features:</strong>
+- use exportes <span style="color: #3588E9">--></span> give the user more control over the image that it produces
+- automatically push images into image registries after the build
+- save images into the host machine as tarball files
 ###### <span style="color:#98971a">Dockerfile Commands</span>
 
 <code style="color: #689d6a">FROM</code> <span style="color: #3588E9">--></span> defines the "base" image that the Dockerfile's image will be created from. It links the current image to the new image.
@@ -1336,7 +1335,7 @@ FROM ubuntu:kinetic AS base
 >```
 >The first argument is the file or directory within the context to be copied. The second argument is the path inside of the container that file or directory in the first argument will be copied into
 
-Using **wildcards** on arguments:
+Using <strong style="color: #b16286">wildcards</strong> on arguments:
 
 The `?` to replace single characters in a file or directory
 
@@ -1393,7 +1392,7 @@ container created by docker run are non interactive by default --> contaienrs ar
 
 <code style="color: #689d6a">ENTRYPOINT</code> <span style="color: #3588E9">--></span> configures the container image to run an application when a container is created from it. It takes two forms, just like the RUN command. But the form affects how the application behaves. 
 
-Shell Form:
+<strong style="color:white">Shell Form:</strong>
 - App runs as a child of /bin/sh or cmd
 - Any signal sent to the app are caught by the shell, not the program
 - Any code in the app that relies on signals will not run
@@ -1417,7 +1416,7 @@ The `entrypoint` script pattern simply takes all of the logic in a Dockerfile in
 >```
 >entrypoint scripts makes the Dockerfile easier to read and debug without removing control from the app like the shell form does.
 
-Exec form: 
+<strong style="color:white">Exec Form:</strong>
 - App runs as the top-level process within the container (as PID 1)
 - Any signal sent to the app are sent to the program
 - Arguments sent to the container will get passed in the program
@@ -1447,7 +1446,7 @@ The are four types of combinations with CMD and ENTRYPOINT:
 >```
 >The argument is part of the app, so it can't be override it. Any argument typed with `docker run` will be appended into the program.
 
-ARG --> defines build arguments, which are variables provided at build time.
+<code style="color: #689d6a">ARG</code> <span style="color: #3588E9">--></span> defines build arguments, which are variables provided at build time.
 
 >[!example] ARG command:
 >```dockerfile
@@ -1469,7 +1468,7 @@ ARG --> defines build arguments, which are variables provided at build time.
 >[!note]
 >If the `--build-arg` is not used the image might not behave the way it was expected to, event if the build was successful.
 
-ENV --> defines environment variables that containers started from an image should receive. 
+<code style="color: #689d6a">ENV</code> <span style="color: #3588E9">--></span> defines environment variables that containers started from an image should receive. 
 
 >[!example] ENV command:
 >```dockerfile
@@ -1484,7 +1483,7 @@ ENV --> defines environment variables that containers started from an image shou
 >[!info]
 >ENV variables are great for providing default configuration for apps while still allowing users to change them when they start containers with 'docker run'
 
-Differences between  ENV and ARG
+Differences between ENV and ARG
 - ENV variables are defined for every container started from an image; ARG variables are only used during runtime.
 - ARGs are set at build time, ENVs are set at run time --> it can't be override through docker build, environment variables can only be override is by using the `-e` or `--env` flag with docker run. 
 
@@ -1492,7 +1491,7 @@ Similarities between  ENV and ARG
 - Both ENV and ARG can only be expanded within Run commands
 - ENVs and ARGs used by RUN commands must precede the RUN commands that reference them
 
-LABEL --> allows to document the images by adding metadata to them. Accepts a key-value pair. The most popular LABEL in Docker image is the maintainer.
+<code style="color: #689d6a">LABEL</code> <span style="color: #3588E9">--></span> allows to document the images by adding metadata to them. Accepts a key-value pair. The most popular LABEL in Docker image is the maintainer.
 
 >[!example] LABEL command:
 >Option 1
@@ -1509,13 +1508,13 @@ LABEL --> allows to document the images by adding metadata to them. Accepts a ke
 >using the Python base image."
 >```
 
-WORKDIR --> sets a working directory from RUN commands within the Dockerfile and/or container create from the image. The last WORKDIR will be used by containers.
+<code style="color: #689d6a">WORKDIR</span> <span style="color: #3588E9">--></span> sets a working directory from RUN commands within the Dockerfile and/or container create from the image. The last WORKDIR will be used by containers.
 
 ```dockerfile
 WORKDIR /app
 ```
 
-USER --> sets the Linux or Windows user to be used for RUN command and/or container. 
+<code style="color: #689d6a">USER</span> <span style="color: #3588E9">--></span> sets the Linux or Windows user to be used for RUN command and/or container. 
 - Linux users can be numerical.
 - It can be used multiple times to change the working directory while building. 
 - The last USER command will be used by containers. 
@@ -1533,7 +1532,7 @@ USER --> sets the Linux or Windows user to be used for RUN command and/or contai
 >docker run --rm --entrypoint whoami my-image newuser
 >```
 
-EXPOSE --> documents network ports that containers created from the image should expose at runtime. It only accepts as arguments the port number.
+<code style="color: #689d6a">EXPOSE</span> <span style="color: #3588E9">--></span> documents network ports that containers created from the image should expose at runtime. It only accepts as arguments the port number.
 - By default it assumes TCP ports
 - Does not automatically expose ports
 - Useful for documentation; completely optional
@@ -1542,7 +1541,7 @@ EXPOSE --> documents network ports that containers created from the image should
 EXPOSE 8080
 ```
 
-VOLUME --> maps a folder in the container to persist data
+<code style="color: #689d6a">VOLUME</span> <span style="color: #3588E9">--></span> maps a folder in the container to persist data
 
 ```dockerfile
 FROM node
@@ -1564,30 +1563,28 @@ EXPOSE $PORT
 CMD ["node", "server.js"]
 ```
 
-Docker supports build-time arguments and runtime environment variables.
-Arguments allow you to set flexible bits of data, in your Dockerfile which you can use in there to pluck different values into certain Dockerfile instructions.
-set on image build (docker build) via `--build-arg`
+Docker supports build-time arguments and runtime environment variables. Arguments allows to set flexible bits of data in a Dockerfile which can be used to pluck different values into certain Dockerfile instructions.
 
-Environment variables on the other hand are available inside of a Dockerfile like arg,
-but args are available in your entire application code in your running application.
-and you can set them with the `--env` option inside of a Dockerfile,
+Use `-e` or `--env` to <strong style="color: #b16286">set</strong> environment variables inside a Dockerfile: 
 
-`docker run -d --rm -p 3000:8000 --env PORT=8000 --name feedback-app`
-`docker run -d --rm -p 3000:8000 -e PORT=8000 --name feedback-app`
-
-you can also specify a file that contains your environment variable
-
-```env
-PORT=8000
+```shell
+docker run -d --rm -p 3000:8000 -e PORT=8000 --name feedback-app
 ```
 
-`docker run -d --rm -p 3000:8000 --env-file ./.env --name feedback-app`
+To <strong style="color: #b16286">specify</strong> a file that contains an environment variable:
 
-And args and environment variables allow you to create more flexible images and containers because you don't have to hard-code everything into these containers and images. Instead, you can set it dynamically when you build an image or even only when you run a container.
+```shell
+docker run -d --rm -p 3000:8000 --env-file ./.env --name feedback-app
+```
 
-to build for another environment with a different port value
+Use `--build-arg` to <strong style="color: #b16286">build</strong> another environment with a different value: 
 
-`docker build -t feedback-node:dev --build-arg DEFAULT_PORT=8000 .`
+```shell
+docker build -t feedback-node:dev --build-arg DEFAULT_PORT=8000 .
+```
+
+>[!note]
+>Arguments and environment variables allows to create more flexible images and containers because it doesn't have to hard-code everything into these containers and images. Instead they can be set dynamically when building an image or even running a container. 
 ###### <span style="color:#98971a">Multi-Stage builds</span>
 
 Multi-stage builds use intermediate images to produces smaller final images in a single Dockerfile.
@@ -1635,68 +1632,82 @@ Stages can also be used as many times as is necessary. Each stage descends from 
 - Can produce extremely secure images by discarding unnecessary dependencies. 
 ##### <span style="color: #689d6a">Docker in Docker</span>
 
-if the app needs to interact wit hthe Docker engine itslef 
-running containerized test suites
-creating or managing containers fro mtithin containerized apps
-emulating entire platforms as contaienrs
+Docker in docker is <strong style="color: #d79921">managing containers created by Docker within a docker container</strong>. 
 
-Docker in docker ins managing container created by Docker within a docker container 
+<strong style="color: #d65d0e">Docker in Docker</strong> is useful when an app needs to interact with the Docker engine itself, like running containerized test suites, creating/managing containers from within containerized apps, or emulating entire platforms as containers.
 
-two ways to create a container that will create other containers:
- - install Docker engine within the container 
-    issues: cgroup mounting
-			- overlay filesystem incompatibilities
-			- containers inscessible outside of parent container 
- - mount Docker's UNIX docket on the contaner to a file whitin a container and isntall just a Docker client
- 
- configurahe containe to communicate with the exixtign DOcker engine and create containers from it. this is done by mouting 
- the UNIX socket use by teh DOcker eingine to the container --> it will create contianer directly from wheve the Docker engine is running.
- 
-To do pure Docker "in" Docker, is best to do with sysbox
-sysbox is container runtime that makes it realyy easy to run Docker whithin Docker.
-it does this through a special runtime that hanldes all of the details of creating
-and managing contaienr within a container.
+Ways to create a container that creates other containers:
+- install Docker engine within the container 
+- mount Docker's UNIX docket on the container to a file within a container and install just a Docker client
 
-Create the container 
-docker run --rm -v /var/run/docker.sock:/var/run/docker.sock --entrypoint bash -i -t my-image
+<strong style="color: white">Issues</strong> with Docker Engine in Docker:
+- relies on version 2 of cgroup driver
+- overlay filesystem incompatibilities
+- containers inaccessible outside of parent containers
 
-Check the communication with docker engine
-curl --unix-socket /var/run/docker.sock http://anything/containers/json
+The <strong style="color: #b16286">best alternative</strong> to use Docker "in" Docker is by <strong style="color: #d79921">configuring the container to communicate the existing Docker engine</strong> and create containers from it. This is done by bind mounting the UNIX socket used by the Docker engine to the container <span style="color: #3588E9">--></span> it will create container directly from where the Docker engine is running.
 
-install docker client
-curl -L get.docker.io | bash
+<strong style="color:#c6554f">Obs:</strong> it uses the context of the machine that's running the Docker engine, not the context of the container.
 
-create a new container
-docker run --rm my-image
+To do pure Docker "in" Docker, its best to do with <strong style="color: #d65d0e">sysbox</strong>, which is <strong style="color: #d79921">container runtime</strong> that makes it really easy to run Docker within Docker. It does this through a special runtime that handles all of the details of creating and managing container within a container.
 
-limitations
- One disadvantage of this approach is that we can see other containers, volumes, networks and other resources managed by the Docker engine we're sharing. We can also use those resources from within this container.
- 
- However, the much bigger limitation that you'll run into more often is with mounted volumes
- 
- Docker assumes that any file that is bind mounted that doesn't exist on the host gets created as a directory on the host because we're sharing the Docker engine's Unix socket with this container, it's using the context of the machine that's running the Docker engine, not the context of our container.
- 
- the workarond docker volumes
- 
- create the volume
-  docker volume create temp
- 
- create child container 
-  docker container create -v temp:/tmp alpine
- 
- copy the directory /app into the volume
-	docker cp /app ID:/tmp/app
-	
- start the child container
-	docker run --rm -it -v temp:/tmp alpine
+>[!example] Docker in Docker
+>```shell
+># Create the container 
+>docker run --rm -v /var/run/docker.sock:/var/run/docker.sock --entrypoint bash -i -t my-image
+>
+># Check the communication with docker engine
+>curl --unix-socket /var/run/docker.sock http://anything/containers/json
+>
+># Install docker client
+>curl -L get.docker.io | bash
+>
+># Create a new container
+>docker run --rm my-image
+>```
+
+<strong style="color: white">Limitations:</strong>
+- shared containers, volumes, networks and other resources managed by the Docker engine can be seen
+- the resources can be used from within the container
+- mounted volumes <span style="color: #3588E9">--></span>  it mounts the file as a directory on the host
+
+To solve the issue related to shared resources is to use <strong style="color: #d65d0e">Sysbox</strong> as the Docker "in" Docker approach. This <strong style="color: #d79921">keeps everything isolated</strong> within its own Docker engine while still being managed by the Docker engine on the virtual machine.
+
+To solve the issue related to bind mount is by using Docker volumes, which will  share the file within the container as a file within the child container. 
+
+<strong style="color: white">Solve</strong> the bind volume issue:
+
+<strong style="color: #b16286">Create</strong> the volume:
+
+```shell
+docker volume create temp
+```
+
+<strong style="color: #b16286">Create</strong> child container:
+
+```shell
+docker container create -v temp:/tmp alpine
+```
+
+<strong style="color: #b16286">Copy</strong> the directory "/app" into the volume:
+
+```shell
+docker cp /app [container_id]:/tmp/app
+```
+
+ <strong style="color: #b16286">Start</strong> the child container:
+
+```shell
+docker run --rm -it -v temp:/tmp alpine
+```
 ##### <span style="color: #689d6a">Docker Compose</span>
 
-Docker compose is a tool for defining and running multi-container Docker applications. It allows to define an entire stack, including services, networks, and volumes with a single configuration file and then a set of orchestration commands to start all those services.
+<strong style="color: #d65d0e">Docker compose</strong> is a <strong style="color: #d79921">tool for defining and running multi-container</strong> Docker applications. It allows to define an entire stack, including services, networks, and volumes with a single configuration file and then a set of orchestration commands to start all those services.
 
-Docker Compose can document a system as a runnable configuration file --> compose manifest. It does not add any functionality do the docker ecosystem, but it does make the existing functionality significantly easier to use. Docker Compose works together with Dockerfiles.
+It <strong style="color: #d79921">can document a system as a runnable configuration file</strong> <span style="color: #3588E9">--></span> <strong style="color: #d65d0e">compose manifest</strong>. Compose <strong style="color: #b16286">does not add</strong> any <strong style="color: #d79921">functionality do the docker ecosystem</strong>, but it does make the existing functionality significantly easier to use; and it also works together with Dockerfiles.
 
-Normal Workflow:
-- Dockerfile ---> Docker Build Command ---> Docker Image
+<strong style="color: white">Normal Workflow:</strong>
+- Dockerfile <span style="color: #3588E9">---></span> Docker Build Command <span style="color: #3588E9">---></span> Docker Image
 
 To get started using Docker Compose, the first step is to create a configuration file (compose manifest) inside the application directory. 
 
@@ -1711,14 +1722,14 @@ To get started using Docker Compose, the first step is to create a configuration
 >    container_name: bookstack
 >```
 
-Most common commands for managing the lifecycle of Docker services: up, down, stop, restart.
+<strong style="color: #b16286">Most common</strong> commands for <strong style="color: #d79921">managing the lifecycle</strong> of Docker services: <strong style="color: #d65d0e">up, down, stop, restart.</strong>
 
-Compose is a declarative tool, and it's self-document. It was designed as a tool for a single hosted server. It's well suited for local  development, staging server, continuous integration testing environment, and it's great for managing multiple containers on the same host.
+<strong style="color: #d79921">Compose is a declarative tool, and it's self-document</strong>. It was designed as a tool for a single hosted server. It's well suited for local  development, staging server, continuous integration testing environment, and it's great for managing multiple containers on the same host.
 
-Obs: It's not designed for distributed system and has no tooling for containers across multiple hosts. Compose was designed for non-production environments only. 
+<strong style="color:#c6554f">Obs:</strong> It's  <strong style="color: #d65d0e">not designed</strong> <strong style="color: #d79921">for distributed systems</strong> and has no tooling for containers across multiple hosts. Compose was designed for non-production environments only. 
 ###### <span style="color:#98971a">Compose Commands</span>
 
-To build each defined services:
+To <strong style="color: #b16286">build</strong> each defined services:
 
 ```shell
 docker compose up
@@ -1736,13 +1747,13 @@ The `--build` option force docker compose to reevaluate the Dockerfiles and rebu
 docker compsoe up -d --build bookstack
 ```
 
-To start up only one service:
+To <strong style="color: #b16286">start up</strong> only one service:
 
 ```shell
 docker compose up -d bookstack 
 ```
 
-To stop and delete all running containers:
+To <strong style="color: #b16286">stop</strong> and <strong style="color: #b16286">delete</strong> all running containers:
 
 ```shell
 docker compose down
@@ -1754,35 +1765,58 @@ The `--volumes` will automatically delete any named volumes:
 docker compose down --volumes
 ```
 
-To free up memory:
+To <strong style="color: #b16286">free up</strong> memory:
 
 ```shell
 docker compose stop
 ```
 
-To start and restart all running containers:
+To <strong style="color: #b16286">start</strong> and <strong style="color: #b16286">restart</strong> all running containers:
 
 ```shell
 docker compose restart
 ```
 
-To validade the docker compose file:
+To <strong style="color: #b16286">validade</strong> the docker compose file:
 
 ```shell
 docker compose config
 ```
 
-Obs: Thy syntax for using docker compose if it's installed as a part of docker engine is `docker compose`, but in case it's installed as a standalone binary, it must the following syntax: `docker-compose`.
+<strong style="color:#c6554f">Obs:</strong> Thy syntax for using docker compose if it's installed as a part of docker engine is `docker compose`, but in case it's installed as a standalone binary, it must the following syntax: `docker-compose`.
 
-docker compose push --> push the images to docker hub
-docker compose logs --> to view the logs of a service 
-docker compose logs --tail=10 --> limit the container logs output
-docker compose logs --follow --> follow the container log output
-docker compose exec service_name shell --> shell into the container 
-/bin/bash
+To <strong style="color: #b16286">push</strong> the images to docker hub:
+
+```shell
+docker compose push
+```
+
+To <strong style="color: #b16286">view</strong> the logs of a service:
+
+```shell
+docker compose logs
+```
+
+To <strong style="color: #b16286">limit</strong> the container logs output:
+
+```shell
+docker compose logs --tail=10
+```
+
+To <strong style="color: #b16286">follow</strong> the container log output:
+
+```shell
+docker compose logs --follow
+```
+
+To <strong style="color: #b16286">shell</strong> into the container:
+
+```shell
+docker compose exec [service_name] shell
+```
 ###### <span style="color:#98971a">Compose Components</span>
 
-services --> defines the various containers (services) that make up the application. Each service has a name, and under each service, parameters can be configured such as Docker image to use, environment variables, port to expose, volume to mount, etc.
+ <strong style="color: #d65d0e">services</strong> <span style="color: #3588E9">--></span> defines the various containers (services) that make up the application. Each service has a name, and under each service, parameters can be configured such as Docker image to use, environment variables, port to expose, volume to mount, etc.
 
 >[!example] Example - service
 >```yaml
@@ -1792,11 +1826,11 @@ services --> defines the various containers (services) that make up the applicat
 >  bookstack_db:
 >    ...
 
-Obs: Docker Compose services can be named anything. They are intended to be human readable and ideally should be meaningful. 
+<strong style="color:#c6554f">Obs:</strong> Docker Compose services can be named anything. They are intended to be human readable and ideally should be meaningful. 
 
-image --> defines the value to be used for the service, it also overrides the image name specified in the Dockerfile.
+<strong style="color: #d65d0e">image</strong> <span style="color: #3588E9">--></span> defines the value to be used for the service, it also overrides the image name specified in the Dockerfile.
 
->[!example] Example - service
+>[!example] Example - image
 >```yaml
 >services:
 >  bookstack_db:
@@ -1804,13 +1838,13 @@ image --> defines the value to be used for the service, it also overrides the im
 >```
 >Docker Compose will tech the MariaDB image automatically from Docker Hub.
 
-command: This key lets override the default command for the environment. This is useful when you need o specify how the container should start.
+<strong style="color: #d65d0e">command:</strong> This key lets override the default command for the environment. This is useful when you need o specify how the container should start.
 
 ```yaml
 command: npm start
 ```
 
-build/context: It defines either a path do a directory containing a Dockerfile, or a URL to a git repository.
+<strong style="color: #d65d0e">build/context:</strong> It defines either a path do a directory containing a Dockerfile, or a URL to a git repository.
 
 >[!example] 
 >```yaml
@@ -1824,7 +1858,7 @@ build/context: It defines either a path do a directory containing a Dockerfile, 
 >    build: https://github.com/mycompany/webapp.git
 >```
 
-dockerfile --> specifies an altervative Dockerfile for the build
+dockerfile <span style="color: #3588E9">--></span> specifies an altervative Dockerfile for the build
 
 >[!example] 
 >```yaml
@@ -1833,9 +1867,9 @@ dockerfile --> specifies an altervative Dockerfile for the build
 >  dockerfile: Dockerfile.dev
 >```
 
-Environment variables at docker are visible from inside the running container. The most common and simple use case a Docker environmenr vairnale if for specifying thing like a curret runtime configuration such as dev or prod.
+<strong style="color: #d65d0e">Environment variables</strong> at Docker are <strong style="color: #d79921">visible from inside the running container</strong>. The most common and simple use case a Docker environment variable if for specifying thing like a current runtime configuration such as dev or prod.
 
-Build arguments are a type of environment variable that are available to docker only at build time, but not inside the container. They are useful for specifying a version for a certain build tool or cloud platform configuration.
+<strong style="color: #d65d0e">Build arguments</strong> are a <strong style="color: #b16286">type of</strong> <strong style="color: #d79921">environment variable that are available to docker only at build time</strong>, but not inside the container. They are useful for specifying a version for a certain build tool or cloud platform configuration.
 
 >[!example] Example - build argument
 >```yaml
@@ -1848,16 +1882,16 @@ Build arguments are a type of environment variable that are available to docker 
 >    environment:
 >      - runtime_env=dev
 >```
->args --> attribute to pass build arguments to the build context. Useful for dynamically setting values during the build. 
+>args <span style="color: #3588E9">--></span> attribute to pass build arguments to the build context. Useful for dynamically setting values during the build. 
 >
->environment --> to set environment variables for the service. Useful for configuring the applications dynamically
+>environment <span style="color: #3588E9">--></span> to set environment variables for the service. Useful for configuring the applications dynamically
 
 >[!info]
 >The most common use for docker environment variable is for specifying things like a current runtime configuration, such as dev or test.
 
 Running `export runtime_env=dev` on the host machine and leaving the value out from the Docker Compose configuration will have the same effect as specifying inside the file. 
 
-Obs: use environment files if the lost of variable gets too long.
+<strong style="color:#c6554f">Obs:</strong> use environment files if the lost of variable gets too long.
 
 Compose also supports passing in file paths to an environment configuration.
 
@@ -1877,7 +1911,7 @@ Compose also supports passing in file paths to an environment configuration.
 >      - ./mysql/env_vars
 >```
 
-volumes --> This section allows to define named volumes or bind mounts for the services. Volumes are used to persist data between container restarts.
+<strong style="color: #d65d0e">volumes</strong> <span style="color: #3588E9">--></span> This section allows to define named volumes or bind mounts for the services. Volumes are used to persist data between container restarts.
 
 >[!Example] Example - volumes
 >---
@@ -1888,17 +1922,17 @@ volumes --> This section allows to define named volumes or bind mounts for the s
 >      - ./db_data:/var/lib/mysql:ro
 >      - ./db_config:/etc/mysql/conf.d
 >```
->./db_data --> source
->/var/lib/mysql --> target
+>`./db_data` <span style="color: #3588E9">--></span> source
+>`/var/lib/mysql` <span style="color: #3588E9">--></span> target
 
-Compose conforms to Bash standads for specifying a direcry path. 
-- `./` --> current directory
-- `../` --> parent direcotry, one level above the compose fongiuration file
-- `/` --> absolut path on the host machine (Root directory)
+Compose conforms to Bash standards for specifying a directory path. 
+- `./` <span style="color: #3588E9">--></span> current directory
+- `../` <span style="color: #3588E9">--></span> parent directory, one level above the compose configuration file
+- `/` <span style="color: #3588E9">--></span> absolute path on the host machine (Root directory)
 
 To specify an access mode for volumes that are two possible values:
-- rw --> read-write (default)
-- ro --> read-only (safer)
+- rw <span style="color: #3588E9">--></span> read-write (default)
+- ro <span style="color: #3588E9">--></span> read-only (safer)
 
 To allow Compose to manage the volume life cycle along the container life cycle, is recommended to use named volumes. 
 
@@ -1917,7 +1951,7 @@ To allow Compose to manage the volume life cycle along the container life cycle,
 Advantage of using named volumes:
 - during `up` or `start` compose will automatically copy volume data from old container to new containers and ensure that no data is lost.
 
-port --> to expose a port that maps from the host machine to the Docker container. This is essential for accessing services from outside the Docker environment. The syntax for port mapping is `host_port_number:container_port_number`
+<strong style="color: #d65d0e">port</strong> <span style="color: #3588E9">--></span> to expose a port that maps from the host machine to the Docker container. This is essential for accessing services from outside the Docker environment. The syntax for port mapping is `host_port_number:container_port_number`
 
 >[!Example] Example - port mapping
 >---
@@ -1947,11 +1981,11 @@ Compose provides utilities to enforce startup order automatically using the `dep
 >[!note]
 >Obs: modern versions of compose explicitly do not guarantee that dependent containers are running or are healthy, it only guarantees that they've been started.
 
-networks --> This section lest define custom networks and connect services to them. This is useful for controlling communication between services.
+<strong style="color: #d65d0e">networks</strong> <span style="color: #3588E9">--></span> This section lest define custom networks and connect services to them. This is useful for controlling communication between services.
 
-tags --> defines a list of tags mappings that must be associated to the build image
+<strong style="color: #d65d0e">tags</strong> <span style="color: #3588E9">--></span> defines a list of tags mappings that must be associated to the build image
 
->[!example] 
+>[!example] Example - tags
 >```yaml
 >tags:
 >  - "myimage:mytag"
@@ -1986,7 +2020,7 @@ Docker Compose provides a utility to start named subnet of services inside a sin
 >  database:
 >```
 
-A container with no profiles specified will be automatically included in the default profile --> it will run all the time with every service profile.
+A container with no profiles specified will be automatically included in the default profile <span style="color: #3588E9">--></span> it will run all the time with every service profile.
 
 Once a default profile is specified in the configuration, docker compose will only apply to a service if its profile is explicit enabled. The `docker compose up` will run only services that are a part of the default profile.
 
@@ -2002,7 +2036,7 @@ By default, docker compose will read two configuration files, one named `docker-
 
 Docker Compose will merge the two files together. During the merge, any field that can handle an array way of parameters like `dependen_on`, will include all values from both the primary and the override file. Any field that can handle only one value will five preference to that override. 
 
-Obs: Any file paths reference in the override file must be relative to the primary configuration file.
+<strong style="color:#c6554f">Obs:</strong> Any file paths reference in the override file must be relative to the primary configuration file.
 
 The override file can be a partial or incomplete configuration. It can contain snippets of configurations specific only to what is being overwritten. One Docker Compose configuration can be easily shared between multiple project or repositories. It's also possible to have multiple override file in the same repository. Example: `docker-compose.local.yaml` and `docker-compose.staging.yaml`.
 
@@ -2032,7 +2066,7 @@ To specify a default variable:
 >  database:
 >    image: "mysql:-${TAG}"
 >```
->Obs: The curly braces are optional.
+><strong style="color:#c6554f">Obs:</strong> The curly braces are optional.
 
 If the environment file has a different name, or it' it's outside the project directory, the `--env-file` flag allows to explicitly the file:
 
