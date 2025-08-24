@@ -11,10 +11,19 @@ Jenkins can be installed in two ways:
 
 Jenkins uses a Plugin Model to add or remove functionality, any feature that are available for Jenkins is provided as a plugin to be installed. So plugins are a way to connect with Jenkins to other systems (services). 
 
+Login to the Jenkins server
+
+1. Go to **Manage Jenkins > Plugins > Available Plugins**
+2. Search for docker plugin and install it
+
 >[!note]
 >Obs: Jenkins is a platform that must be managed, because there is a system underneath. There are updates and patches that needs to be done.
 
 Plugins on Jenkins can also be installed manually by just downloading the plugins at the Jenkins Plugin Portal and saving them in: `/var/lib/jenkins/plugins/`.
+
+You can also install docker plugin using CLI
+
+`java -jar jenkins-cli.jar -s http://localhost:8085 -auth 'admin:Adm!n321' install-plugin docker-plugin`
 ##### <span style="color: #689d6a">Jenkins Architeture</span>
 
 Jenkins follows the **Controller–Agent architecture** designed to scale build and automation workloads across multiple machines.
@@ -188,6 +197,8 @@ When the `credentials` function is used with a username and password type creden
 >`env.LOGIN_USR` --> username
 >`env.LOGIN_PSW` --> password
 
+Another way to access credentials is by using the Credentials Binding Plugin. It allows to define a section where all the commands will have access to those credentials. 
+
 This method keeps pipeline developers from having to create their own functions for parsing username and passwords over and over again.
 
 >[!example] Example - withCredentials step
@@ -195,6 +206,39 @@ This method keeps pipeline developers from having to create their own functions 
 >steps {
 >  withCredentials([string(credentialsID:'apikey', variable:'APIKEY')]) {
 >    sh "./build_script.sh ${env.APIKEY}"
+>  }
+>}
+>```
+
+>[!example] Example2 -
+>```groovy
+>steps {
+>  withCredentials([useranmePassword(credentialsId: 'prod-server', passwordVariable: 'mypassword', usernameVariable: 'myusername')]) {
+>    sh '''
+>     echo ${mypassword}
+>     echo ${myusername}
+>    '''
+>  }
+>}
+>```
+
+Jenkins has different types of credentials, one of them is for storing SSH Keys.
+
+>[!example] Example3 -SSh Key
+>```groovy
+>pipeline {
+>  agent any
+>  
+>  stages {
+>    stage('Build') {
+>      steps {
+>        withCredentials([sshUserPrivateKey(credentialsId: ''ssh-key, keyFileVariable: 'MY_SSH_KEY', usernameVariable: 'username' )]) {
+>          sh '''
+>          ssh -i $MY_SSH_KEY -o StrictHostKeyChecking=no $(username)@18.207.192.10 "Run your command"
+>          '''
+>        }
+>      }
+>    }
 >  }
 >}
 >```
@@ -209,8 +253,9 @@ When creating Jobs on Jenkins is a good practice to keep spaces out of the job n
 - Multibranch Pipeline --> suited for working with code repositories, can be used to configura different jobs for different branches belonging to the same repo.
 
 Build triggers
-A trigger is any action that starts a job. By default, the job can be started manually.
-Trigger build remotely --> lets processes outside of Jenkins start jobs by accessing a URL through the Jenkins web API.
+
+A trigger is any action (event) that determines when the Jenkins should run a job. By default, the job can be started manually.
+Trigger build remotely --> lets processes outside of Jenkins start jobs by accessing a URL through the Jenkins web API. 
 Build after --> lets Jenkins start jobs immediately after some other job are finished. Good for Jobs that depend on each other. 
 Build periodically --> useful for jobs that need to be run hourly, daily, weekly, and son on. The field to specify the schedule use the cron format. 
 GitHub hook --> good for projects that are tied to GitHub. This option allows Jenkins to start jobs based on activity in GitHub like releases, tags, or other types of commits. 
@@ -222,10 +267,14 @@ This section gives control over the space where the job will run and some steps 
 Each time when a Job runs, it uses a specific directory on the Jenkins system called the workspace. This is where the job stores any files that are generated during the build. By default, any files created by a job and saved to the workspace will stay there between job runs.
 
 using parameters: 
-Jenkins supports creation of Jibs that accepts different types of parameters, including strings, booleans, and multiple choices. These vaules are then ejected into the job and accessed as environment variables --> must follow the corect format according to the system that will work on.
+Jenkins supports creation of Jobs that accepts different types of parameters, including strings, boolean, and multiple choices. These values(key-value) are then inject into the job and accessed as environment variables --> must follow the correct format according to the system that will work on.
+
+Example: `ENVIRONMENT=Staging` to deploy only to a staging environment.
+
 in windows: `%STRING_PARAMETER%`
 in shell: `$STRING_PARAMETER` 
 example 
+
 ```shell
 #! /bin/bash
 echo "VERSION_NUMBER = $VERSION_NUMBER"
@@ -277,6 +326,35 @@ Declarative pipelines are an evolution of DSL pipelines --> the syntax was devel
 >```
 >In the stages section is required to have at least one stage with at least one steps section. 
 
+nested stage --> stages in other stages 
+>[!example] Example -
+>```groovy
+>pipeline {
+>  agent any
+>  stages {
+>    stage('lint and test') {
+>      stages {
+>        stage('Lint') {
+>          steps {
+>           // Lint steps
+>          }
+>        }
+>        stage('Unit Tests') {
+>          steps {
+>            // Unit testing steps
+>          }
+>        }
+>      }
+>    }
+>  }
+>}
+>```
+
+parallel stages --> allows to run multiple stages at the same time.
+wrap the `stages {}` block in a `parallel {}` block --> it will run all the stages together. 
+
+Obs: By default Jenkins will automatically pull the code for the user.
+
 Pipeline Concepts:
 - agent --> specifies where a command in a pipeline will be run
 - tools --> included from the global tool configuration, like Maven for example. It receives a name and mentions the tool included in global tool configuration.
@@ -307,6 +385,22 @@ Some common pipeline steps:
 - archiveArtifacts --> store artifacts created by job
 
 Pipeline Syntax Generator --> used to create snippets of code that can be copied into a pipeline.
+
+pipeline options
+>[!example]
+>```groovy
+>pipeline {
+>  agent any
+>  options {
+>    timeout(time:1, unit: 'HOURS')
+>    skipDefaultCheckout()
+>    retry(3)
+>  }
+>  stages {
+>    // stages and steps
+>  }
+>}
+>```
 
 An object in Jenkins that needs to be saved, is refereed as an artifact. Artifacts can be compiled binaries like docker image or zip files, it can even be a report (text file) or some sort of document.
 
@@ -350,11 +444,33 @@ Test Report Formats
 - Code coverage --> technique that tracks the line of code that are accessed during a test.
 	- Code Coverage API Plugin --> collects and publish coverage reports
 	- JaCoCo and Cobertura--> report formats very popular for testing Java applications, but due to its popularity it has been used by other languages and tools.
+
+Parameters allows to customize the behavior of a pipeline by passing in some data when trigger a build. 
+
+>[!example]
+>```groovy
+>pipeline {
+>  agent any
+>  parameters {
+>    string(name: 'ENVIRONMENT', defaultValue: 'dev', description: 'Specify the environment for deployment')
+>  }
+>  stages {
+>    stage('deploy') {
+>      steps {
+>        echo "Deploying to ${params.ENVIRONMENT} environment"
+>      }
+>    }
+>  }
+>}
+>```
 ###### <span style="color: #98971a">Pipelines Variables</span> 
 
 Jenkins exposes three different types of variables that can be used: Environment variables,  Current build variables and Parameters.
 
 Environment variables --> named with all capital letters, can be scoped globally for an entire pipeline or locally in a stage.
+
+environment variables can be used for credentials, secrets for database, and ssh keys for example. 
+environment variables can be created globally, which means that it's accessible to all jobs and all pipelines within jenkins. They can be defined within a specific job., or defined within a pipeline script in a specific stage (only that stage will have access to it).
 
 >[!example] Example - environment variable
 >Globally
@@ -362,8 +478,8 @@ Environment variables --> named with all capital letters, can be scoped globally
 >pipeline {
 >  agent any
 >  environment {
->    MAX_SIZE = 10
->    MIN_SIZE = 1
+>    HOSTNAME = "my-host"
+>    PORT = "5432"
 >  }
 >}
 >```
@@ -372,10 +488,14 @@ Environment variables --> named with all capital letters, can be scoped globally
 >pipeline {
 >  ...
 >  stages {
->    stage ('Scale by 10x') {
+>    stage ('Build') {
 >      environment {
->        MAX_SIZE = 100
->        MIN_SIZE = 10
+>        HOSTNAME = "my-host"
+> 	   PORT = "5432"
+>      }
+>      steps{
+>       echo "Hostname is ${env.HOSTNAME}"
+>       echo "Port is ${env.PORT}"
 >      }
 >    }
 >  }
@@ -387,17 +507,29 @@ Environment Variables can be reference in different ways in a pipeline depending
 >[!example] Environment variables - referencing
 >proceeded by the keyword "env"
 >```groovy
->echo env.MAX_SIZE 
->echo "${env.MAX_SIZE}" // if being used in a string
+>echo env.HOSTNAME 
+>echo "${env.HOSTNAME}" // if being used in a string
 >```
 >referenced by their name
 >```groovy
->echo MAX_SIZE
->echo "${MAX_SIZE}" // if being used in a string
+>echo PORT
+>echo "${PORT}" // if being used in a string
 >```
 >Obs: the use of `{}` to wrap a variable name in a string is optional
 
+Jenkins has some built-in environment varibales tha tcan be used in script tha tcontain certain useful information. So things like the BUILD_ID, BUILD_NUMBER, BUID_TAG, BUILD_URL,  EXECUTOTR, JAVA_HOME, JENKINS_URL, JOB_NAME, NODE_NAME and WORKSPACE.
+
+to access built-in
+```groovy
+echo "Running ${env.BUILD_ID} on ${env.JENKINS_URL}"
+```
+
 currentBuild Variables --> allow pipeline steps to reference the state of a build while it's running. Can be useful for dynamic operations that need to do something specific based on a previous step or a certain status in the build. 
+
+best-practices: 
+use jenkins credentials to inject secrets into environment variables
+ensure the name and the use of environment variables are aconsistent acroos all projects
+make sure to always documents environment variables used in Jenkins job and pipeline so that all team members can understand why they are being used and what is their ultimate purpose. 
 
 All the the current build variables area actually properties of one variable named `currentBuild`, which is case sensitive. The properties are also case sensitive and use the CamelCase format.
 
@@ -520,6 +652,20 @@ Input step can be used to control the flow of a pipeline. The input step pauses 
 >  echo "Deploying to ${params.ENVIRONMENT}"
 >}
 >```
+
+Another way of using input --> allows to pause the build and the CI/CD pipeline, wait for an approval (manual intervention) before it moves on the next stage.
+
+>[!example] Example - input
+>```groovy
+>steps {
+>  // steps go here
+>}
+>input {
+>  message: 'Do you want to proceed with deployment', 
+>  ok: 'Yes, proceed!'
+>}
+>```
+
 ###### <span style="color: #98971a">Jenkinsfile</span> 
 
 To increase automation and track changes to pipelines the option to get pipelines from source control management can be used.

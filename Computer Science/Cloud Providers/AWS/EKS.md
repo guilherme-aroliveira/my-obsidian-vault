@@ -41,9 +41,6 @@ one way is trhow an OIDC (open id connect) --> identify how things are autentica
 Auth ConfigMap --> lives in the cluster
 EKS Auth --> handles the permission on the control plane
 
-
-
-
 Kubernetes can run on any public cloud providers (or even on-premises)
 
 AWS EKS providers managed Kubernetes master nodes the master nodes are multi-AZ to provide redundancy the master nodes will scale automatically when necessary

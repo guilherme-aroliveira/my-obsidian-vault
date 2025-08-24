@@ -78,20 +78,6 @@
             }
           },
           {
-            "id": "5eb5605f8644a8ed",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Computer Science/DevOps/Containers/Docker.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "Docker"
-            }
-          },
-          {
             "id": "10e26bcaa82c768c",
             "type": "leaf",
             "state": {
@@ -162,7 +148,7 @@
             }
           }
         ],
-        "currentTab": 5
+        "currentTab": 7
       }
     ],
     "direction": "vertical"
@@ -182,7 +168,7 @@
               "type": "file-explorer",
               "state": {
                 "sortOrder": "alphabetical",
-                "autoReveal": true
+                "autoReveal": false
               },
               "icon": "lucide-folder-closed",
               "title": "Files"
@@ -320,6 +306,7 @@
   },
   "left-ribbon": {
     "hiddenItems": {
+      "bases:Create new base": false,
       "switcher:Open quick switcher": false,
       "graph:Open graph view": false,
       "canvas:Create new canvas": false,
@@ -335,21 +322,29 @@
       "vscode-editor:Create Code File": false
     }
   },
-  "active": "5eb5605f8644a8ed",
+  "active": "3f918f48a3753279",
   "lastOpenFiles": [
+    "Academic/PUC Minas - Engenharia de Software/01 - Gerenciamento Ágil de Projetos.md",
+    "Academic/PUC Minas - Engenharia de Software/05 - Projetos (Design) de Software.md",
+    "Academic/PUC Minas - Engenharia de Software/06 - Arquitetura de Front End.md",
+    "Information Security/Cyber Security.md",
+    "Information Security/Ethical Hacking.md",
+    "Computer Science/DevOps/CI/Jenkins.md",
     "Computer Science/DevOps/IaC/Ansible.md",
-    "Computer Science/DevOps/Containers/Docker.md",
+    "Computer Science/DevOps.md",
+    "Computer Science/Cloud Providers/AWS/EKS.md",
+    "2025-08-21.md",
+    "Untitled.base",
+    "Computer Science/DevOps/Languages/Ruby.md",
     "Computer Science/DevOps/Observability/New Relic.md",
     "Computer Science/DevOps/Containers/Orchestration/Docker Swarm.md",
-    "Computer Science/DevOps/IaC/Terraform.md",
-    "Computer Science/DevOps.md",
-    "Computer Science/DevOps/CI/Jenkins.md",
-    "Computer Science/Cloud Providers/AWS/EKS.md",
     "Computer Science/DevOps/Containers/Orchestration/Kubernetes.md",
+    "Untitled 1.base",
+    "Untitled 2.base",
+    "Computer Science/DevOps/Containers/Docker.md",
+    "Computer Science/DevOps/IaC/Terraform.md",
     "Computer Science/Software Engineering.md",
-    "Information Security/Cyber Security.md",
     "Computer Science/DevOps/CI/GitHub Actions.md",
-    "Computer Science/DevOps/Languages/Ruby.md",
     "Computer Science/DevOps/Monitoring/Prometheus.md",
     "Computer Science/DevOps/Monitoring",
     "Computer Science/DevOps/Untitled.md",
@@ -362,19 +357,11 @@
     "Computer Science/Cloud Providers/AWS/Lambda.md",
     "Computer Science/Programming/Java.md",
     "Computer Science/DevOps/SysAdmin",
-    "Computer Science/DevOps/SysAdmin/Apache.md",
-    "Computer Science/DevOps/Tools/SSH.md",
-    "Computer Science/DevOps/SysAdmin/Nginx.md",
-    "Computer Science/DevOps/Tools/Git.md",
-    "Computer Science/DevOps/Containers/Orchestration/Openshift.md",
     "Computer Science/Cloud Providers/Azure",
     "Computer Science/DevOps/Tools",
     "Computer Science/DevOps/Containers/Orchestration",
     "Images/query-string.png",
     "Images/modelo_interacoes.png",
-    "Computer Science/Programming/Python/Libraries",
-    "Computer Science/Programming/Python",
-    "Computer Science/DevOps",
     "Screenshot_20240921_163708.png",
     "Untitled.canvas"
   ]

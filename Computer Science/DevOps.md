@@ -24,7 +24,7 @@ DevOps <strong style="color: #d79921">behaviors</strong>
 * automated self-service
 * fast feedback loops that data-driven
 
-<span style="color: #d65d0e">Social Coding</span> <span style="color: #3588E9">--></span> open source for inner source. 
+<span style="color: #d65d0e">Social Coding</span> --> open source for inner source.
 - All repositories are public and everyone is encouraged to contribute.
 - The person who owns the repository is still in complete control of the contributions. The repository owners are in full control.
 - <strong style="color:#c6554f">Workflow</strong>
